@@ -1,0 +1,51 @@
+{
+  "name": "BookKeepr",
+  "version": "0.2.0",
+  "description": "A macOS bookkeeping app for small businesses in Japan.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "serve": "nodemon app/main.js",
+    "pack": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "author": "Rogerio Taques",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.63",
+    "@electron-forge/maker-deb": "^6.0.0-beta.63",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.63",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.63",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+    "@electron-forge/maker-zip": "^6.0.0-beta.63",
+    "electron": "^16.0.6",
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.1",
+    "compression": "^1.7.4",
+    "ejs": "^3.1.6",
+    "electron-squirrel-startup": "^1.0.0",
+    "express": "^4.17.2",
+    "knex": "^0.95.15",
+    "sqlite3": "^5.0.2"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "./app/public/bookkeepr.icns",
+        "name": "BookKeepr",
+        "overwrite": true,
+        "platform": "darwin"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        }
+      ]
+    }
+  }
+}
