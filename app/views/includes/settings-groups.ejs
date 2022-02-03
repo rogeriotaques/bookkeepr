@@ -1,0 +1,52 @@
+
+<h3 class="title is-5">Groups</h3>
+
+<div class="groups" >
+  <form method="post" action="/groups" >
+    <div class="field has-addons">
+      <p class="control">
+        <input class="input" name="code" id="group-code" type="tel" placeholder="Group code">
+      </p>
+      <p class="control is-expanded">
+        <input class="input" name="name" id="group-name" type="text" placeholder="Group name">
+      </p>
+      <p class="control">
+        <div class="select">
+          <select class="select" name="operation" id="group-operation">
+            <option value="income">Income</option>
+            <option value="outcome">Outcome</option>
+            <option value="transfer">Transfer</option>
+          </select>
+        </div>
+      </p>
+      <p class="control">
+        <button type="submit" class="button is-primary">Save</button>
+      </p>
+    </div>
+  </form>
+
+  <div class="table-container mt-6">
+    <table class="table is-fullwidth">
+      <thead>
+        <tr >
+          <th width="10%">Code</th>
+          <th>Group</th>
+          <th width="20%">Operation</th>
+          <th width="10%">&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% data.groups.forEach(function (group) { %>
+          <tr >
+            <td width="10%"><%= group.code %></td>
+            <td><%= group.name %></td>
+            <td width="20%"><%= group.operation %></td>
+            <td width="10%" class="has-text-right">
+              <a href="/groups/delete/<%= group.id %>" class="button is-danger is-small">Del</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div> <!-- .groups -->

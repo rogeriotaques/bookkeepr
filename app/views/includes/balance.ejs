@@ -1,0 +1,197 @@
+<div class="history" >
+  <form method="get" action="/history">
+    <div class="columns is-hidden-print" >
+      <div class="column is-5" >
+        <label class="label">Search by</label>
+
+        <div class="field has-addons"  >
+          <p class="control is-expanded">
+            <input
+              type="text"
+              name="search"
+              class="input"
+              placeholder="Search by description, wallet, group, date or amount ... "
+              value="<%= search %>"
+            />
+          </p>
+
+          <p class="control mr-2" >
+            <button type="submit" class="button is-primary">Search</button>
+          </p>
+        </div>
+      </div>
+
+      <div class="column is-5" >
+        <label class="label">Filter by</label>
+
+        <div class="field has-addons"  >
+          <p class="control">
+            <div class="select">
+              <select name="year" id="history-year">
+                <% for(var i = yearsRange.minYear; i <= yearsRange.maxYear; i += 1) { %>
+                  <% if (i == year) { %>
+                    <option value="<%= i %>" selected><%= i %></option>
+                  <% } else { %>
+                    <option value="<%= i %>" ><%= i %></option>
+                  <% } %>
+                <% } %>
+              </select>
+            </div>
+          </p>
+
+          <p class="control">
+            <div class="select">
+              <select name="month" id="history-month">
+                <% months.forEach((m) => { %>
+                  <% if (m + 1 == month) { %>
+                    <option value="<%= m + 1 %>" selected><%= m + 1 %></option>
+                  <% } else { %>
+                    <option value="<%= m + 1 %>"><%= m + 1 %></option>
+                  <% } %>
+                <% }); %>
+              </select>
+            </div>
+          </p>
+
+          <p class="control mr-2" >
+            <button type="submit" class="button is-primary">Apply</button>
+          </p>
+        </div>
+      </div>
+
+      <div class="column is-2 has-text-right" >
+        <label class="label" >&nbsp;</label>
+        <button class="button" onclick="window.print()" >Print</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="table-container mt-6">
+    <table class="table is-fullwidth is-striped">
+      <thead>
+        <tr >
+          <th width="5%">Day</th>
+          <th>Description</th>
+          <th width="15%">Group</th>
+          <th width="15%">Wallet</th>
+          <th width="10%" class="has-text-right" >Outcome</th>
+          <th width="10%" class="has-text-right" >Income</th>
+          <th width="10%" class="has-text-right" >Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% var balance = 0.0 %>
+        <% data.history.forEach(function (entry) { %>
+          <% if (entry.operation == 'income') { balance += entry.amount; } else if (entry.operation == 'outcome') { balance -= entry.amount; } %>
+          <% var params = `search=${encodeURIComponent(search)}&year=${year}&month=${month}` %>
+
+          <% if (id != entry.id) { %>
+            <tr >
+              <td>
+                <a href="/history?id=<%= entry.id %>&<%= params %>" ><%= entry.day %></a>
+              </td>
+              <td><%= entry.description %></td>
+              <td><%= entry.group_name %></td>
+              <td><%= entry.wallet_name %></td>
+              <td class="has-text-right" nowrap><%= entry.operation == 'outcome' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
+              <td class="has-text-right" nowrap><%= entry.operation == 'income' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
+              <td class="has-text-right" nowrap><%= formatCurrency(balance) %></td>
+            </tr>
+          <% } else { %>
+            <form method="post" action="/history?<%= params %>">
+              <input type="hidden" name="id" value="<%= entry.id %>" />
+              <input type="hidden" name="search" value="<%= search %>" />
+              <input type="hidden" name="year" value="<%= year %>" />
+              <input type="hidden" name="month" value="<%= month %>" />
+
+              <tr >
+                <td><%= entry.day %></td>
+                <td>
+                  <input type="text" name="description" required class="input" value="<%= entry.description %>" autofocus />
+                </td>
+                <td>
+                  <p class="control">
+                    <div class="select">
+                      <select
+                        name="group"
+                        required
+                      >
+                        <% data.groups.forEach(function (group) { %>
+                          <% if (entry.group == group.code) { %>
+                            <option value="<%= group.code %>" selected><%= group.name %></option>
+                          <% } else { %>
+                            <option value="<%= group.code %>"><%= group.name %></option>
+                          <% } %>
+                        <% }); %>
+                      </select>
+                    </div>
+                  </p>
+                </td>
+                <td>
+                  <p class="control">
+                    <div class="select">
+                      <select
+                        name="wallet"
+                        required
+                      >
+                        <% data.wallets.forEach(function (wallet) { %>
+                          <% if (entry.wallet == wallet.id) { %>
+                            <option value="<%= wallet.id %>" selected><%= wallet.name %></option>
+                          <% } else { %>
+                            <option value="<%= wallet.id %>"><%= wallet.name %></option>
+                          <% } %>
+                        <% }); %>
+                      </select>
+                    </div>
+                  </p>
+                </td>
+                <td class="has-text-right" nowrap><%= entry.operation == 'outcome' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
+                <td class="has-text-right" nowrap><%= entry.operation == 'income' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
+                <td class="has-text-right" nowrap>
+                  <button type="submit" class="button is-primary" >S</button>
+                  <a class="button is-danger" href="/history/delete/<%= entry.id %>?<%= params %>" >D</a>
+                </td>
+              </tr>
+            </form>
+          <% } %>
+        <% }); %>
+      </tbody>
+      <tfoot >
+        <tr >
+          <th colspan="4" >&nbsp;</th>
+          <th class="has-text-right" nowrap><%= formatCurrency(data.history.filter((e) => e.operation == 'outcome').reduce((a, e) => a + e.amount, 0)) %></th>
+          <th class="has-text-right" nowrap><%= formatCurrency(data.history.filter((e) => e.operation == 'income').reduce((a, e) => a + e.amount, 0)) %></th>
+          <th class="has-text-right" nowrap><%= formatCurrency(balance) %></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <hr >
+
+  <div class="columns" >
+    <% data.historyFilters.forEach((filter) => { %>
+      <div class="column" >
+        <table class="table" style="margin: 16px auto;" >
+          <thead >
+            <tr >
+              <th colspan="3" class="has-text-centered"><%= filter.title %></th>
+            </tr>
+            <tr >
+              <th class="has-text-centered" >Outcome</th>
+              <th class="has-text-centered" >Income</th>
+              <th class="has-text-centered" >Balance</th>
+            </tr>
+          </thead>
+          <tbody >
+            <tr >
+              <td class="has-text-centered" ><%= formatCurrency(filter.outcome) %></td>
+              <td class="has-text-centered" ><%= formatCurrency(filter.income) %></td>
+              <th class="has-text-centered" ><%= formatCurrency(filter.income - filter.outcome) %></th>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    <% }) %>
+  </div>
+</div> <!-- .history -->

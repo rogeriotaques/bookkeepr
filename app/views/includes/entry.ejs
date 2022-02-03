@@ -1,0 +1,95 @@
+<div class="entry" >
+  <form action="/add" method="post">
+    <div class="field ">
+      <p class="control">
+        <input
+          class="input"
+          type="tel"
+          placeholder="Amount"
+          name="amount"
+          id="entry-amount"
+          value="<%= locals.data && data.amount ? data.amount : '' %>"
+          autofocus
+          required
+        >
+      </p>
+    </div>
+
+    <div class="field ">
+      <p class="control">
+        <input
+          class="input"
+          type="text"
+          placeholder="Description"
+          name="description"
+          id="entry-description"
+          value="<%= locals.data && data.description ? data.description : '' %>"
+          required
+        >
+      </p>
+    </div>
+
+    <div class="field ">
+      <p class="control">
+        <div class="select">
+          <select
+            name="group"
+            id="entry-group"
+            required
+          >
+            <option value="">Select a group</option>
+            <% data.groups.forEach(function (group) { %>
+              <% if (locals.data && data.group && data.group == group.id) { %>
+                <option value="<%= group.code %>" selected><%= group.name %></option>
+              <% } else { %>
+                <option value="<%= group.code %>"><%= group.name %></option>
+              <% } %>
+            <% }); %>
+          </select>
+        </div>
+      </p>
+    </div>
+
+    <div class="field ">
+      <p class="control">
+        <div class="select">
+          <select
+            name="wallet"
+            id="entry-wallet"
+            value="<%= locals.data && data.wallet ? data.wallet : '' %>"
+            required
+          >
+            <option value="">Select a wallet</option>
+            <% data.wallets.forEach(function (wallet) { %>
+              <% if (locals.data && data.wallet && data.wallet == wallet.id) { %>
+                <option value="<%= wallet.id %>" selected><%= wallet.name %></option>
+              <% } else { %>
+                <option value="<%= wallet.id %>"><%= wallet.name %></option>
+              <% } %>
+            <% }); %>
+          </select>
+        </div>
+      </p>
+    </div>
+
+    <div class="field ">
+      <p class="control">
+        <input
+          class="input"
+          type="date"
+          placeholder="Date"
+          name="date"
+          id="entry-date"
+          value="<%= locals.data && data.date ? data.date : new Date().toISOString().split('T')[0] %>"
+          required
+        >
+      </p>
+    </div>
+
+    <div class="field is-grouped is-grouped-centered">
+      <p class="control">
+        <button type="submit" class="button is-primary">Save</button>
+      </p>
+    </div>
+  </form>
+</div> <!-- .entry -->

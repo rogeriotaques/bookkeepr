@@ -1,0 +1,122 @@
+<div class="columns" >
+  <div class="column" >
+    <h3 class="title is-5" >Filters</h3>
+
+    <div class="filters" >
+      <form method="post" action="/filters" >
+        <div >
+          <div class="field has-addons">
+            <p class="control is-expanded">
+              <input class="input" name="title" id="filter-title" type="text" placeholder="Filter title" maxlength="60">
+            </p>
+
+            <p class="control is-expanded">
+              <input class="input" name="rule" id="filter-income-rule" type="text" placeholder="Rule" maxlength="255">
+            </p>
+          </div>
+        </div>
+
+        <br >
+
+        <div class="columns" >
+          <div class="column" >
+            <div class="field">
+              <label class="label">Incoming wallets</label>
+              <p class="control">
+                <div class="select is-multiple">
+                  <select class="select" name="incomeWallets" id="filter-income-wallets" multiple size="3">
+                    <% data.wallets.forEach(function (wallet) { %>
+                    <option value="<%= wallet.id %>"><%= wallet.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </p>
+            </div>
+          </div>
+
+          <div class="column" >
+            <div class="field">
+              <label class="label">Incoming groups</label>
+              <p class="control">
+                <div class="select is-multiple">
+                  <select class="select" name="incomeGroups" id="filter-income-groups" multiple size="3">
+                    <% data.groups.forEach(function (group) { %>
+                    <option value="<%= group.code %>"><%= group.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </p>
+            </div>
+          </div>
+
+          <div class="column" >
+            <div class="field">
+              <p class="control">
+                <label class="label" >Outcoming wallets</label>
+                <div class="select is-multiple">
+                  <select class="select" name="outcomeWallets" id="filter-outcome-wallets" multiple size="3">
+                    <% data.wallets.forEach(function (wallet) { %>
+                    <option value="<%= wallet.id %>"><%= wallet.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </p>
+            </div>
+          </div>
+
+          <div class="column" >
+            <div class="field">
+              <label class="label" >Outcoming groups</label>
+              <p class="control">
+                <div class="select is-multiple">
+                  <select class="select" name="outcomeGroups" id="filter-outcome-groups" multiple size="3">
+                    <% data.groups.forEach(function (group) { %>
+                    <option value="<%= group.code %>"><%= group.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field is-centered">
+          <p class="control">
+            <button type="submit" class="button is-primary">Save</button>
+          </p>
+        </div>
+      </form>
+
+      <div class="table-container mt-6">
+        <table class="table is-fullwidth">
+          <thead>
+            <tr >
+              <th>Filter</th>
+              <th>Rule</th>
+              <th>Income wallets</th>
+              <th>Income groups</th>
+              <th>Outcome wallets</th>
+              <th>Outcome groups</th>
+              <th width="10%">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% data.filters.forEach(function (filter) { %>
+              <tr >
+                <td><%= filter.title %></td>
+                <td><%= filter.rule %></td>
+                <td><%= filter.incomeWallets %></td>
+                <td><%= filter.incomeGroups %></td>
+                <td><%= filter.outcomeWallets %></td>
+                <td><%= filter.outcomeGroups %></td>
+                <td width="10%" class="has-text-right">
+                  <a href="/filters/delete/<%= filter.id %>" class="button is-danger is-small">Del</a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div> <!-- .filters -->
+  </div>
+</div>
