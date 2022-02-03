@@ -2,8 +2,6 @@ const path = require('path');
 const { app, BrowserWindow } = require('electron');
 
 function createWindow () {
-  const port = 2345;
-
   const win = new BrowserWindow({
     width: 1280,
     height: 650,
@@ -12,7 +10,7 @@ function createWindow () {
     }
   });
 
-  require('./app/main.js')(port, app.getVersion(), app.getName(), () => {
+  require('./app/main.js')(app.getVersion(), app.getName(), (port) => {
     win.loadURL(`http://localhost:${port}`);
   });
 }

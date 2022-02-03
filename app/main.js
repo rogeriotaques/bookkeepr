@@ -11,7 +11,8 @@ global.knex = null;
 global.appVersion = null;
 global.appName = null;
 
-const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', callback = null) => {
+const startServer = async (version = 'devel', name = 'bookkeepr', callback = null) => {
+  const port = !callback ? 8083 : 0
   const pathToDb = path.join(__dirname, 'bookkeepr.db');
 
   appVersion = version;
@@ -58,11 +59,11 @@ const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', c
     // await knex.migrate.latest();
     // console.info('Migrations applied');
 
-    app.listen(port, () => {
+    const server = app.listen(port, () => {
       console.info(`Server listening on http://127.0.0.1:${port}`);
 
       if (callback && typeof callback === 'function') {
-        callback();
+        callback(port ? port : server.address().port);
       }
     });
 
