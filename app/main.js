@@ -5,15 +5,32 @@ const path = require('path');
 const express = require('express');
 const parser = require('body-parser');
 const compression = require('compression');
+const electron = require('electron');
 
 global.app = express();
 global.knex = null;
 global.appVersion = null;
 global.appName = null;
+global.pathToDb = null;
+
+// Database file will be created either at
+// - ./app/bookkeepr.db
+// - ~/Library/Application Support/BookKeepr/bookkeepr.db"
+function createDatabase () {
+  let userDataPath = __dirname;
+
+  if (electron.app) userDataPath = electron.app.getPath('userData');
+  if (electron.remote) userDataPath = electron.remote.app.getPath('userData');
+
+  pathToDb = path.join(userDataPath, 'bookkeepr.db');
+
+  if (!fs.existsSync(pathToDb)) {
+    fs.writeFileSync(pathToDb, '');
+    console.info('Empty database file created');
+  }
+}
 
 const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', callback = null) => {
-  const pathToDb = path.join(__dirname, 'bookkeepr.db');
-
   appVersion = version;
   appName = name;
 
@@ -38,12 +55,10 @@ const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', c
   // Routes
   app.use('/', require('./routes'));
 
-  if (!fs.existsSync(pathToDb)) {
-    fs.writeFileSync(pathToDb, '');
-    console.info('Empty database file created');
-  }
-
   try {
+    // Create database, if needed.
+    createDatabase();
+
     // Initialize SQLITE database
     knex = require('knex')({
       client: 'sqlite3',
@@ -55,8 +70,9 @@ const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', c
 
     console.info('Connected to the database');
 
-    // await knex.migrate.latest();
-    // console.info('Migrations applied');
+    console.info('Migrating the database');
+    await knex.migrate.latest();
+    console.info('Migrations applied');
 
     app.listen(port, () => {
       console.info(`Server listening on http://127.0.0.1:${port}`);

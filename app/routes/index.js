@@ -25,7 +25,7 @@ const renderApp = async (req, res, optionalData = {}) => {
   const lastUpdate = await knex('entries').max('date AS max_date').then(rows => rows[0].max_date);
 
   // All groups from settings
-  const groups = await knex('groups').orderByRaw('code ASC').select(['id', 'code', 'name', 'operation']).catch(() => []);
+  const groups = await knex('groups').orderByRaw('name ASC').select(['id', 'code', 'name', 'operation']).catch(() => []);
 
   // All wallets from settings
   const wallets = await knex('wallets').orderByRaw('name ASC').select(['id', 'name']).catch(() => []);

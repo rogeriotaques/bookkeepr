@@ -1,0 +1,19 @@
+
+@media print {
+  .is-hidden-print {
+    display: none !important;
+  }
+}
+
+.tabs.is-centered {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 50;
+}
+
+.entry {
+  width: 95%;
+  max-width: 400px;
+  margin: 0 auto;
+}
