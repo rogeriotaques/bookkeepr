@@ -6,8 +6,8 @@
   "scripts": {
     "start": "electron-forge start",
     "serve": "nodemon app/main.js",
-    "pack": "electron-forge package",
-    "make": "electron-forge make"
+    "pack": "rm app/bookkeepr.db; electron-forge package",
+    "make": "rm app/bookkeepr.db; electron-forge make"
   },
   "author": "Rogerio Taques",
   "license": "MIT",
@@ -36,7 +36,8 @@
         "icon": "./app/public/bookkeepr.icns",
         "name": "BookKeepr",
         "overwrite": true,
-        "platform": "darwin"
+        "platform": "darwin",
+        "arch": ["x64", "arm64"]
       },
       "makers": [
         {
