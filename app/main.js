@@ -65,6 +65,9 @@ const startServer = async (port = 8083, version = 'devel', name = 'bookkeepr', c
       connection: {
         filename: pathToDb
       },
+      migrations: {
+        directory: path.join(__dirname, '..', 'migrations'),
+      },
       useNullAsDefault: true
     });
 
