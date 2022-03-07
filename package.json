@@ -1,7 +1,7 @@
 {
   "name": "BookKeepr",
   "version": "0.2.0",
-  "description": "A macOS bookkeeping app for small businesses in Japan.",
+  "description": "A macOS bookkeeping app for small businesses and self-employed professionals in Japan.",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -11,6 +11,7 @@
   },
   "author": "Rogerio Taques",
   "license": "MIT",
+  "keywords": ["macos", "bookkeeping", "self-employed", "small business", "english", "japan", "electron", "ejs", "sqlite"],
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.63",
     "@electron-forge/maker-deb": "^6.0.0-beta.63",
