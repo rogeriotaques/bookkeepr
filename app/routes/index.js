@@ -322,7 +322,7 @@ router.get('/vacuum', async (req, res) => {
 router.get('/backup', (req, res) => {
   const backupFileName = `${appName}_${(new Date()).toLocaleDateString('ja-JP', { timezone: 'JST', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '')}.db`;
 
-  exec(`cp ${app.locals.pathToDb} ~/${backupFileName}`, (err, stdout, stderr) => {
+  exec(`cp ${pathToDb} ~/${backupFileName}`, (err, stdout, stderr) => {
     if (err || stderr) {
       return res.redirect('/settings?e=1&m=' + encodeURIComponent(err ? err.message : stderr));
     }
