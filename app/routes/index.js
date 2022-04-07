@@ -1,5 +1,6 @@
 /** Routes */
 
+const { exec } = require('child_process');
 const router = require('express').Router();
 
 const renderApp = async (req, res, optionalData = {}) => {
@@ -308,6 +309,27 @@ router.get('/history/delete/:id', async (req, res) => {
   return res.redirect(`/history?e=0&m=Entry+deleted&${params}`);
 });
 
+router.get('/vacuum', async (req, res) => {
+  try {
+    await knex.raw('VACUUM');
+    return res.redirect('/settings?e=0&m=Database+vacuumed');
+  } catch (error) {
+    return res.redirect('/settings?e=1&m=' + encodeURIComponent(error.message));
+  }
+});
+
+router.get('/backup', (req, res) => {
+  const backupFileName = `${appName}_${(new Date()).toLocaleDateString('ja-JP', { timezone: 'JST', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '')}.db`;
+
+  exec(`cp ${app.locals.pathToDb} ~/${backupFileName}`, (err, stdout, stderr) => {
+    if (err || stderr) {
+      return res.redirect('/settings?e=1&m=' + encodeURIComponent(err ? err.message : stderr));
+    }
+
+    return res.redirect(`/settings?e=0&m=Database+backed+up+to+~/${backupFileName}`);
+  });
+});
+
 router.get('*', (req, res) => {
   res.status(302).redirect('/');
 });
@@ -341,7 +363,7 @@ router.post('/add', async (req, res) => {
     return res.redirect('/?e=1&m=Error+when+adding+the+entry');
   }
 
-  return res.redirect('/?e=0&m=Entry recorded');
+  return res.redirect('/?e=0&m=Entry+recorded');
 });
 
 router.post('/history', async (req, res) => {

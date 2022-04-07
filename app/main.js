@@ -23,6 +23,7 @@ function createDatabase () {
   if (electron.remote) userDataPath = electron.remote.app.getPath('userData');
 
   pathToDb = path.join(userDataPath, 'bookkeepr.db');
+  app.locals.pathToDb = pathToDb;
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
