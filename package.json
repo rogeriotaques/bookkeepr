@@ -1,6 +1,6 @@
 {
   "name": "BookKeepr",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A macOS bookkeeping app for small businesses and self-employed professionals in Japan.",
   "main": "main.js",
   "scripts": {
