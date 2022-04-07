@@ -20,7 +20,11 @@
         </div>
       </p>
       <p class="control">
-        <button type="submit" class="button is-primary">Save</button>
+        <button type="submit" class="button is-primary">
+          <span class="icon">
+            <i class="uil uil-check"></i>
+          </span>
+        </button>
       </p>
     </div>
   </form>
@@ -42,7 +46,11 @@
             <td><%= group.name %></td>
             <td width="20%"><%= group.operation %></td>
             <td width="10%" class="has-text-right">
-              <a href="/groups/delete/<%= group.id %>" class="button is-danger is-small">Del</a>
+              <a href="/groups/delete/<%= group.id %>" class="button is-danger is-small">
+                <span class="icon">
+                  <i class="uil uil-trash"></i>
+                </span>
+              </a>
             </td>
           </tr>
         <% }); %>

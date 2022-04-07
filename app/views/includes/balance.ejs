@@ -1,7 +1,7 @@
 <div class="history" >
   <form method="get" action="/history">
-    <div class="columns is-hidden-print" >
-      <div class="column is-5" >
+    <div class="columns" >
+      <div class="column is-5 is-hidden-print" >
         <label class="label">Search by</label>
 
         <div class="field has-addons"  >
@@ -16,7 +16,11 @@
           </p>
 
           <p class="control mr-2" >
-            <button type="submit" class="button is-primary">Search</button>
+            <button type="submit" class="button is-primary">
+              <span class="icon">
+                <i class="uil uil-search"></i>
+              </span>
+            </button>
           </p>
         </div>
       </div>
@@ -53,15 +57,23 @@
             </div>
           </p>
 
-          <p class="control mr-2" >
-            <button type="submit" class="button is-primary">Apply</button>
+          <p class="control mr-2 is-hidden-print" >
+            <button type="submit" class="button is-primary">
+              <span class="icon">
+                <i class="uil uil-check"></i>
+              </span>
+            </button>
           </p>
         </div>
       </div>
 
-      <div class="column is-2 has-text-right" >
+      <div class="column is-2 has-text-right is-hidden-print" >
         <label class="label" >&nbsp;</label>
-        <button class="button" onclick="window.print()" >Print</button>
+        <button class="button" onclick="window.print()" >
+          <span class="icon">
+            <i class="uil uil-print"></i>
+          </span>
+        </button>
       </div>
     </div>
   </form>
@@ -148,8 +160,16 @@
                 <td class="has-text-right" nowrap><%= entry.operation == 'outcome' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
                 <td class="has-text-right" nowrap><%= entry.operation == 'income' || entry.operation == 'transfer' ? formatCurrency(entry.amount) : '' %></td>
                 <td class="has-text-right" nowrap>
-                  <button type="submit" class="button is-primary" >S</button>
-                  <a class="button is-danger" href="/history/delete/<%= entry.id %>?<%= params %>" >D</a>
+                  <button type="submit" class="button is-primary is-small" >
+                    <span class="icon">
+                      <i class="uil uil-check"></i>
+                    </span>
+                  </button>
+                  <a class="button is-danger is-small" href="/history/delete/<%= entry.id %>?<%= params %>" >
+                    <span class="icon">
+                      <i class="uil uil-trash"></i>
+                    </span>
+                  </a>
                 </td>
               </tr>
             </form>
@@ -195,3 +215,9 @@
     <% }) %>
   </div>
 </div> <!-- .history -->
+
+<script type="text/javascript" >
+  var body = document.body;
+  body.classList.add('portrait');
+  body.classList.remove('landscape');
+</script>

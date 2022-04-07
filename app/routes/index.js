@@ -5,9 +5,11 @@ const router = require('express').Router();
 const renderApp = async (req, res, optionalData = {}) => {
   const now = new Date();
   const { path } = req;
-  const { e = 0, m = null, search = null, id = null } = req.query;
+  const { e = 0, m = null, search = '', id = null } = req.query;
 
   let { year = now.getFullYear(), month = now.getMonth() + 1} = req.query;
+
+  const consumptionTax = await knex('config').where({ key: 'shouhizei'}).select('value').first().then((row) => +row.value).catch(() => 0);
 
   // Min and max year that can be selected
   const yearsRange = await knex('entries')
@@ -95,6 +97,12 @@ const renderApp = async (req, res, optionalData = {}) => {
     months: [0,0,0,0,0,0,0,0,0,0,0,0],
     subTotal: 0
   }];
+  const taxesReportTable = [{
+    groupCode: '-',
+    groupName: 'Consumption (Shouhizei)',
+    months: [0,0,0,0,0,0,0,0,0,0,0,0],
+    subTotal: 0
+  }];
 
   const months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
@@ -144,6 +152,12 @@ const renderApp = async (req, res, optionalData = {}) => {
     assetsReportTable[i].subTotal = assetsReportTable[i].months.reduce((a, m) => a + m, 0);
   });
 
+  // Calculate tex report
+  months.forEach((m) => {
+    taxesReportTable[0].months[+m - 1] = assetsReportTable.reduce((a, g) => a + g.months[+m - 1], 0) * consumptionTax; // 10%
+    taxesReportTable[0].subTotal = taxesReportTable[0].months.reduce((a, m) => a + m, 0);
+  });
+
   // Calculate balance report
   months.forEach((m) => {
     balanceReportTable[0].months[+m - 1] = assetsReportTable.reduce((a, g) => a + g.months[+m - 1], 0) - reliabilityReportTable.reduce((a, g) => a + g.months[+m - 1], 0);
@@ -183,7 +197,6 @@ const renderApp = async (req, res, optionalData = {}) => {
     dataToAppend.data = {};
   }
 
-
   dataToAppend.data.groups = groups;
 
   dataToAppend.data.wallets = wallets;
@@ -195,10 +208,13 @@ const renderApp = async (req, res, optionalData = {}) => {
   dataToAppend.data.report = {
     reliability: reliabilityReportTable,
     assets: assetsReportTable,
-    balance: balanceReportTable
+    balance: balanceReportTable,
+    taxes: taxesReportTable
   };
 
   dataToAppend.data.historyFilters = filtersReport;
+
+  dataToAppend.data.shouhizei = consumptionTax;
 
   return res.status(200).render('app', {
     url: path,
@@ -408,6 +424,34 @@ router.post('/filters', async (req, res) => {
   }
 
   return res.redirect('/settings?e=0&m=Filter+added');
+});
+
+router.post('/taxes', async (req, res) => {
+  let { shouhizei = 0 } = req.body;
+
+  shouhizei = parseFloat(shouhizei.replace(/[^0-9.]/gi, ''));
+
+  if (shouhizei < 0) {
+    return await renderApp(req, res, {
+      error: 1,
+      message: 'Tax must be 0 or greater',
+      data: req.body
+    });
+  }
+
+  try {
+    const exists = await knex('config').where({ key: 'shouhizei' }).first().catch(() => null);
+
+    if (!exists) {
+      await knex('config').insert({ key: 'shouhizei', value: shouhizei });
+    } else {
+      await knex('config').where({ key: 'shouhizei' }).update({ value: shouhizei });
+    }
+  } catch (error) {
+    return res.redirect('/settings?e=1&m=Error+when+updating+the+tax');
+  }
+
+  return res.redirect('/settings?e=0&m=Tax+updated');
 });
 
 module.exports = router;

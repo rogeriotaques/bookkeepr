@@ -1,0 +1,25 @@
+<h3 class="title is-5">Taxes</h3>
+
+<div class="taxes">
+  <form method="post" action="/taxes" >
+    <label for="tax-shouhizei" >Consumption tax (shouhizei)</label>
+    <div class="field has-addons">
+      <p class="control">
+        <div class="select" >
+          <select name="shouhizei" id="tax-shouhizei" >
+            <option value="0" <%= data.shouhizei == '0' ? 'selected' : '' %> >Not applicable</option>
+            <option value="0.08" <%= data.shouhizei == '0.08' ? 'selected' : '' %> >8%</option>
+            <option value="0.1" <%= data.shouhizei == '0.1' ? 'selected' : '' %> >10%</option>
+          </select>
+        </div>
+      </p>
+      <p class="control">
+        <button type="submit" class="button is-primary">
+          <span class="icon">
+            <i class="uil uil-check"></i>
+          </span>
+        </button>
+      </p>
+    </div>
+  </form>
+</div> <!-- .taxes -->

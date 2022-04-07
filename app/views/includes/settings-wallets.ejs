@@ -7,7 +7,11 @@
         <input class="input" name="name" id="wallet-name" type="text" placeholder="Wallet name">
       </p>
       <p class="control">
-        <button type="submit" class="button is-primary">Save</button>
+        <button type="submit" class="button is-primary">
+          <span class="icon">
+            <i class="uil uil-check"></i>
+          </span>
+        </button>
       </p>
     </div>
   </form>
@@ -25,7 +29,11 @@
           <tr >
             <td><%= wallet.name %></td>
             <td width="10%" class="has-text-right">
-              <a href="/wallets/delete/<%= wallet.id %>" class="button is-danger is-small">Del</a>
+              <a href="/wallets/delete/<%= wallet.id %>" class="button is-danger is-small">
+                <span class="icon">
+                  <i class="uil uil-trash"></i>
+                </span>
+              </a>
             </td>
           </tr>
         <% }); %>

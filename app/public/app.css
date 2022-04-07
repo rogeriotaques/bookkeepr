@@ -3,6 +3,10 @@
   .is-hidden-print {
     display: none !important;
   }
+
+  .select::after {
+    border-color: transparent !important;
+  }
 }
 
 .tabs.is-centered {

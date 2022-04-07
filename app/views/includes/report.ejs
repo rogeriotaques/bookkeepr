@@ -17,14 +17,22 @@
             </div>
           </p>
 
-          <p class="control mr-2" >
-            <button type="submit" class="button is-primary">Apply</button>
+          <p class="control mr-2 is-hidden-print" >
+            <button type="submit" class="button is-primary">
+              <span class="icon">
+                <i class="uil uil-check"></i>
+              </span>
+            </button>
           </p>
         </div>
       </div>
 
-      <div class="column is-2 has-text-right" >
-        <button class="button" onclick="window.print()" >Print</button>
+      <div class="column is-2 has-text-right is-hidden-print" >
+        <button class="button" onclick="window.print()" >
+          <span class="icon">
+            <i class="uil uil-print"></i>
+          </span>
+        </button>
       </div>
     </div>
   </form>
@@ -64,7 +72,7 @@
           <% }); %>
         </tbody>
 
-        <% if (table != 'balance') { %>
+        <% if (!['balance', 'taxes'].includes(table)) { %>
         <tfoot >
           <tr >
             <th colspan="2" >&nbsp;</th>
@@ -82,5 +90,79 @@
     </div>
   <% }); %>
 
-  <p >TODO: Chart</p>
+  <br >
+
+  <div >
+    <canvas id="chart" width="600" height="200"></canvas>
+  </div>
 </div> <!-- .report -->
+
+<script type="text/javascript" >
+  var body = document.body;
+  body.classList.remove('portrait');
+  body.classList.add('landscape');
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+<script>
+  const randomColor = (opacity = 0.1) => {
+    const o = Math.round, r = Math.random, s = 255;
+    return 'rgba(' + o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s) + ',' + opacity + ')';
+  };
+
+  const datasets = [
+    <% Object.keys(data.report).forEach((table) => { %>
+      <% if (['balance', 'taxes'].includes(table)) return; %>
+      <% data.report[table].forEach((group) => { %>
+      {
+        type: 'bar',
+        label: "<%= group.groupName %>",
+        borderWidth: 1,
+        backgroundColor: [randomColor(0.5)],
+        data: [<% group.months.forEach((amount) => { %><% if (table == 'reliability') { %><%= amount * -1 %><% } else { %><%= amount %><% } %>,<% }) %>]
+      },
+      <% }) %>
+    <% }) %>
+    {
+      type: 'line',
+      label: 'Net worth',
+      data: [<% data.report.balance[0].months.forEach((amount) => { %><%= amount %>,<% }) %>],
+    }
+  ];
+
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  const myChart = new Chart(ctx, {
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        elements: {
+          line: {
+            fill: true,
+            borderDash: [5, 5],
+            borderWidth: 2,
+            borderColor: 'rgb(0, 180, 255)',
+            backgroundColor: 'rgba(0, 180, 255, 0.1)'
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        },
+        scales: {
+          x: {
+            stacked: true
+          },
+          y: {
+            // beginAtZero: true
+            stacked: true
+          }
+        }
+      }
+  });
+  </script>
