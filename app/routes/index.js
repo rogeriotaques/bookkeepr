@@ -225,6 +225,7 @@ const renderApp = async (req, res, optionalData = {}) => {
     yearsRange,
     version: appVersion,
     appName: appName,
+    pathToDb: pathToDb,
     year,
     month,
     search,
@@ -382,14 +383,6 @@ router.post('/history', async (req, res) => {
   if (!description || !group || !wallet) {
     return res.redirect(`/history?e=1&m=Missing+required+fields&${params}`);
   }
-
-  // if (amount <= 0) {
-  //   return await renderApp(req, res, {
-  //     error: 1,
-  //     message: 'Amount must be greater than 0',
-  //     data: req.body
-  //   });
-  // }
 
   try {
     await knex('entries').where({ id }).update({ description, group, wallet });

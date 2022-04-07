@@ -23,7 +23,6 @@ function createDatabase () {
   if (electron.remote) userDataPath = electron.remote.app.getPath('userData');
 
   pathToDb = path.join(userDataPath, 'bookkeepr.db');
-  app.locals.pathToDb = pathToDb;
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
@@ -33,7 +32,6 @@ function createDatabase () {
 
 const startServer = async (version = 'devel', name = 'bookkeepr', callback = null) => {
   const port = !callback ? 8083 : 0
-  const pathToDb = path.join(__dirname, 'bookkeepr.db');
 
   appVersion = version;
   appName = name;
