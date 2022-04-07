@@ -28,9 +28,25 @@ Go to `<path-of-cloned-repository>/out` and copy `BookKeepr` to `~/Applications`
 
 Done. BookKeepr can be started as you usually do for any other app. 🤘
 
+#### Troubleshooting
+
+If you run into problems related to `sqlite3` and `node-gyp` while running `npm install` or `npm run pack`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
+
+```
+$ npm install -g node-gyp
+```
+
+Also, `PYTHON` should be exported pointing to the supported python version.
+
+Additionally, you may try to configure `NPM` to use the supported version of python you might be using:
+
+```
+$ npm config set python <path/to/python>
+```
+
 ### Tech stack
 
-- Node JS
+- Node 14+
 - EJS
 - SQLite
 - Electron
