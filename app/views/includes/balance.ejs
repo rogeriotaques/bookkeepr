@@ -32,7 +32,7 @@
           <p class="control">
             <div class="select">
               <select name="year" id="history-year">
-                <% for(var i = yearsRange.minYear; i <= yearsRange.maxYear; i += 1) { %>
+                <% for(var i = +yearsRange.minYear; i <= +yearsRange.maxYear; i += 1) { %>
                   <% if (i == year) { %>
                     <option value="<%= i %>" selected><%= i %></option>
                   <% } else { %>
