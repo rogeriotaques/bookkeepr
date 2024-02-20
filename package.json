@@ -4,7 +4,7 @@
   "description": "A macOS bookkeeping app for small businesses and self-employed professionals in Japan.",
   "main": "main.js",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "(cd app && npm run dev) && electron-forge start",
     "serve": "(cd api && nodemon api/main.js)",
     "pack": "rm api/bookkeepr.db; electron-forge package",
     "make": "rm api/bookkeepr.db; electron-forge make"
