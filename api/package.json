@@ -1,0 +1,19 @@
+{
+  "name": "@bookkeepr/api",
+  "version": "1.0.0",
+  "description": "The API layer from Bookkeepr",
+  "main": "main.js",
+  "scripts": {
+    "start": "nodemon main.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
+    "express": "^4.18.2",
+    "knex": "^3.1.0",
+    "nodemon": "^3.0.3",
+    "sqlite": "^5.1.1"
+  }
+}

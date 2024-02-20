@@ -5,11 +5,11 @@ module.exports = {
   development: {
     client: 'sqlite',
     connection: {
-      filename: './app/bookkeepr.db'
+      filename: './api/bookkeepr.db',
     },
     migrations: {
-      tableName: 'knex_migrations'
+      tableName: 'knex_migrations',
     },
-    useNullAsDefault: true
-  }
+    useNullAsDefault: true,
+  },
 };

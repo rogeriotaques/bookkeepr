@@ -1,4 +1,3 @@
-
 const args = process.argv.slice(1);
 const fs = require('fs');
 const path = require('path');
@@ -14,9 +13,9 @@ global.appName = null;
 global.pathToDb = null;
 
 // Database file will be created either at
-// - ./app/bookkeepr.db
+// - ./api/bookkeepr.db
 // - ~/Library/Application Support/BookKeepr/bookkeepr.db"
-function createDatabase () {
+function createDatabase() {
   let userDataPath = __dirname;
 
   if (electron.app) userDataPath = electron.app.getPath('userData');
@@ -31,7 +30,7 @@ function createDatabase () {
 }
 
 const startServer = async (version = 'devel', name = 'bookkeepr', callback = null) => {
-  const port = !callback ? 8083 : 0
+  const port = !callback ? 8083 : 0;
 
   appVersion = version;
   appName = name;
@@ -39,7 +38,7 @@ const startServer = async (version = 'devel', name = 'bookkeepr', callback = nul
   // To support URL-encoded bodies
   app.use(
     parser.urlencoded({
-      extended: true
+      extended: true,
     })
   );
 
@@ -52,10 +51,11 @@ const startServer = async (version = 'devel', name = 'bookkeepr', callback = nul
   app.set('views', path.join(__dirname, 'views'));
 
   // Public directory
-  app.use(express.static(path.join(__dirname, '..', 'app', 'public')));
+  app.use(express.static(path.join(__dirname, '..', 'api', 'public')));
+  app.use('/', express.static(path.join(__dirname, '../..', 'app', 'dist')));
 
   // Routes
-  app.use('/', require('./routes'));
+  app.use('/api/v1', require('./routes'));
 
   try {
     // Create database, if needed.
@@ -65,12 +65,12 @@ const startServer = async (version = 'devel', name = 'bookkeepr', callback = nul
     knex = require('knex')({
       client: 'sqlite3',
       connection: {
-        filename: pathToDb
+        filename: pathToDb,
       },
       migrations: {
         directory: path.join(__dirname, '..', 'migrations'),
       },
-      useNullAsDefault: true
+      useNullAsDefault: true,
     });
 
     console.info('Connected to the database');
@@ -86,12 +86,10 @@ const startServer = async (version = 'devel', name = 'bookkeepr', callback = nul
         callback(port ? port : server.address().port);
       }
     });
-
   } catch (error) {
     console.error('Not possible to start server', error);
     process.exit(1);
   }
-
 };
 
 // Helps prevent running the server twice when in Electron.

@@ -1,11 +1,11 @@
 {
-  "name": "@bookkeepr/electron",
-  "version": "1.0.0",
+  "name": "BookKeepr",
+  "version": "0.3.2",
   "description": "A macOS bookkeeping app for small businesses and self-employed professionals in Japan.",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
-    "serve": "(cd api && nodemon api/main.js)",
+    "serve": "nodemon api/main.js",
     "pack": "rm api/bookkeepr.db; electron-forge package",
     "make": "rm api/bookkeepr.db; electron-forge make"
   },
@@ -29,16 +29,22 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.63",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
-    "electron": "^16.0.6"
+    "electron": "^16.0.6",
+    "nodemon": "^2.0.15"
   },
   "dependencies": {
-    "electron-reload": "^2.0.0-alpha.1",
-    "electron-squirrel-startup": "^1.0.0"
+    "body-parser": "^1.19.1",
+    "compression": "^1.7.4",
+    "ejs": "^3.1.6",
+    "electron-squirrel-startup": "^1.0.0",
+    "express": "^4.17.2",
+    "knex": "^0.95.15",
+    "sqlite3": "^5.1.7"
   },
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "./assets/bookkeepr.icns",
+        "icon": "./app/public/bookkeepr.icns",
         "name": "BookKeepr",
         "overwrite": true,
         "platform": "darwin",
