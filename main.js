@@ -3,17 +3,15 @@
  * Electron App
  */
 
+const fs = require('fs');
 const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const reload = require('electron-reload');
+const watcher = fs.watch(path.join(__dirname, 'app', 'src'));
 
-// Live reload for electron app and content
-reload(__dirname, {
-  electron: require(`${__dirname}/node_modules/electron`),
-});
+let win;
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     autoHideMenuBar: true,
     width: 1280,
     height: 780,
@@ -28,6 +26,14 @@ const createWindow = () => {
   });
 };
 
+watcher.on('change', () => {
+  console.info('Changes detected, reloading');
+
+  setTimeout(() => {
+    win.reload(); // Debounced reload
+  }, 500);
+});
+
 app.whenReady().then(() => {
   createWindow();
 
@@ -38,4 +44,5 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', function () {
   app.quit();
+  win = null;
 });

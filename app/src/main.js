@@ -1,5 +1,8 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
+import { createApp } from 'vue';
 
-createApp(App).mount('#app')
+import './bookkeepr.scss';
+
+import router from './domain/router';
+import App from './App.vue';
+
+createApp(App).use(router).mount('#app');
