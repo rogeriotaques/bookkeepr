@@ -31,7 +31,7 @@ watcher.on('change', () => {
 
   setTimeout(() => {
     win.reload(); // Debounced reload
-  }, 500);
+  }, 1000);
 });
 
 app.whenReady().then(() => {

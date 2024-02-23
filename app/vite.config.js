@@ -10,4 +10,8 @@ export default defineConfig({
       '@': '/src',
     },
   },
+
+  define: {
+    __VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
 });

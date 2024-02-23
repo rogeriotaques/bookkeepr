@@ -7,3 +7,10 @@ body,
   background-color: whitesmoke;
   height: 100vh;
 }
+
+.is {
+  &-full-width {
+    display: block;
+    width: calc(100% - 8px);
+  }
+}

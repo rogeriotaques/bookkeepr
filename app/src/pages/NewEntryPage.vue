@@ -67,12 +67,10 @@ onMounted(() => {
               </div>
             </div>
           </div>
-
-          <div class="card__footer">
-            <a class="card__link">Save</a>
-          </div>
         </div>
         <!-- .card -->
+
+        <button type="submit" class="is-full-width">Save</button>
       </div>
       <div class="col-8">
         <table>
@@ -86,6 +84,7 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody>
+            <!--
             <tr>
               <td>2021-01-01</td>
               <td>Salary</td>
@@ -100,7 +99,8 @@ onMounted(() => {
               <td>¥10,000.00</td>
               <td>¥10,000.00</td>
             </tr>
-            <tr>
+            -->
+            <tr class="table__empty">
               <td colspan="5">
                 <div class="new-entry__empty">
                   <div>
@@ -131,6 +131,12 @@ table {
 
   tr:nth-child(even) {
     background-color: #e9e9e9;
+  }
+
+  .table__empty {
+    td {
+      border: 0;
+    }
   }
 }
 
