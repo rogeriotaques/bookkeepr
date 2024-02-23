@@ -1,19 +1,19 @@
 <script setup>
 import { RouterView } from 'vue-router';
-import NavBar from '@/components/navigation/NavBar.vue';
+import AppNavBar from '@/components/navigation/AppNavBar.vue';
 import AppFooter from '@/components/navigation/AppFooter.vue';
 </script>
 
 <template>
-  <div class="app__header">
-    <nav-bar />
-  </div>
-  <div class="app__body">
+  <header class="app__header">
+    <app-nav-bar />
+  </header>
+  <main class="app__body">
     <router-view />
-  </div>
-  <div class="app__footer">
+  </main>
+  <footer class="app__footer">
     <app-footer />
-  </div>
+  </footer>
 </template>
 
 <style lang="scss" scoped>

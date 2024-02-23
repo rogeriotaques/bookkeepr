@@ -1,28 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
+import { IconReportOff, IconCalendar, IconCurrencyYen } from '@tabler/icons-vue';
 
 const amount = ref('');
 
 onMounted(() => {
-  if (amount) amount.value.focus();
+  nextTick(() => {
+    if (amount) amount.value.focus();
+  });
 });
 </script>
 
 <template>
-  <div class="container new-entry">
-    <div class="row gap-5">
+  <div class="new-entry">
+    <div class="row">
       <div class="col-4">
         <div class="card">
           <div class="card__body">
-            <label for="input">Amount</label>
-            <div class="input input--with-addons">
-              <p class="input__addon">¥</p>
-              <input ref="amount" type="text" placeholder="E.g. 1,234" autofocus />
+            <div class="row">
+              <div class="col-12">
+                <label for="input">Amount</label>
+                <div class="input input--with-addons">
+                  <p class="input__addon input__addon--icon">
+                    <IconCurrencyYen size="18" />
+                  </p>
+                  <input ref="amount" type="text" placeholder="E.g. 1,234" />
+                </div>
+              </div>
             </div>
 
-            <label for="input">Description</label>
-            <div class="input">
-              <input type="text" placeholder="E.g. Lunch with a friend" />
+            <div class="row">
+              <div class="col-12">
+                <label for="input">Description</label>
+                <div class="input">
+                  <input type="text" placeholder="E.g. Lunch with a friend" />
+                </div>
+              </div>
             </div>
 
             <div class="row">
@@ -44,9 +57,14 @@ onMounted(() => {
               </div>
             </div>
 
-            <label for="input">Date</label>
-            <div class="input">
-              <input type="date" />
+            <div class="row">
+              <div class="col-12">
+                <label for="input">Date</label>
+                <div class="input input--with-addons">
+                  <p class="input__addon input__addon--icon"><IconCalendar size="18" /></p>
+                  <input type="date" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -56,7 +74,7 @@ onMounted(() => {
         </div>
         <!-- .card -->
       </div>
-      <div class="col">
+      <div class="col-8">
         <table>
           <thead>
             <tr>
@@ -84,7 +102,12 @@ onMounted(() => {
             </tr>
             <tr>
               <td colspan="5">
-                <div class="new-entry__empty">No entries yet!</div>
+                <div class="new-entry__empty">
+                  <div>
+                    <IconReportOff size="48" color="gray" />
+                  </div>
+                  <p>No entries yet!</p>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -95,14 +118,6 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.row {
-  .row {
-    .col-6 + .col-6 {
-      margin-left: 16px;
-    }
-  }
-}
-
 table {
   th {
     font-family: Impact, sans-serif;
@@ -142,6 +157,23 @@ table {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
+  }
+}
+
+.input {
+  input {
+    height: 48px;
+  }
+
+  &__addon {
+    min-width: 54px;
+
+    &--icon {
+      display: flex;
+      align-items: center;
+      height: 48px;
+    }
   }
 }
 </style>

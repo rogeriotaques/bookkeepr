@@ -3,10 +3,12 @@ import { RouterLink } from 'vue-router';
 </script>
 
 <template>
-  <div class="tabs">
-    <router-link class="tab" to="/">New entry</router-link>
-    <router-link class="tab" to="/report">Report</router-link>
-    <router-link class="tab" to="/settings">Settings</router-link>
+  <div class="app__navbar">
+    <div class="tabs">
+      <router-link class="tab" to="/">New entry</router-link>
+      <router-link class="tab" to="/report">Report</router-link>
+      <router-link class="tab" to="/settings">Settings</router-link>
+    </div>
   </div>
 </template>
 

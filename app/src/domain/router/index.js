@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-import NewEntry from '@/components/NewEntry.vue';
+import NewEntryPage from '@/pages/NewEntryPage.vue';
 
 const routes = [
   {
     path: '/',
-    component: NewEntry,
+    component: NewEntryPage,
   },
 ];
 
