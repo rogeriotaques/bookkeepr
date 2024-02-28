@@ -16,7 +16,7 @@ import { RouterLink } from 'vue-router';
 .tabs {
   display: flex;
   justify-content: center;
-  margin: 16px 0 24px;
+  margin: 0;
   gap: 8px;
   border-bottom: 2px solid #000;
 

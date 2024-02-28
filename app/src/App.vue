@@ -18,9 +18,12 @@ import AppFooter from '@/components/navigation/AppFooter.vue';
 
 <style lang="scss" scoped>
 .app {
+  &__header {
+    padding: 16px 0 24px;
+  }
+
   &__body {
-    height: calc(100vh - 174px);
-    min-height: 440px;
+    min-height: calc(100vh - 174px);
   }
 
   &__footer {

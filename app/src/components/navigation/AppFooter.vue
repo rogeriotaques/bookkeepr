@@ -2,7 +2,7 @@
   <div class="container">
     <p>2021 &copy; Abtz Labs</p>
     <p>
-      <span>
+      <span class="branding">
         BookKeepr <code>{{ version }}</code>
       </span>
       <span> • </span>
@@ -20,4 +20,12 @@
 const version = __VERSION__;
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.branding {
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+
+  code {
+    margin-left: 8px;
+  }
+}
+</style>

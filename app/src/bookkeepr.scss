@@ -1,11 +1,46 @@
 @import url('https://cdn.jsdelivr.net/gh/rogeriotaques/boring-css/boring.css');
 @import url('https://cdn.jsdelivr.net/gh/rogeriotaques/boring-css/simple-grid.css');
 
+:root {
+  --spacing: 8px;
+}
+
 html,
 body,
 #app {
   background-color: whitesmoke;
   height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  tbody tr:not(.table__empty):hover td {
+    background-color: #e5e5e5;
+  }
+}
+
+.input {
+  input {
+    height: 48px;
+  }
+
+  &__addon {
+    min-width: 54px;
+
+    &--icon {
+      display: flex !important;
+      align-items: center;
+      height: 48px;
+    }
+  }
+
+  input:active,
+  input:focus,
+  select:active,
+  select:focus {
+    background-color: var(--c-warning-background);
+  }
 }
 
 .is {
@@ -13,4 +48,23 @@ body,
     display: block;
     width: calc(100% - 8px);
   }
+
+  &-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.has {
+  &-text {
+    &-centered {
+      text-align: center;
+    }
+  }
+}
+
+.title + .subtitle {
+  margin-top: calc(var(--spacing) * 3 * -1);
+  margin-bottom: calc(var(--spacing) * 2);
 }
