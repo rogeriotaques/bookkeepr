@@ -16,6 +16,24 @@ const routes = [
   {
     path: '/settings',
     component: SettingsPage,
+    children: [
+      {
+        path: '',
+        redirect: '/settings/groups',
+      },
+      {
+        path: 'groups',
+        component: () => import('@/pages/SettingsGroupsPage.vue'),
+      },
+      {
+        path: 'wallets',
+        component: () => import('@/pages/SettingsWalletsPage.vue'),
+      },
+      {
+        path: 'advanced',
+        component: () => import('@/pages/SettingsAdvancedPage.vue'),
+      },
+    ],
   },
 ];
 

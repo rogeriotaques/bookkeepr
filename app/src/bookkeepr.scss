@@ -54,6 +54,10 @@ table {
     justify-content: center;
     align-items: center;
   }
+
+  &-shadowless {
+    box-shadow: none;
+  }
 }
 
 .has {

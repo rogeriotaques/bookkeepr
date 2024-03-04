@@ -1,9 +1,13 @@
 <template>
   <section class="settings-page">
-    <p>Settings Page</p>
+    <div class="container">
+      <SettingsNavigation />
+    </div>
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import SettingsNavigation from '@/components/settings/SettingsNavigation.vue';
+</script>
 
 <style lang="scss" scoped></style>
