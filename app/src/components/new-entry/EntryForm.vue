@@ -7,7 +7,7 @@
             <label for="input">Amount</label>
             <div class="input input--with-addons">
               <p class="input__addon input__addon--icon">
-                <IconCurrencyYen size="18" />
+                <IconCurrencyYen :size="18" />
               </p>
               <input ref="amount" type="text" placeholder="E.g. 1,234" />
             </div>
@@ -46,7 +46,7 @@
           <div class="col-12">
             <label for="input">Date</label>
             <div class="input input--with-addons">
-              <p class="input__addon input__addon--icon"><IconCalendar size="18" /></p>
+              <p class="input__addon input__addon--icon"><IconCalendar :size="18" /></p>
               <input type="date" />
             </div>
           </div>

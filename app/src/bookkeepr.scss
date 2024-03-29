@@ -20,8 +20,18 @@ table {
   }
 }
 
+button {
+  height: 48px;
+
+  &.is-auto-width {
+    width: auto;
+    min-width: min-content;
+  }
+}
+
 .input {
-  input {
+  input,
+  select {
     height: 48px;
   }
 
@@ -63,7 +73,15 @@ table {
 .has {
   &-text {
     &-centered {
-      text-align: center;
+      text-align: center !important;
+    }
+
+    &-right {
+      text-align: right !important;
+    }
+
+    &-left {
+      text-align: left !important;
     }
   }
 }
