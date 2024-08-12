@@ -10,16 +10,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { IconPlus } from '@tabler/icons-vue';
 
 import GroupTable from '@/components/settings/groups/GroupTable.vue';
-
-const codeRef = ref<HTMLInputElement>();
-
-onMounted(() => {
-  codeRef.value?.focus();
-});
 </script>
 
 <style lang="scss" scoped>

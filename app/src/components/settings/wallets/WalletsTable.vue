@@ -2,18 +2,14 @@
   <table class="table">
     <thead>
       <tr>
-        <th width="10%">Code</th>
-        <th width="35%">Name</th>
-        <th>Operation</th>
+        <th width="65%">Name</th>
         <th>Status</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <!-- <tr>
-        <td>2</td>
-        <td>Food</td>
-        <td>Outcome</td>
+        <td>Bank</td>
         <td>
           <span class="badge badge--success">Active</span>
         </td>
@@ -26,7 +22,7 @@
           </a>
         </td>
       </tr> -->
-      <TableEmptyCard />
+      <TableEmptyCard colspan="3" />
     </tbody>
   </table>
 </template>
