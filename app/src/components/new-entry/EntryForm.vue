@@ -26,19 +26,11 @@
         <div class="row">
           <div class="col-6">
             <label for="input">Category</label>
-            <div class="input">
-              <select>
-                <option value="">Select</option>
-              </select>
-            </div>
+            <DropdownPopper :options="categoryOptions" full-width />
           </div>
           <div class="col-6">
             <label for="input">Wallet</label>
-            <div class="input">
-              <select>
-                <option value="">Select</option>
-              </select>
-            </div>
+            <DropdownPopper :options="walletOptions" full-width />
           </div>
         </div>
 
@@ -63,7 +55,11 @@
 import { ref, Ref, onMounted, nextTick } from 'vue';
 import { IconCalendar, IconCurrencyYen } from '@tabler/icons-vue';
 
+import DropdownPopper from '@/components/shared/DropdownPopper.vue';
+
 const amount: Ref<HTMLInputElement | null> = ref(null);
+const categoryOptions: any = [];
+const walletOptions: any = [];
 
 onMounted(() => {
   nextTick(() => {

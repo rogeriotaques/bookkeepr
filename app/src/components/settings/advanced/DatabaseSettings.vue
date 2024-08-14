@@ -8,14 +8,14 @@
           <code>File: /Users/rogerio/Library/Application Support/BookKeepr/bookkeepr.db</code>
         </hgroup>
       </div>
-      <div class="col-4 has-text-right">
+      <div class="col-4 settings-advanced-database__actions">
         <button class="button" type="button">
           <IconRefresh />
           <span>Vacuum</span>
         </button>
 
         <button class="button" type="submit">
-          <IconRefresh />
+          <IconDeviceFloppy />
           <span>Backup</span>
         </button>
       </div>
@@ -23,7 +23,9 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { IconRefresh, IconDeviceFloppy } from '@tabler/icons-vue';
+</script>
 
 <style lang="scss" scoped>
 .settings-advanced-database {
@@ -38,6 +40,17 @@
     p + code {
       padding: 4px;
       margin-top: 8px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+
+    > button {
+      width: 100px;
     }
   }
 }

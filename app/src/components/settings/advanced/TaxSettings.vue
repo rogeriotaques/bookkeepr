@@ -8,30 +8,20 @@
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
-        <div class="input">
-          <Popper trigger="click" arrow>
-            <button type="button" class="dropdown__trigger">
-              <span>10%</span>
-              <IconChevronDown :size="16" />
-            </button>
-
-            <template #content>
-              <dl class="dropdown__items">
-                <dt class="dropdown__item">Not applicable</dt>
-                <dt class="dropdown__item">8%</dt>
-                <dt class="dropdown__item">10%</dt>
-              </dl>
-            </template>
-          </Popper>
-        </div>
+        <DropdownPopper :options="taxOptions" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { IconChevronDown } from '@tabler/icons-vue';
-import Popper from 'vue3-popper';
+import DropdownPopper from '@/components/shared/DropdownPopper.vue';
+
+const taxOptions = [
+  { value: '0', label: 'Not applicable' },
+  { value: '8', label: '8%' },
+  { value: '10', label: '10%' },
+];
 </script>
 
 <style lang="scss" scoped>
@@ -44,38 +34,5 @@ import Popper from 'vue3-popper';
       margin: 0;
     }
   }
-}
-
-.dropdown {
-  &__trigger {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  &__items {
-    margin: 0;
-  }
-
-  &__item {
-    padding: 4px 8px;
-    cursor: pointer;
-
-    &:not(:first-child) {
-      border-top: var(--popper-theme-border-width) var(--popper-theme-border-style) var(--popper-theme-border-color);
-    }
-
-    &:hover {
-      background-color: var(--c-smoke);
-    }
-  }
-}
-
-:deep(.popper) {
-  min-width: 150px;
-  max-width: 300px;
-  text-align: initial;
-  padding: 4px;
 }
 </style>

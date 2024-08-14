@@ -19,7 +19,11 @@ import AppFooter from '@/components/navigation/AppFooter.vue';
 <style lang="scss" scoped>
 .app {
   &__header {
-    padding: 16px 0 24px;
+    background-color: var(--c-background);
+    padding: 16px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 999;
   }
 
   &__body {

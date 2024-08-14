@@ -3,7 +3,7 @@
     <table class="report__table--liability">
       <thead>
         <tr>
-          <th width="15%">&nbsp;</th>
+          <th width="10%">&nbsp;</th>
           <th v-for="month in months" :key="month.label">{{ month.label }}</th>
         </tr>
       </thead>
@@ -16,7 +16,7 @@
 
       <thead>
         <tr>
-          <th width="15%">&nbsp;</th>
+          <th width="10%">&nbsp;</th>
           <th v-for="month in months" :key="month.label">{{ month.label }}</th>
         </tr>
       </thead>

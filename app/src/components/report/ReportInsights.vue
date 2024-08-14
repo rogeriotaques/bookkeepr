@@ -1,5 +1,5 @@
 <template>
-  <div class="container report__insight">
+  <div class="report__insight">
     <div class="row has-text-centered">
       <div class="col-4">
         <div class="card">

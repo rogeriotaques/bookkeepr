@@ -20,7 +20,10 @@ table {
   }
 }
 
-button {
+button, .button {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
   height: 48px;
 
   &.is-auto-width {
@@ -67,6 +70,10 @@ button {
 
   &-shadowless {
     box-shadow: none;
+  }
+
+  &-pulled-right {
+    margin-left: auto;
   }
 }
 
