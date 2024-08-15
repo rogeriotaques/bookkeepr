@@ -1,12 +1,13 @@
 <template>
   <Popper
+    :show="isOpen"
     :class="{ 'dropdown-popper--full-width': props.fullWidth }"
     class="dropdown-popper"
     trigger="click"
     offset-distance="-12"
     @open:popper="onOpenPopperHandler"
   >
-    <button class="dropdown-popper__trigger" type="button" @click="isOpen = !isOpen">
+    <button class="dropdown-popper__trigger" type="button" @click="isOpen = !isOpen" @blur="isOpen = false">
       <span>{{ selectedOption?.label ?? props.placeholder }}</span>
       <IconChevronDown :size="16" />
     </button>
@@ -32,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, watch } from 'vue';
 import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
@@ -73,6 +74,20 @@ const onOpenPopperHandler = async () => {
   await nextTick();
   itemsRef.value?.querySelector('.dropdown-popper__dropdown-item--selected')?.scrollIntoView({ block: 'nearest' });
 };
+
+const onDocumentScrollHandler = () => {
+  isOpen.value = false;
+};
+
+watch(isOpen, (value) => {
+  if (value) {
+    const document = window.document;
+    document.addEventListener('scroll', onDocumentScrollHandler);
+  } else {
+    const document = window.document;
+    document.removeEventListener('scroll', onDocumentScrollHandler);
+  }
+});
 </script>
 
 <style lang="scss" scoped>
