@@ -3,6 +3,8 @@
  * API
  */
 
+require('module-alias/register');
+
 const args = process.argv.slice(1);
 const fs = require('fs');
 const path = require('path');
@@ -20,7 +22,7 @@ global.pathToDb = null;
 // Database file will be created either at
 // - ./api/bookkeepr.db
 // - ~/Library/Application Support/BookKeepr/bookkeepr.db"
-const createDatabase = () => {
+const createDatabase = async () => {
   let userDataPath = __dirname;
 
   if (electron.app) userDataPath = electron.app.getPath('userData');
@@ -32,6 +34,20 @@ const createDatabase = () => {
     fs.writeFileSync(pathToDb, '');
     console.info('Empty database created');
   }
+
+  knex = require('knex')({
+    client: 'sqlite3',
+    connection: {
+      filename: pathToDb,
+    },
+    migrations: {
+      directory: path.join(__dirname, 'migrations'),
+    },
+    useNullAsDefault: true,
+  });
+
+  await knex.migrate.latest();
+  console.info('Database migrated');
 };
 
 const startServer = async (version = 'devel', name = 'BookKeepr', callback = null) => {
@@ -55,10 +71,11 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
   app.use('/', express.static(path.join(__dirname, '..', 'app', 'dist')));
 
   // Routes
-  // app.use('/api/v1', require('./routes'));
+  app.use('/api/v1', require('@/routes'));
 
   try {
     createDatabase();
+
     const server = app.listen(port, () => {
       const port = server.address().port;
       console.info(`Server started at http://127.0.0.1:${port}`);
