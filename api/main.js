@@ -71,6 +71,9 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
     })
   );
 
+  // To support JSON bodies
+  app.use(parser.json());
+
   // Compress all routes
   app.use(compression());
 

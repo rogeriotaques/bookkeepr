@@ -30,6 +30,10 @@ button, .button {
     width: auto;
     min-width: min-content;
   }
+
+  &.has-tooltip {
+    cursor: pointer !important;
+  }
 }
 
 .input {

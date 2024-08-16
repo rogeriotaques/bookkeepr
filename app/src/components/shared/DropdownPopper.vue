@@ -60,7 +60,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 interface Emits {
-  (e: 'input', value: Nullable<string | number>): void;
+  (e: 'select', value: Nullable<string | number>): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -69,7 +69,7 @@ const selectedOption = computed(() => props.options.find((option) => option.valu
 
 const onClickHandler = (value: Nullable<string | number>) => {
   selectedOptionValue.value = value;
-  emit('input', value);
+  emit('select', value);
 };
 
 const onOpenPopperHandler = async () => {

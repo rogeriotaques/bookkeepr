@@ -9,12 +9,13 @@
         </hgroup>
       </div>
       <div class="col-4 settings-advanced-database__actions">
-        <button class="button" type="button">
-          <IconRefresh />
+        <button class="has-tooltip has-tooltip--left" type="button" data-tooltip="Free up space and reduce database size" @click="onVacuumHandler">
+          <IconLoader2 v-if="isLoading" class="animate-spin" />
+          <IconRefresh v-else />
           <span>Vacuum</span>
         </button>
 
-        <button class="button" type="submit">
+        <button disabled type="button">
           <IconDeviceFloppy />
           <span>Backup</span>
         </button>
@@ -24,10 +25,44 @@
 </template>
 
 <script setup lang="ts">
-import { IconRefresh, IconDeviceFloppy } from '@tabler/icons-vue';
+import { ref } from 'vue';
+import { IconRefresh, IconDeviceFloppy, IconLoader2 } from '@tabler/icons-vue';
+
+import { runVacuum } from '@/domain/network';
+
+const isLoading = ref(false);
+
+const onVacuumHandler = async () => {
+  isLoading.value = true;
+
+  try {
+    const { success = false } = await runVacuum();
+
+    if (success) {
+      alert('Database vacuumed successfully!');
+    }
+  } catch (error: any) {
+    alert(error.message);
+  } finally {
+    isLoading.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
 .settings-advanced-database {
   hgroup {
     margin-bottom: 16px;

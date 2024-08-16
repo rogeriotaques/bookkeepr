@@ -1,17 +1,3 @@
-import axios from 'axios';
-
-import { SettingsData } from '@/domain/interfaces';
-
-const BASE_URL = 'http://localhost:8083/api';
-
-const API = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    Accept: 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json',
-  },
-});
-
 /**
  * A PRO response handler for Axios
  * @returns ResponseObject
@@ -54,7 +40,3 @@ export const errorHandler = (err: any): Promise<any> => {
 
   return Promise.reject(error);
 };
-
-API.interceptors.response.use(respHandler, errorHandler);
-
-export const getSettings = (): Promise<SettingsData> => API.get('/v1/settings');
