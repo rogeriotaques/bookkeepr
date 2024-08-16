@@ -17,4 +17,7 @@ API.interceptors.response.use(respHandler, errorHandler);
 export const getSettings = (): Promise<SettingsData> => API.get('/v1/settings');
 export const setSettings = (data: SettingsPayloadData): Promise<ApiResponse> => API.post('/v1/settings', data);
 
+export const getWallets = (): Promise<ApiResponse> => API.get('/v1/wallets');
+export const deleteWallet = (id: number): Promise<ApiResponse> => API.delete(`/v1/wallets/${id}`);
+
 export const runVacuum = (): Promise<ApiResponse> => API.post('/v1/settings/vacuum');

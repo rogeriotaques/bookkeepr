@@ -61,19 +61,6 @@ const onVacuumHandler = async () => {
 </script>
 
 <style lang="scss" scoped>
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
 .settings-advanced-database {
   hgroup {
     margin-bottom: 16px;
