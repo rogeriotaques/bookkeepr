@@ -5,7 +5,7 @@
         <hgroup>
           <h5>Database</h5>
           <p>Maintenace actions for this app database</p>
-          <code>File: /Users/rogerio/Library/Application Support/BookKeepr/bookkeepr.db</code>
+          <code>Database file: {{ props.data.dbFilePath }}</code>
         </hgroup>
       </div>
       <div class="col-4 settings-advanced-database__actions">
@@ -27,8 +27,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { IconRefresh, IconDeviceFloppy, IconLoader2 } from '@tabler/icons-vue';
+import { useToast } from 'vue-toastification';
 
 import { runVacuum } from '@/domain/network';
+
+interface Props {
+  data: {
+    dbFilePath: string;
+  };
+}
+
+const props = defineProps<Props>();
+
+const toast = useToast();
 
 const isLoading = ref(false);
 
@@ -39,10 +50,10 @@ const onVacuumHandler = async () => {
     const { success = false } = await runVacuum();
 
     if (success) {
-      alert('Database vacuumed successfully!');
+      toast.success('Database vacuumed!');
     }
   } catch (error: any) {
-    alert(error.message);
+    toast.error(`Error: ${error.message}`);
   } finally {
     isLoading.value = false;
   }

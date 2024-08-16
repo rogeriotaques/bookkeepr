@@ -4,12 +4,13 @@
 
     <TaxSettings v-if="hasTaxSettingsLoaded" :data="taxSettings" @update="onUpdatedSettingsHandler" />
     <hr />
-    <DatabaseSettings />
+    <DatabaseSettings :data="databaseSettings" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { useToast } from 'vue-toastification';
 
 import { setSettings } from '@/domain/network';
 
@@ -19,19 +20,23 @@ import DatabaseSettings from '@/components/settings/advanced/DatabaseSettings.vu
 import TaxSettings from '@/components/settings/advanced/TaxSettings.vue';
 
 const { getSettingsData, invalidateQuery } = useSettings();
-const { isLoading: isLoadingTaxSettings, isError: isErrorTaxSettings, data: taxSettingsData, error: taxSettingsError } = await getSettingsData();
+const { isLoading: isLoadingTaxSettings, isError: isErrorTaxSettings, data: settingsData, error: taxSettingsError } = await getSettingsData();
+const toast = useToast();
 
 const isLoading = ref(false);
 
 const hasTaxSettingsLoaded = computed(() => !isLoadingTaxSettings.value);
-const taxSettings = computed(() => (taxSettingsData.value as any)?.config || {});
+const taxSettings = computed(() => (settingsData.value as any)?.config || {});
+const databaseSettings = computed(() => ({ dbFilePath: (settingsData.value as any)?.dbFilePath || '' }));
 
 const onUpdatedSettingsHandler = async (value: number) => {
   isLoading.value = true;
 
   try {
     await setSettings({ config: { key: 'shouhizei', value } });
-  } catch (error) {
+    toast.success('Settings updated!');
+  } catch (error: any) {
+    toast.error(`Error: ${error.message}`);
   } finally {
     isLoading.value = false;
     invalidateQuery();

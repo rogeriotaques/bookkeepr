@@ -6,7 +6,7 @@ exports.getSettings = async (req, res) => {
     configObj[item.key] = isNaN(item.value) ? item.value : Number(item.value);
   });
 
-  res.json({ config: configObj });
+  res.json({ config: configObj, dbFilePath: global.pathToDb });
 };
 
 exports.setSettings = async (req, res) => {

@@ -101,3 +101,10 @@ button, .button {
   margin-top: calc(var(--spacing) * 3 * -1);
   margin-bottom: calc(var(--spacing) * 2);
 }
+
+.Vue-Toastification {
+  &__toast-body {
+    color: var(--c-white);
+    text-align: center;
+  }
+}

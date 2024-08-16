@@ -12,6 +12,7 @@ export interface TaxData {
 
 export interface SettingsData {
   config: TaxData;
+  dbFilePath?: string;
 }
 
 export interface SettingsPayloadData {
