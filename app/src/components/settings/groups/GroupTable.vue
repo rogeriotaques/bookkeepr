@@ -10,31 +10,112 @@
       </tr>
     </thead>
     <tbody>
-      <!-- <tr>
-        <td>2</td>
-        <td>Food</td>
-        <td>Outcome</td>
+      <tr v-for="group in props.data" :key="group.id">
+        <td>{{ group.code }}</td>
+        <td>{{ group.name }}</td>
+        <td>{{ toCamelCase(group.operation) }}</td>
         <td>
-          <span class="badge badge--success">Active</span>
+          <span v-if="group.active" class="badge badge--success">Active</span>
+          <span v-else class="badge badge--warning">Inactive</span>
         </td>
         <td class="has-text-right">
           <a class="link">
             <IconEdit />
           </a>
-          <a class="link is-danger">
+          <a class="link is-danger" @click="onDeleteHandler(group.id)">
             <IconTrash />
           </a>
         </td>
-      </tr> -->
-      <TableEmptyCard />
+      </tr>
+      <TableEmptyCard v-if="!props.data.length" />
     </tbody>
   </table>
+
+  <BaseModal
+    v-model="isDeleteModalOpen"
+    :key="selectedGroup?.id"
+    :loading="isDeleting"
+    type="danger"
+    title="Delete category"
+    confirm-text="Delete"
+    @confirm="onDeleteConfirmHandler"
+    @cancel="onCancelConfirmHandler"
+  >
+    <p>
+      Are you sure you want to delete <b>{{ selectedGroup?.name }}</b
+      >?
+    </p>
+    <p>This action cannot be undone.</p>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { IconEdit, IconTrash } from '@tabler/icons-vue';
+import { useToast } from 'vue-toastification';
 
+import { Group } from '@/domain/interfaces';
+import { deleteGroup } from '@/domain/network';
+
+import BaseModal from '@/components/shared/BaseModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
+
+interface Props {
+  data: Group[];
+}
+
+const props = defineProps<Props>();
+
+interface Emits {
+  (e: 'update'): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const selectedGroup = ref<Group | null>(null);
+const isDeleteModalOpen = ref(false);
+const isDeleting = ref(false);
+
+const toCamelCase = (str: string) => {
+  return str
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
+const onDeleteHandler = (id: number) => {
+  const wallet = props.data.find((wallet) => wallet.id === id);
+
+  if (wallet) {
+    selectedGroup.value = wallet;
+    isDeleteModalOpen.value = true;
+  }
+};
+
+const onCancelConfirmHandler = () => {
+  isDeleteModalOpen.value = false;
+  selectedGroup.value = null;
+};
+
+const onDeleteConfirmHandler = async () => {
+  const toast = useToast();
+
+  isDeleting.value = true;
+
+  try {
+    await deleteGroup(selectedGroup.value?.id ?? 0);
+
+    isDeleteModalOpen.value = false;
+    selectedGroup.value = null;
+    emit('update');
+
+    toast.success('Category deleted!');
+  } catch (error) {
+    toast.error(`Error deleting category: ${error}`);
+  } finally {
+    isDeleting.value = false;
+  }
+};
 </script>
 
 <style lang="scss" scoped>

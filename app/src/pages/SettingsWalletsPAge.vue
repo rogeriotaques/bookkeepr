@@ -3,6 +3,7 @@
     <button type="submit" class="is-auto-width is-pulled-right has-icon has-tooltip has-tooltip--left" data-tooltip="Add new wallet">
       <IconPlus :size="18" />
     </button>
+
     <hgroup>
       <h4 class="title">Wallets</h4>
       <p class="subtitle">

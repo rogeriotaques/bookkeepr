@@ -20,4 +20,7 @@ export const setSettings = (data: SettingsPayloadData): Promise<ApiResponse> => 
 export const getWallets = (): Promise<ApiResponse> => API.get('/v1/wallets');
 export const deleteWallet = (id: number): Promise<ApiResponse> => API.delete(`/v1/wallets/${id}`);
 
+export const getGroups = (): Promise<ApiResponse> => API.get('/v1/groups');
+export const deleteGroup = (id: number): Promise<ApiResponse> => API.delete(`/v1/groups/${id}`);
+
 export const runVacuum = (): Promise<ApiResponse> => API.post('/v1/settings/vacuum');

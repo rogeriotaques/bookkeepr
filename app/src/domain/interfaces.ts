@@ -19,8 +19,17 @@ export interface Wallet {
   active: number;
 }
 
+export interface Group {
+  id: number;
+  code: string;
+  name: string;
+  operation: string;
+  active: number;
+}
+
 export interface ApiResponse<T = any> {
   wallets?: Wallet[];
+  groups?: Group[];
   success?: boolean;
   error?: string;
 }
