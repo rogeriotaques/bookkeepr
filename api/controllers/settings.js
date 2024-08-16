@@ -3,8 +3,8 @@ exports.getSettings = async (req, res) => {
   const configObj = {};
 
   config.forEach((item) => {
-    configObj[item.key] = item.value;
+    configObj[item.key] = isNaN(item.value) ? item.value : Number(item.value);
   });
 
-  res.json({ config: configObj, pathToDb: global.pathToDb });
+  res.json({ config: configObj });
 };

@@ -8,19 +8,27 @@
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
-        <DropdownPopper :options="taxOptions" />
+        <DropdownPopper v-model="props.data.shouhizei" :options="taxOptions" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { TaxData } from '@/domain/interfaces';
+
 import DropdownPopper from '@/components/shared/DropdownPopper.vue';
 
+interface Props {
+  data: TaxData;
+}
+
+const props = defineProps<Props>();
+
 const taxOptions = [
-  { value: '0', label: 'Not applicable' },
-  { value: '8', label: '8%' },
-  { value: '10', label: '10%' },
+  { value: 0, label: 'Not applicable' },
+  { value: 0.08, label: '8%' },
+  { value: 0.1, label: '10%' },
 ];
 </script>
 

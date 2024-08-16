@@ -1,20 +1,27 @@
-<script setup>
-import { RouterView } from 'vue-router';
-import AppNavBar from '@/components/navigation/AppNavBar.vue';
-import AppFooter from '@/components/navigation/AppFooter.vue';
-</script>
-
 <template>
   <header class="app__header">
     <app-nav-bar />
   </header>
   <main class="app__body">
-    <router-view />
+    <Suspense>
+      <router-view />
+
+      <template #fallback>
+        <div class="app__loader">Loading ...</div>
+      </template>
+    </Suspense>
   </main>
   <footer class="app__footer">
     <app-footer />
   </footer>
 </template>
+
+<script setup>
+import { RouterView } from 'vue-router';
+
+import AppNavBar from '@/components/navigation/AppNavBar.vue';
+import AppFooter from '@/components/navigation/AppFooter.vue';
+</script>
 
 <style lang="scss" scoped>
 .app {

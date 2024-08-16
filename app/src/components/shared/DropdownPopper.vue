@@ -16,7 +16,7 @@
       <div ref="itemsRef" class="dropdown-popper__dropdown-items">
         <button
           v-for="option in props.options"
-          :key="option.value"
+          :key="option.value ?? 'empty'"
           :class="{ 'dropdown-popper__dropdown-item--selected': option.value === selectedOptionValue }"
           class="dropdown-popper__dropdown-item"
           @click="
@@ -37,13 +37,15 @@ import { ref, computed, nextTick, watch } from 'vue';
 import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
+import type { Nullable } from '@/domain/interfaces';
+
 const itemsRef = ref<HTMLDivElement | null>(null);
 
 const selectedOptionValue = defineModel();
 const isOpen = ref(false);
 
 interface DropdownOption {
-  value: string;
+  value: Nullable<string | number>;
   label: string;
 }
 
@@ -58,14 +60,14 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 interface Emits {
-  (e: 'input', value: string): void;
+  (e: 'input', value: Nullable<string | number>): void;
 }
 
 const emit = defineEmits<Emits>();
 
 const selectedOption = computed(() => props.options.find((option) => option.value === selectedOptionValue.value));
 
-const onClickHandler = (value: string) => {
+const onClickHandler = (value: Nullable<string | number>) => {
   selectedOptionValue.value = value;
   emit('input', value);
 };

@@ -12,6 +12,8 @@ const express = require('express');
 const parser = require('body-parser');
 const compression = require('compression');
 const electron = require('electron');
+const cors = require('cors');
+const helmet = require('helmet');
 
 global.app = express();
 global.knex = null;
@@ -55,6 +57,12 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
 
   appVersion = version;
   appName = name;
+
+  // Enable CORS to accept requests from any origin
+  app.use(cors({ origin: '*' }));
+
+  // Enable Helmet
+  app.use(helmet());
 
   // To support URL-encoded bodies
   app.use(
