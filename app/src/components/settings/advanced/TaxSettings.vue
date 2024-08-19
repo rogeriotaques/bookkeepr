@@ -8,7 +8,7 @@
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
-        <DropdownPopper :modelValue="props.data.shouhizei" :options="taxOptions" @select="emit('update', $event)" />
+        <BaseDropdown :modelValue="props.data.shouhizei" :options="taxOptions" @select="emit('update', $event)" />
       </div>
     </div>
   </div>
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { TaxData } from '@/domain/interfaces';
-import DropdownPopper from '@/components/shared/DropdownPopper.vue';
+import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 interface Props {
   data: TaxData;

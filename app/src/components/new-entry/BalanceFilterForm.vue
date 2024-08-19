@@ -12,8 +12,8 @@
     <div class="balance-filter-form__filter-by-date">
       <label for="input">Filter by</label>
       <div>
-        <DropdownPopper v-model="filterByYear" :options="yearOptions" />
-        <DropdownPopper v-model="filterByMonth" :options="monthOptions" />
+        <BaseDropdown v-model="filterByYear" :options="yearOptions" />
+        <BaseDropdown v-model="filterByMonth" :options="monthOptions" />
       </div>
     </div>
   </div>
@@ -23,7 +23,7 @@
 import { ref } from 'vue';
 import { IconSearch } from '@tabler/icons-vue';
 
-import DropdownPopper from '@/components/shared/DropdownPopper.vue';
+import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 const yearOptions = [
   { value: '2024', label: '2024' },
@@ -62,7 +62,7 @@ const filterByMonth = ref(`00${now.getMonth() + 1}`.slice(-2));
   padding: 16px 0;
 }
 
-.dropdown-popper + .dropdown-popper {
+.base-dropdown + .base-dropdown {
   margin-left: 8px;
 }
 </style>

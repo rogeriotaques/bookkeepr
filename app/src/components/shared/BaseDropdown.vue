@@ -1,24 +1,24 @@
 <template>
   <Popper
     :show="isOpen"
-    :class="{ 'dropdown-popper--full-width': props.fullWidth }"
-    class="dropdown-popper"
+    :class="{ 'base-dropdown--full-width': props.fullWidth }"
+    class="base-dropdown"
     trigger="click"
     offset-distance="-12"
     @open:popper="onOpenPopperHandler"
   >
-    <button class="dropdown-popper__trigger" type="button" @click="isOpen = !isOpen" @blur="isOpen = false">
+    <button class="base-dropdown__trigger" type="button" @click="isOpen = !isOpen" @blur="isOpen = false">
       <span>{{ selectedOption?.label ?? props.placeholder }}</span>
       <IconChevronDown :size="16" />
     </button>
 
     <template #content="{ close }">
-      <div ref="itemsRef" class="dropdown-popper__dropdown-items">
+      <div ref="itemsRef" class="base-dropdown__items">
         <button
           v-for="option in props.options"
           :key="option.value ?? 'empty'"
-          :class="{ 'dropdown-popper__dropdown-item--selected': option.value === selectedOptionValue }"
-          class="dropdown-popper__dropdown-item"
+          :class="{ 'base-dropdown__item--selected': option.value === selectedOptionValue }"
+          class="base-dropdown__item"
           @click="
             onClickHandler(option.value);
             close();
@@ -26,7 +26,7 @@
         >
           {{ option.label }}
         </button>
-        <div v-if="props.options.length === 0" class="dropdown-popper__dropdown-item dropdown-popper__dropdown-item--empty">No options found</div>
+        <div v-if="props.options.length === 0" class="base-dropdown__item base-dropdown__item--empty">No options found</div>
       </div>
     </template>
   </Popper>
@@ -74,7 +74,7 @@ const onClickHandler = (value: Nullable<string | number>) => {
 
 const onOpenPopperHandler = async () => {
   await nextTick();
-  itemsRef.value?.querySelector('.dropdown-popper__dropdown-item--selected')?.scrollIntoView({ block: 'nearest' });
+  itemsRef.value?.querySelector('.base-dropdown-item--selected')?.scrollIntoView({ block: 'nearest' });
 };
 
 const onDocumentScrollHandler = () => {
@@ -93,7 +93,7 @@ watch(isOpen, (value) => {
 </script>
 
 <style lang="scss" scoped>
-.dropdown-popper {
+.base-dropdown {
   width: fit-content;
   margin-bottom: 12px;
 
@@ -114,14 +114,14 @@ watch(isOpen, (value) => {
     }
   }
 
-  &__dropdown-items {
+  &__items {
     width: 100%;
     overflow: hidden;
     overflow-y: auto;
     max-height: 150px;
   }
 
-  &__dropdown-item {
+  &__item {
     display: block;
     background-color: transparent;
     border: none;

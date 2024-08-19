@@ -31,7 +31,7 @@
     </tbody>
   </table>
 
-  <BaseModal
+  <BaseConfirmModal
     v-model="isDeleteModalOpen"
     :key="selectedGroup?.id"
     :loading="isDeleting"
@@ -46,7 +46,7 @@
       >?
     </p>
     <p>This action cannot be undone.</p>
-  </BaseModal>
+  </BaseConfirmModal>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +57,7 @@ import { useToast } from 'vue-toastification';
 import { Group } from '@/domain/interfaces';
 import { deleteGroup } from '@/domain/network';
 
-import BaseModal from '@/components/shared/BaseModal.vue';
+import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 
 interface Props {

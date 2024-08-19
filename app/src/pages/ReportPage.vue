@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-1" />
       <div class="col-2 report-page__filter">
-        <DropdownPopper v-model="filterByYear" :options="yearOptions" />
+        <BaseDropdown v-model="filterByYear" :options="yearOptions" />
       </div>
       <div class="col-6">
         <ReportInsights />
@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-import DropdownPopper from '@/components/shared/DropdownPopper.vue';
+import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 import ReportInsights from '@/components/report/ReportInsights.vue';
 import ReportData from '@/components/report/ReportData.vue';
 

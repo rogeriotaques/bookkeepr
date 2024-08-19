@@ -15,10 +15,10 @@
           <span v-else class="badge badge--warning">Inactive</span>
         </td>
         <td class="has-text-right">
-          <a class="link">
+          <a class="link" @click="emit('edit', wallet)">
             <IconEdit />
           </a>
-          <a class="link is-danger" @click="onDeleteHandler(wallet.id)">
+          <a class="link is-danger" @click="onDeleteHandler(wallet.id ?? 0)">
             <IconTrash />
           </a>
         </td>
@@ -27,7 +27,7 @@
     </tbody>
   </table>
 
-  <BaseModal
+  <BaseConfirmModal
     v-model="isDeleteModalOpen"
     :key="selectedWallet?.id"
     :loading="isDeleting"
@@ -42,7 +42,7 @@
       >?
     </p>
     <p>This action cannot be undone.</p>
-  </BaseModal>
+  </BaseConfirmModal>
 </template>
 
 <script setup lang="ts">
@@ -53,7 +53,7 @@ import { useToast } from 'vue-toastification';
 import { Wallet } from '@/domain/interfaces';
 import { deleteWallet } from '@/domain/network';
 
-import BaseModal from '@/components/shared/BaseModal.vue';
+import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 
 interface Props {
@@ -64,6 +64,7 @@ const props = defineProps<Props>();
 
 interface Emits {
   (e: 'update'): void;
+  (e: 'edit', wallet: Wallet): void;
 }
 
 const emit = defineEmits<Emits>();

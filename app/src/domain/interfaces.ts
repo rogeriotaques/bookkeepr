@@ -14,9 +14,9 @@ export interface SettingsPayloadData {
 }
 
 export interface Wallet {
-  id: number;
+  id?: number;
   name: string;
-  active: number;
+  active: 1 | 0;
 }
 
 export interface Group {
@@ -24,7 +24,7 @@ export interface Group {
   code: string;
   name: string;
   operation: string;
-  active: number;
+  active: 1 | 0;
 }
 
 export interface ApiResponse<T = any> {
