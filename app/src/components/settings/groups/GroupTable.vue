@@ -19,10 +19,10 @@
           <span v-else class="badge badge--warning">Inactive</span>
         </td>
         <td class="has-text-right">
-          <a class="link">
+          <a class="link" @click="emit('edit', group)">
             <IconEdit />
           </a>
-          <a class="link is-danger" @click="onDeleteHandler(group.id)">
+          <a class="link is-danger" @click="onDeleteHandler(group.id ?? 0)">
             <IconTrash />
           </a>
         </td>
@@ -33,7 +33,6 @@
 
   <BaseConfirmModal
     v-model="isDeleteModalOpen"
-    :key="selectedGroup?.id"
     :loading="isDeleting"
     type="danger"
     title="Delete category"
@@ -67,6 +66,7 @@ interface Props {
 const props = defineProps<Props>();
 
 interface Emits {
+  (e: 'edit', group: Group): void;
   (e: 'update'): void;
 }
 

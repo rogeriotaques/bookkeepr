@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body" v-if="isOpen">
-    <div :key="JSON.stringify(props)" class="base-modal__overlay">
+    <div :key="props.title" class="base-modal__overlay">
       <div class="base-modal box" :style="style">
         <div v-if="props.title" class="box__header">
           <h3 class="title">{{ props.title }}</h3>

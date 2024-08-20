@@ -20,7 +20,7 @@ export interface Wallet {
 }
 
 export interface Group {
-  id: number;
+  id?: number;
   code: string;
   name: string;
   operation: string;
