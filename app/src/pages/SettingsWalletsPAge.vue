@@ -41,6 +41,7 @@ import { IconPlus } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { Wallet } from '@/domain/interfaces';
+import { addWallet, updateWallet } from '@/domain/network';
 
 import useWallets from '@/composable/useWallets';
 
@@ -92,10 +93,10 @@ const onAddConfirmClickHandler = async () => {
 
     if (isEditing.value) {
       message = 'Wallet updated!';
-      //   await updateWallet(form);
+      await updateWallet(form.id ?? 0, form);
     } else {
       message = 'Wallet added!';
-      //   await addWallet(form);
+      await addWallet(form);
     }
 
     onCancelModalHandler();
