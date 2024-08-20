@@ -27,6 +27,15 @@ export interface Group {
   active: 1 | 0;
 }
 
+export interface Entry {
+  id?: number;
+  amount: number;
+  description: string;
+  group: string;
+  wallet: number;
+  date: string;
+}
+
 export interface ApiResponse<T = any> {
   wallets?: Wallet[];
   groups?: Group[];

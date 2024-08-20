@@ -5,10 +5,11 @@
     class="base-dropdown"
     trigger="click"
     offset-distance="-12"
+    placement="bottom-start"
     @open:popper="onOpenPopperHandler"
   >
     <button class="base-dropdown__trigger" type="button" @click="isOpen = !isOpen" @blur="isOpen = false">
-      <span>{{ selectedOption?.label ?? props.placeholder }}</span>
+      <span class="base-dropdown__trigger-label">{{ selectedOption?.label ?? props.placeholder }}</span>
       <IconChevronDown :size="16" />
     </button>
 
@@ -49,10 +50,28 @@ interface DropdownOption {
   label: string;
 }
 
+type PopperPlacement =
+  | 'auto'
+  | 'auto-start'
+  | 'auto-end'
+  | 'top'
+  | 'top-start'
+  | 'top-end'
+  | 'bottom'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end'
+  | 'left'
+  | 'left-start'
+  | 'left-end';
+
 interface Props {
   options: DropdownOption[];
   placeholder?: string;
   fullWidth?: boolean;
+  placement?: PopperPlacement;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -111,6 +130,12 @@ watch(isOpen, (value) => {
     &:focus,
     &:active {
       background-color: var(--c-warning-background);
+    }
+
+    &-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
