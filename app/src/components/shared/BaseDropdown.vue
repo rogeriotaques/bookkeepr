@@ -167,6 +167,12 @@ watch(isOpen, (value) => {
 
     &--selected {
       background-color: var(--c-warning-background);
+
+      &:hover,
+      &:focus,
+      &:active {
+        background-color: var(--c-warning);
+      }
     }
   }
 }
