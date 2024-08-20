@@ -29,7 +29,6 @@
 
   <BaseConfirmModal
     v-model="isDeleteModalOpen"
-    :key="selectedWallet?.id"
     :loading="isDeleting"
     type="danger"
     title="Delete wallet"

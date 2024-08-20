@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
 
 interface Props {
@@ -57,35 +57,33 @@ const onOverlayClick = (e: MouseEvent) => {
   if ((e.target as HTMLElement)?.className === overlay?.className && closeWithOutsideClick.value) emit('cancel');
 };
 
-const onEscapeKeyHandler = (e: KeyboardEvent) => {
+watch(isOpen, async () => {
+  await nextTick();
+
+  const body: HTMLBodyElement | null = document.querySelector('body');
+  const overlay: HTMLDivElement | null = document.querySelector('.base-confirm-modal__overlay');
+
+  if (isOpen.value) {
+    body?.classList.add('noscroll');
+    body?.addEventListener('keydown', onKeyDownHandler);
+    overlay?.addEventListener('click', onOverlayClick);
+  } else {
+    body?.classList.remove('noscroll');
+    body?.removeEventListener('keydown', onKeyDownHandler);
+    overlay?.removeEventListener('click', onOverlayClick);
+  }
+});
+
+const onKeyDownHandler = (e: KeyboardEvent) => {
   if (props.loading) return;
-  if (e.key === 'Escape' && closeWithOutsideClick.value) emit('cancel');
+  if (e.key === 'Escape') emit('cancel');
+  if (e.key === 'Enter') emit('confirm');
 };
 
 const onConfirmHandler = () => {
   if (props.loading) return;
   emit('confirm');
 };
-
-onMounted(async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  const overlay: HTMLDivElement | null = document.querySelector('.base-confirm-modal__overlay');
-
-  body?.addEventListener('keydown', onEscapeKeyHandler);
-  overlay?.addEventListener('click', onOverlayClick);
-});
-
-onBeforeUnmount(async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  const overlay: HTMLDivElement | null = document.querySelector('.base-confirm-modal__overlay');
-
-  body?.removeEventListener('keydown', onEscapeKeyHandler);
-  overlay?.removeEventListener('click', onOverlayClick);
-});
 </script>
 
 <style lang="scss" scoped>

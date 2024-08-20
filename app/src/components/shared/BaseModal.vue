@@ -64,14 +64,19 @@ const buttonType = computed(() => {
   }
 });
 
-watch(isOpen, async (value) => {
+watch(isOpen, async () => {
   await nextTick();
 
+  const body: HTMLBodyElement | null = document.querySelector('body');
   const overlay: HTMLDivElement | null = document.querySelector('.base-modal__overlay');
 
-  if (value) {
+  if (isOpen.value) {
+    body?.classList.add('noscroll');
+    body?.addEventListener('keydown', onEscapeKeyHandler);
     overlay?.addEventListener('click', onOverlayClick);
   } else {
+    body?.classList.remove('noscroll');
+    body?.removeEventListener('keydown', onEscapeKeyHandler);
     overlay?.removeEventListener('click', onOverlayClick);
   }
 });
@@ -85,27 +90,13 @@ const onOverlayClick = (e: MouseEvent) => {
 
 const onEscapeKeyHandler = (e: KeyboardEvent) => {
   if (props.loading) return;
-  if (e.key === 'Escape' && closeWithOutsideClick.value) emit('cancel');
+  if (e.key === 'Escape') emit('cancel');
 };
 
 const onConfirmHandler = () => {
   if (props.loading) return;
   emit('confirm');
 };
-
-onMounted(async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  body?.addEventListener('keydown', onEscapeKeyHandler);
-});
-
-onBeforeUnmount(async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  body?.removeEventListener('keydown', onEscapeKeyHandler);
-});
 </script>
 
 <style lang="scss" scoped>

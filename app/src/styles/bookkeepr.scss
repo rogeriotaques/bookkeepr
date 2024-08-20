@@ -14,6 +14,10 @@ body,
   padding: 0;
 }
 
+body.noscroll {
+  overflow: hidden;
+}
+
 table {
   tbody tr:not(.table__empty):hover td {
     background-color: #e5e5e5;
