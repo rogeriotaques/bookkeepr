@@ -18,7 +18,7 @@
       </p>
     </hgroup>
 
-    <WalletsTable v-if="isLoaded" :data="wallets" @update="invalidateQuery()" @edit="onEditClickHandler" />
+    <WalletsTable v-if="isLoaded" :data="wallets" @update="invalidateQuery('wallets')" @edit="onEditClickHandler" />
   </div>
 
   <BaseModal
@@ -100,7 +100,7 @@ const onAddConfirmClickHandler = async () => {
     }
 
     onCancelModalHandler();
-    invalidateQuery();
+    invalidateQuery('wallets');
 
     toast.success(message);
   } catch (error) {

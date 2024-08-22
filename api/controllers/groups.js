@@ -1,5 +1,11 @@
 exports.getGroups = async (req, res) => {
-  const groups = await global.knex('groups').select(['*']);
+  const { active } = req.query;
+  const groups = await global
+    .knex('groups')
+    .modify((qb) => {
+      if (active) qb.where({ active });
+    })
+    .select(['*']);
   res.json({ groups });
 };
 

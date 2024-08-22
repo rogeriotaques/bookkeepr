@@ -81,11 +81,11 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const { getGroups } = useGroups();
-const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, error: groupsError } = await getGroups();
+const { getActiveGroups } = useGroups();
+const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, error: groupsError } = await getActiveGroups();
 
-const { getWallets } = useWallets();
-const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getWallets();
+const { getActiveWallets } = useWallets();
+const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getActiveWallets();
 
 const amount: Ref<HTMLInputElement | null> = ref(null);
 

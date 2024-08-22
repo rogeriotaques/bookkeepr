@@ -18,7 +18,7 @@
       </p>
     </hgroup>
 
-    <GroupTable v-if="isLoaded" :data="groups" @update="invalidateQuery()" @edit="onEditClickHandler" />
+    <GroupTable v-if="isLoaded" :data="groups" @update="invalidateQuery('groups')" @edit="onEditClickHandler" />
   </div>
 
   <BaseModal
@@ -106,7 +106,7 @@ const onAddConfirmClickHandler = async () => {
     }
 
     onCancelModalHandler();
-    invalidateQuery();
+    invalidateQuery('groups');
 
     toast.success(message);
   } catch (error) {

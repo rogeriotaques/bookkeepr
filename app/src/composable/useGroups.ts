@@ -1,26 +1,35 @@
 import { useQueryClient, useQuery } from '@tanstack/vue-query';
 
-import { getGroups } from '@/domain/network';
+import { getGroups, getActiveGroups } from '@/domain/network';
 
 const useGroups = () => {
-  const queryKey = ['groups'];
   const queryClient = useQueryClient();
 
   const getAllGroups = async () => {
     const { isLoading, isError, data, error } = useQuery({
-      queryKey,
+      queryKey: ['groups'],
       queryFn: getGroups,
     });
 
     return { isLoading, isError, data, error };
   };
 
-  const invalidateQuery = () => {
-    queryClient.invalidateQueries({ queryKey });
+  const getAllActiveGroups = async () => {
+    const { isLoading, isError, data, error } = useQuery({
+      queryKey: ['groups-active'],
+      queryFn: getActiveGroups,
+    });
+
+    return { isLoading, isError, data, error };
+  };
+
+  const invalidateQuery = (key: string) => {
+    queryClient.invalidateQueries({ queryKey: [key] });
   };
 
   return {
     getGroups: getAllGroups,
+    getActiveGroups: getAllActiveGroups,
     invalidateQuery,
   };
 };

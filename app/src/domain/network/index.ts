@@ -18,11 +18,13 @@ export const getSettings = (): Promise<SettingsData> => API.get('/v1/settings');
 export const setSettings = (data: SettingsPayloadData): Promise<ApiResponse> => API.post('/v1/settings', data);
 
 export const getWallets = (): Promise<ApiResponse> => API.get('/v1/wallets');
+export const getActiveWallets = (): Promise<ApiResponse> => API.get('/v1/wallets', { params: { active: 1 } });
 export const addWallet = (data: Wallet): Promise<ApiResponse> => API.post('/v1/wallets', data);
 export const updateWallet = (id: number, data: Wallet): Promise<ApiResponse> => API.patch(`/v1/wallets/${id}`, data);
 export const deleteWallet = (id: number): Promise<ApiResponse> => API.delete(`/v1/wallets/${id}`);
 
 export const getGroups = (): Promise<ApiResponse> => API.get('/v1/groups');
+export const getActiveGroups = (): Promise<ApiResponse> => API.get('/v1/groups', { params: { active: 1 } });
 export const addGroup = (data: Group): Promise<ApiResponse> => API.post('/v1/groups', data);
 export const updateGroup = (id: number, data: Group): Promise<ApiResponse> => API.patch(`/v1/groups/${id}`, data);
 export const deleteGroup = (id: number): Promise<ApiResponse> => API.delete(`/v1/groups/${id}`);

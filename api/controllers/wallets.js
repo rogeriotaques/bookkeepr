@@ -1,5 +1,11 @@
 exports.getWallets = async (req, res) => {
-  const wallets = await global.knex('wallets').select(['*']);
+  const { active } = req.query;
+  const wallets = await global
+    .knex('wallets')
+    .modify((qb) => {
+      if (active) qb.where({ active });
+    })
+    .select(['*']);
   res.json({ wallets });
 };
 
