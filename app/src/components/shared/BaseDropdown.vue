@@ -147,7 +147,7 @@ watch(isOpen, (value) => {
   }
 
   &__item {
-    display: block;
+    display: block !important;
     background-color: transparent;
     border: none;
     border-radius: 0;

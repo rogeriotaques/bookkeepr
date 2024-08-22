@@ -11,7 +11,7 @@
         <div class="card__footer">
           <a :class="{ 'card__link--disabled': props.loading }" class="card__link" @click="emit('cancel')">Cancel</a>
           <a :class="[`card__link--${props.type}`, { 'card__link--disabled': props.loading }]" class="card__link" @click="onConfirmHandler">
-            <IconLoader2 v-if="props.loading" class="animate-spin" width="16" height="16" />
+            <IconLoader2 v-if="props.loading" class="is-spinning" width="16" height="16" />
             <template v-else>{{ props.confirmText }}</template>
           </a>
         </div>

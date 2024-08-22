@@ -25,7 +25,7 @@ table {
 }
 
 button, .button {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: space-around;
   height: 48px;
@@ -83,6 +83,10 @@ button, .button {
   &-pulled-right {
     margin-left: auto;
   }
+
+  &-spinning {
+    animation: spin 1s linear infinite;
+  }
 }
 
 .has {
@@ -123,6 +127,3 @@ button, .button {
   }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
-}

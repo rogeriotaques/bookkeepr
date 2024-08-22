@@ -10,7 +10,7 @@
       </div>
       <div class="col-4 settings-advanced-database__actions">
         <button class="has-tooltip has-tooltip--left" type="button" data-tooltip="Free up space and reduce database size" @click="onVacuumHandler">
-          <IconLoader2 v-if="isLoading" class="animate-spin" />
+          <IconLoader2 v-if="isLoading" class="is-spinning" width="16" height="16" />
           <IconRefresh v-else />
           <span>Vacuum</span>
         </button>

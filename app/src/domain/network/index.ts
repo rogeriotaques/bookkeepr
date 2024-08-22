@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { ApiResponse, SettingsData, SettingsPayloadData, Wallet, Group } from '@/domain/interfaces';
+import { ApiResponse, SettingsData, SettingsPayloadData, Wallet, Group, Entry } from '@/domain/interfaces';
 import { respHandler, errorHandler } from '@/domain/network/utils';
 import { BASE_URL } from '@/domain/constants';
 
@@ -26,5 +26,10 @@ export const getGroups = (): Promise<ApiResponse> => API.get('/v1/groups');
 export const addGroup = (data: Group): Promise<ApiResponse> => API.post('/v1/groups', data);
 export const updateGroup = (id: number, data: Group): Promise<ApiResponse> => API.patch(`/v1/groups/${id}`, data);
 export const deleteGroup = (id: number): Promise<ApiResponse> => API.delete(`/v1/groups/${id}`);
+
+export const getEntries = (): Promise<ApiResponse> => API.get('/v1/entries');
+export const addEntry = (data: Entry): Promise<ApiResponse> => API.post('/v1/entries', data);
+export const updateEntry = (id: number, data: Entry): Promise<ApiResponse> => API.patch(`/v1/entries/${id}`, data);
+export const deleteEntry = (id: number): Promise<ApiResponse> => API.delete(`/v1/entries/${id}`);
 
 export const runVacuum = (): Promise<ApiResponse> => API.post('/v1/settings/vacuum');

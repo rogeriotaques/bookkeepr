@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import Toast from 'vue-toastification';
+import VMoney from 'v-money';
 
 import '@/styles/bookkeepr.scss';
 import '@/styles/popper.scss';
@@ -12,6 +13,7 @@ import App from '@/App.vue';
 
 const app = createApp(App);
 
+app.use(VMoney);
 app.use(Toast, TOAST_BASE_SETTINGS);
 app.use(VueQueryPlugin);
 app.use(router);

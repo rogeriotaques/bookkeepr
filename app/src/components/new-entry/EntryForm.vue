@@ -9,7 +9,7 @@
               <p class="input__addon input__addon--icon">
                 <IconCurrencyYen :size="18" />
               </p>
-              <input v-model="data.amount" ref="amount" type="text" placeholder="E.g. 1,234" />
+              <input v-model="data.amount" v-money="V_MONEY_OPTIONS" ref="amount" type="text" placeholder="E.g. 1,234" maxlength="11" />
             </div>
           </div>
         </div>
@@ -49,15 +49,19 @@
     </div>
     <!-- .card -->
 
-    <button :disabled="!isFormValid" type="submit" class="is-full-width">Save</button>
+    <button :disabled="!isFormValid || props.isSubmitting" type="submit" class="is-full-width" @click="onSaveClickHandler">
+      <IconLoader2 v-if="props.isSubmitting" width="16" height="16" class="is-spinning" />
+      <span v-else>Save</span>
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, onMounted, nextTick } from 'vue';
-import { IconCalendar, IconCurrencyYen } from '@tabler/icons-vue';
+import { ref, Ref, computed, watch, onMounted, nextTick } from 'vue';
+import { IconCalendar, IconCurrencyYen, IconLoader2 } from '@tabler/icons-vue';
 
 import { Entry, Wallet, Group } from '@/domain/interfaces';
+import { V_MONEY_OPTIONS } from '@/domain/constants';
 
 import useGroups from '@/composable/useGroups';
 import useWallets from '@/composable/useWallets';
@@ -66,14 +70,21 @@ import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 interface Props {
   data: Entry;
+  isSubmitting: boolean;
 }
 
 const props = defineProps<Props>();
 
-const { getGroups, invalidateQuery: invalidateGroupsQuery } = useGroups();
+interface Emits {
+  (e: 'submit'): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const { getGroups } = useGroups();
 const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, error: groupsError } = await getGroups();
 
-const { getWallets, invalidateQuery: invalidateWalletsQuery } = useWallets();
+const { getWallets } = useWallets();
 const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getWallets();
 
 const amount: Ref<HTMLInputElement | null> = ref(null);
@@ -83,18 +94,27 @@ const isWalletsLoaded = computed(() => !isWalletsLoading.value && !isWalletsErro
 const wallets: any = computed(() => walletsData.value?.wallets ?? []);
 const groups: any = computed(() => groupsData.value?.groups ?? []);
 
+interface DropdownOption {
+  value: string;
+  label: string;
+}
+
 const categoryOptions = computed(() =>
-  groups.value.map((group: Group) => ({
-    value: group.id,
-    label: group.name,
-  }))
+  groups.value
+    .map((group: Group) => ({
+      value: group.code,
+      label: group.name,
+    }))
+    .sort((a: DropdownOption, b: DropdownOption) => a.label.localeCompare(b.label))
 );
 
 const walletOptions = computed(() =>
-  wallets.value.map((wallet: Wallet) => ({
-    value: wallet.id,
-    label: wallet.name,
-  }))
+  wallets.value
+    .map((wallet: Wallet) => ({
+      value: wallet.id,
+      label: wallet.name,
+    }))
+    .sort((a: DropdownOption, b: DropdownOption) => a.label.localeCompare(b.label))
 );
 
 const isFormValid = computed(
@@ -106,11 +126,22 @@ const isFormValid = computed(
     props.data.date.length > 0
 );
 
+watch(
+  () => props.isSubmitting,
+  (submitting) => {
+    if (!submitting) amount?.value?.focus();
+  }
+);
+
 onMounted(() => {
   nextTick(() => {
     amount?.value?.focus();
   });
 });
+
+const onSaveClickHandler = () => {
+  emit('submit');
+};
 </script>
 
 <style lang="scss" scoped>

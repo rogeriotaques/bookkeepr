@@ -36,9 +36,15 @@ export interface Entry {
   date: string;
 }
 
+export interface ExtendedEntry extends Entry {
+  groupName: string;
+  operation: string;
+}
+
 export interface ApiResponse<T = any> {
   wallets?: Wallet[];
   groups?: Group[];
+  entries?: Entry[] | ExtendedEntry[];
   success?: boolean;
   error?: string;
 }

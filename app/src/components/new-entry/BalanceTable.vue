@@ -5,34 +5,19 @@
         <tr>
           <th>Day</th>
           <th width="25%">Description</th>
-          <th>Outcome</th>
-          <th>Income</th>
-          <th>Balance</th>
+          <th>Operation</th>
+          <th class="has-text-right">Amount</th>
+          <th class="has-text-right">Balance</th>
           <th>&nbsp;</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>2021-01-01</td>
-          <td>Salary</td>
-          <td>¥0.00</td>
-          <td>¥10,000.00</td>
-          <td>¥10,000.00</td>
-          <td class="has-text-right">
-            <a class="link">
-              <IconEdit />
-            </a>
-            <a class="link is-danger">
-              <IconTrash />
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>2021-01-01</td>
-          <td>Salary</td>
-          <td>¥0.00</td>
-          <td>¥10,000.00</td>
-          <td>¥20,000.00</td>
+        <tr v-for="entry in entries" :key="entry.id">
+          <td>{{ entry.date }}</td>
+          <td>{{ entry.description }}</td>
+          <td>{{ entry.operation === ENTRY_OPERATIONS.INCOME ? 'Income' : 'Expense' }}</td>
+          <td class="has-text-right">{{ formatCurrency(entry.amount) }}</td>
+          <td class="has-text-right">{{ formatCurrency(entry.balance) }}</td>
           <td class="has-text-right">
             <a class="link">
               <IconEdit />
@@ -47,11 +32,8 @@
       </tbody>
       <tfoot>
         <tr>
-          <th>Total</th>
-          <th></th>
-          <th>¥0.00</th>
-          <th>¥20,000.00</th>
-          <th>¥20,000.00</th>
+          <th colspan="4">Total</th>
+          <th class="has-text-right">{{ formatCurrency(balance) }}</th>
           <th></th>
         </tr>
       </tfoot>
@@ -64,9 +46,35 @@
 import { computed } from 'vue';
 import { IconEdit, IconTrash } from '@tabler/icons-vue';
 
+import { ExtendedEntry } from '@/domain/interfaces';
+import { ENTRY_OPERATIONS } from '@/domain/constants';
+
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 
-const entries = computed(() => []);
+interface Props {
+  data: ExtendedEntry[];
+}
+
+const props = defineProps<Props>();
+
+let balance = 0;
+
+const entries = computed(() =>
+  props.data.map((entry) => {
+    if (entry.operation === ENTRY_OPERATIONS.INCOME) {
+      balance += entry.amount;
+    } else {
+      balance -= entry.amount;
+    }
+
+    return {
+      ...entry,
+      balance: balance,
+    };
+  })
+);
+
+const formatCurrency = (value: number) => value.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });
 </script>
 
 <style lang="scss" scoped>

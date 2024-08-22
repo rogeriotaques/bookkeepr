@@ -11,7 +11,7 @@
         <div class="box__footer">
           <a class="box__link" @click="!props.loading && emit('cancel')">Cancel</a>
           <button :type="buttonType" :disabled="props.confirmDisabled || props.loading" @click="onConfirmHandler">
-            <IconLoader2 v-if="props.loading" class="animate-spin" width="16" height="16" />
+            <IconLoader2 v-if="props.loading" class="is-spinning" width="16" height="16" />
             <template v-else>{{ props.confirmText }}</template>
           </button>
         </div>
