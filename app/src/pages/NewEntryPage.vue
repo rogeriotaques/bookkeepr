@@ -5,7 +5,9 @@
         <EntryForm
           :data="form"
           :is-submitting="isSubmitting"
+          :is-editing="!!editingID"
           @submit="onSubmitHandler"
+          @cancel="resetForm(true)"
         />
       </div>
       <div class="col-8">
@@ -16,7 +18,9 @@
         />
         <BalanceTable
           :data="entries"
+          :editing="editingID"
           @update="invalidateEntriesQuery"
+          @edit="onEditHandler"
         />
       </div>
     </div>
@@ -32,11 +36,12 @@ import EntryForm from '@/components/new-entry/EntryForm.vue';
 import BalanceTable from '@/components/new-entry/BalanceTable.vue';
 import BalanceFilterForm from '@/components/new-entry/BalanceFilterForm.vue';
 
-import { addEntry } from '@/domain/network';
+import { addEntry, updateEntry } from '@/domain/network';
 import { ExtendedEntry } from '@/domain/interfaces';
 
 import useEntries from '@/composable/useEntries';
 
+const editingID = ref<number | null>(null);
 const isSubmitting = ref(false);
 const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
@@ -66,7 +71,20 @@ const resetForm = (hard = false) => {
     form.group = '';
     form.wallet = '';
     form.date = '';
+
+    editingID.value = null;
   }
+};
+
+const onEditHandler = (entry: ExtendedEntry) => {
+  editingID.value = entry.id ?? null;
+
+  form.id = entry.id;
+  form.amount = entry.amount;
+  form.description = entry.description;
+  form.group = entry.group;
+  form.wallet = entry.wallet;
+  form.date = entry.date;
 };
 
 const onSubmitHandler = async () => {
@@ -74,6 +92,7 @@ const onSubmitHandler = async () => {
 
   try {
     if (form.id) {
+      await updateEntry(form.id, form);
       resetForm(true);
       toast.success('Entry updated!');
     } else {

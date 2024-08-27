@@ -15,6 +15,7 @@
         <tr
           v-for="entry in entries"
           :key="entry.id"
+          :class="{ 'balance-table__editing': props.editing === entry.id }"
         >
           <td>{{ entry.date }}</td>
           <td>{{ entry.description }}</td>
@@ -23,11 +24,19 @@
           <td class="has-text-right">{{ formatCurrency(entry.balance) }}</td>
           <td class="has-text-right">
             <a
+              v-if="props.editing !== entry.id"
               class="link"
               @click="emit('edit', entry)"
             >
               <IconEdit />
             </a>
+            <span
+              v-else
+              class="link link--editing"
+            >
+              <IconEye />
+            </span>
+
             <a
               class="link is-danger"
               @click="onDeleteHandler(entry.id ?? 0)"
@@ -74,7 +83,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { IconEdit, IconTrash } from '@tabler/icons-vue';
+import { IconEdit, IconTrash, IconEye } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { ExtendedEntry } from '@/domain/interfaces';
@@ -86,6 +95,7 @@ import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 
 interface Props {
   data: ExtendedEntry[];
+  editing?: number | null;
 }
 
 const props = defineProps<Props>();
@@ -117,7 +127,8 @@ const entries = computed(() => {
 
   return entries;
 });
-const finalBalance = computed(() => entries.value[entries.value.length - 1].balance);
+
+const finalBalance = computed(() => entries.value[entries.value.length - 1]?.balance ?? 0);
 
 const formatCurrency = (value: number) => value.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });
 
@@ -173,6 +184,18 @@ const onDeleteConfirmHandler = async () => {
       background-color: #e9e9e9;
     }
   }
+
+  &__editing {
+    td {
+      background-color: var(--c-warning-background);
+    }
+
+    &:hover {
+      td {
+        background-color: var(--c-warning);
+      }
+    }
+  }
 }
 
 .link {
@@ -187,7 +210,7 @@ const onDeleteConfirmHandler = async () => {
     content: none !important;
   }
 
-  &:hover {
+  &:not(.link--editing):hover {
     > svg {
       stroke: var(--c-info);
     }
@@ -197,6 +220,10 @@ const onDeleteConfirmHandler = async () => {
     > svg {
       stroke: var(--c-danger);
     }
+  }
+
+  &--editing {
+    cursor: default;
   }
 }
 </style>

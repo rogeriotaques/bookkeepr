@@ -9,7 +9,14 @@
               <p class="input__addon input__addon--icon">
                 <IconCurrencyYen :size="18" />
               </p>
-              <input v-model="data.amount" v-money="V_MONEY_OPTIONS" ref="amount" type="text" placeholder="E.g. 1,234" maxlength="11" />
+              <input
+                v-model="data.amount"
+                v-money="V_MONEY_OPTIONS"
+                ref="amount"
+                type="text"
+                placeholder="E.g. 1,234"
+                maxlength="11"
+              />
             </div>
           </div>
         </div>
@@ -18,7 +25,11 @@
           <div class="col-12">
             <label for="input">Description</label>
             <div class="input">
-              <input v-model="data.description" type="text" placeholder="E.g. Lunch with a friend" />
+              <input
+                v-model="data.description"
+                type="text"
+                placeholder="E.g. Lunch with a friend"
+              />
             </div>
           </div>
         </div>
@@ -26,13 +37,33 @@
         <div class="row">
           <div class="col-6">
             <label for="input">Category</label>
-            <BaseDropdown v-if="isGroupsLoaded" v-model="data.group" :options="categoryOptions" full-width />
-            <div v-else-if="isGroupsError" class="notification is-danger">{{ groupsError }}</div>
+            <BaseDropdown
+              v-if="isGroupsLoaded"
+              v-model="data.group"
+              :options="categoryOptions"
+              full-width
+            />
+            <div
+              v-else-if="isGroupsError"
+              class="notification is-danger"
+            >
+              {{ groupsError }}
+            </div>
           </div>
           <div class="col-6">
             <label for="input">Wallet</label>
-            <BaseDropdown v-if="isWalletsLoaded" v-model="data.wallet" :options="walletOptions" full-width />
-            <div v-else-if="isWalletsError" class="notification is-danger">{{ walletsError }}</div>
+            <BaseDropdown
+              v-if="isWalletsLoaded"
+              v-model="data.wallet"
+              :options="walletOptions"
+              full-width
+            />
+            <div
+              v-else-if="isWalletsError"
+              class="notification is-danger"
+            >
+              {{ walletsError }}
+            </div>
           </div>
         </div>
 
@@ -41,7 +72,10 @@
             <label for="input">Date</label>
             <div class="input input--with-addons">
               <p class="input__addon input__addon--icon"><IconCalendar :size="18" /></p>
-              <input v-model="data.date" type="date" />
+              <input
+                v-model="data.date"
+                type="date"
+              />
             </div>
           </div>
         </div>
@@ -49,10 +83,30 @@
     </div>
     <!-- .card -->
 
-    <button :disabled="!isFormValid || props.isSubmitting" type="submit" class="is-full-width" @click="onSaveClickHandler">
-      <IconLoader2 v-if="props.isSubmitting" width="16" height="16" class="is-spinning" />
-      <span v-else>Save</span>
-    </button>
+    <div class="entry-form__actions">
+      <button
+        v-if="props.isEditing"
+        :disabled="props.isSubmitting"
+        @click="emit('cancel')"
+      >
+        Cancel
+      </button>
+
+      <button
+        :disabled="!isFormValid || props.isSubmitting"
+        type="submit"
+        class="is-full-width"
+        @click="onSaveClickHandler"
+      >
+        <IconLoader2
+          v-if="props.isSubmitting"
+          width="16"
+          height="16"
+          class="is-spinning"
+        />
+        <span v-else>Save</span>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -71,12 +125,14 @@ import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 interface Props {
   data: Entry;
   isSubmitting: boolean;
+  isEditing: boolean;
 }
 
 const props = defineProps<Props>();
 
 interface Emits {
-  (e: 'submit'): void;
+  (event: 'submit'): void;
+  (event: 'cancel'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -87,7 +143,7 @@ const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, er
 const { getActiveWallets } = useWallets();
 const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getActiveWallets();
 
-const amount: Ref<HTMLInputElement | null> = ref(null);
+const amountRef: Ref<HTMLInputElement | null> = ref(null);
 
 const isGroupsLoaded = computed(() => !isGroupsLoading.value && !isGroupsError.value);
 const isWalletsLoaded = computed(() => !isWalletsLoading.value && !isWalletsError.value);
@@ -128,15 +184,27 @@ const isFormValid = computed(
 
 watch(
   () => props.isSubmitting,
-  (submitting) => {
-    if (!submitting) amount?.value?.focus();
+  async (submitting) => {
+    if (!submitting) {
+      await nextTick();
+      amountRef?.value?.focus();
+    }
   }
 );
 
-onMounted(() => {
-  nextTick(() => {
-    amount?.value?.focus();
-  });
+watch(
+  () => props.isEditing,
+  async (editing) => {
+    if (editing) {
+      await nextTick();
+      amountRef?.value?.focus();
+    }
+  }
+);
+
+onMounted(async () => {
+  await nextTick();
+  amountRef?.value?.focus();
 });
 
 const onSaveClickHandler = () => {
@@ -146,6 +214,12 @@ const onSaveClickHandler = () => {
 
 <style lang="scss" scoped>
 .entry-form {
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
   .card {
     max-width: 640px;
     box-shadow: none;
