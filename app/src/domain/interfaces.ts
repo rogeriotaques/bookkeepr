@@ -38,6 +38,7 @@ export interface Entry {
 
 export interface ExtendedEntry extends Entry {
   groupName: string;
+  walletName: string;
   operation: string;
 }
 

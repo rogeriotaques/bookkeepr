@@ -5,8 +5,8 @@
         <tr>
           <th>Day</th>
           <th width="25%">Description</th>
-          <th>Operation</th>
-          <th class="has-text-right">Amount</th>
+          <th class="has-text-right">Outcome</th>
+          <th class="has-text-right">Income</th>
           <th class="has-text-right">Balance</th>
           <th>&nbsp;</th>
         </tr>
@@ -18,9 +18,15 @@
           :class="{ 'balance-table__editing': props.editing === entry.id }"
         >
           <td>{{ entry.date }}</td>
-          <td>{{ entry.description }}</td>
-          <td>{{ entry.operation === ENTRY_OPERATIONS.INCOME ? 'Income' : 'Expense' }}</td>
-          <td class="has-text-right">{{ formatCurrency(entry.amount) }}</td>
+          <td>
+            <div>{{ entry.description }}</div>
+            <div>
+              <span class="badge">{{ entry.groupName }}</span>
+              <span class="badge">{{ entry.walletName }}</span>
+            </div>
+          </td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? formatCurrency(entry.amount) : '' }}</td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? formatCurrency(entry.amount) : '' }}</td>
           <td class="has-text-right">{{ formatCurrency(entry.balance) }}</td>
           <td class="has-text-right">
             <a
@@ -50,11 +56,14 @@
       </tbody>
       <tfoot>
         <tr>
-          <th>Total</th>
-          <th
-            colspan="4"
-            class="has-text-right"
-          >
+          <th colspan="2">Total</th>
+          <th class="has-text-right">
+            {{ formatCurrency(totalOutcome) }}
+          </th>
+          <th class="has-text-right">
+            {{ formatCurrency(totalIncome) }}
+          </th>
+          <th class="has-text-right">
             {{ formatCurrency(finalBalance) }}
           </th>
           <th></th>
@@ -128,8 +137,12 @@ const entries = computed(() => {
   return entries;
 });
 
+const totalIncome = computed(() => entries.value.filter(isIncome).reduce((acc, entry) => entry.amount + acc, 0));
+const totalOutcome = computed(() => entries.value.filter(isOutcome).reduce((acc, entry) => entry.amount + acc, 0));
 const finalBalance = computed(() => entries.value[entries.value.length - 1]?.balance ?? 0);
 
+const isIncome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.INCOME;
+const isOutcome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.EXPENSE;
 const formatCurrency = (value: number) => value.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });
 
 const onDeleteHandler = (id: number) => {
@@ -194,6 +207,16 @@ const onDeleteConfirmHandler = async () => {
       td {
         background-color: var(--c-warning);
       }
+    }
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    min-width: auto;
+
+    + .badge {
+      margin-left: 2px;
     }
   }
 }

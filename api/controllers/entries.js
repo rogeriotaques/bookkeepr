@@ -1,9 +1,10 @@
 exports.getEntries = async (req, res) => {
   const { year, month } = req.query;
   const entries = await global.knex
-    .select(['entries.*', 'groups.name as groupName', 'groups.operation'])
+    .select(['entries.*', 'groups.name as groupName', 'groups.operation', 'wallets.name as walletName'])
     .from('entries')
     .innerJoin('groups', 'groups.code', 'entries.group')
+    .innerJoin('wallets', 'wallets.id', 'entries.wallet')
     .whereRaw(global.knex.raw(`strftime('%Y', entries.date) = '${year}' AND strftime('%m', entries.date) = '${month}'`))
     .orderBy('entries.date', 'asc');
 
