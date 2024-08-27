@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, watch, onUpdated, nextTick } from 'vue';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
 
@@ -108,14 +108,13 @@ const onSubmitHandler = async () => {
   }
 };
 
+let isSearchTargetReady = false;
 let searchTarget = null;
 let treeWalker = null;
 const allTextNodes: any[] = [];
 
-watch(isEntriesLoading, async () => {
-  await nextTick();
-
-  if (isEntriesLoading.value) return;
+onUpdated(() => {
+  if (isEntriesLoading.value || isSearchTargetReady) return;
 
   searchTarget = document.querySelector('.balance-table tbody');
   treeWalker = document.createTreeWalker(searchTarget as Node, NodeFilter.SHOW_TEXT);
@@ -126,6 +125,8 @@ watch(isEntriesLoading, async () => {
     allTextNodes.push(currentNode);
     currentNode = treeWalker.nextNode();
   }
+
+  isSearchTargetReady = true;
 });
 
 watch(search, async () => {
@@ -153,8 +154,6 @@ watch(search, async () => {
       indices.push(index);
       startPos = index + searchText.length;
     }
-
-    console.log(indices);
 
     return indices.map((index) => {
       const range = new Range();
