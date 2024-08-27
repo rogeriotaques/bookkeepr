@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
 
@@ -107,6 +107,74 @@ const onSubmitHandler = async () => {
     isSubmitting.value = false;
   }
 };
+
+let searchTarget = null;
+let treeWalker = null;
+const allTextNodes: any[] = [];
+
+watch(isEntriesLoading, async () => {
+  await nextTick();
+
+  if (isEntriesLoading.value) return;
+
+  searchTarget = document.querySelector('.balance-table tbody');
+  treeWalker = document.createTreeWalker(searchTarget as Node, NodeFilter.SHOW_TEXT);
+
+  let currentNode = treeWalker.nextNode();
+
+  while (currentNode) {
+    allTextNodes.push(currentNode);
+    currentNode = treeWalker.nextNode();
+  }
+});
+
+watch(search, async () => {
+  await nextTick();
+
+  if (!CSS.highlights) return;
+
+  // @ts-ignore
+  CSS.highlights.clear();
+
+  const searchText = search.value.trim().toLowerCase();
+  if (!searchText) return;
+
+  const mapRanges = (el: any) => {
+    return { el, text: el.textContent.toLowerCase() };
+  };
+
+  const mapRangesToHighlight = ({ text, el }: { text: string; el: any }) => {
+    const indices = [];
+    let startPos = 0;
+
+    while (startPos < text.length) {
+      const index = text.indexOf(searchText, startPos);
+      if (index === -1) break;
+      indices.push(index);
+      startPos = index + searchText.length;
+    }
+
+    console.log(indices);
+
+    return indices.map((index) => {
+      const range = new Range();
+      range.setStart(el, index);
+      range.setEnd(el, index + searchText.length);
+      return range;
+    });
+  };
+
+  const ranges = allTextNodes.map(mapRanges).map(mapRangesToHighlight);
+  const searchResultsHighlight = new Highlight(...ranges.flat());
+
+  // @ts-ignore
+  CSS.highlights.set('search-results', searchResultsHighlight);
+});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+::highlight(search-results) {
+  background-color: #f06;
+  color: white;
+}
+</style>
