@@ -29,7 +29,7 @@ export const addGroup = (data: Group): Promise<ApiResponse> => API.post('/v1/gro
 export const updateGroup = (id: number, data: Group): Promise<ApiResponse> => API.patch(`/v1/groups/${id}`, data);
 export const deleteGroup = (id: number): Promise<ApiResponse> => API.delete(`/v1/groups/${id}`);
 
-export const getEntries = (): Promise<ApiResponse> => API.get('/v1/entries');
+export const getEntries = (year: string, month: string): Promise<ApiResponse> => API.get('/v1/entries', { params: { year, month } });
 export const addEntry = (data: Entry): Promise<ApiResponse> => API.post('/v1/entries', data);
 export const updateEntry = (id: number, data: Entry): Promise<ApiResponse> => API.patch(`/v1/entries/${id}`, data);
 export const deleteEntry = (id: number): Promise<ApiResponse> => API.delete(`/v1/entries/${id}`);

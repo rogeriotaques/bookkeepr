@@ -2,19 +2,31 @@
   <section class="new-entry">
     <div class="row">
       <div class="col-4">
-        <EntryForm :data="form" :is-submitting="isSubmitting" @submit="onSubmitHandler" />
+        <EntryForm
+          :data="form"
+          :is-submitting="isSubmitting"
+          @submit="onSubmitHandler"
+        />
       </div>
       <div class="col-8">
-        <BalanceFilterForm />
-        <BalanceTable :data="entries" />
+        <BalanceFilterForm
+          v-model:year="year"
+          v-model:month="month"
+          v-model:search="search"
+        />
+        <BalanceTable
+          :data="entries"
+          @update="invalidateEntriesQuery"
+        />
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, reactive, computed } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { useToast } from 'vue-toastification';
+import dayjs from 'dayjs';
 
 import EntryForm from '@/components/new-entry/EntryForm.vue';
 import BalanceTable from '@/components/new-entry/BalanceTable.vue';
@@ -25,11 +37,14 @@ import { ExtendedEntry } from '@/domain/interfaces';
 
 import useEntries from '@/composable/useEntries';
 
-const toast = useToast();
-const { getEntries, invalidateQuery: invalidateEntriesQuery } = useEntries();
-const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
-
 const isSubmitting = ref(false);
+const year = ref(`${dayjs().year()}`);
+const month = ref(`00${dayjs().month() + 1}`.slice(-2));
+const search = ref('');
+
+const toast = useToast();
+const { getEntries, invalidateQuery: invalidateEntriesQuery } = useEntries(year, month);
+const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
 
 const form = reactive<any>({
   id: null,

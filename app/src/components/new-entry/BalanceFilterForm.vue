@@ -3,7 +3,11 @@
     <div class="balance-filter-form__filter-by-string">
       <label for="input">Search by</label>
       <div class="input input--with-addons">
-        <input v-model="filterByText" type="text" placeholder="Description, category, wallet, or amount" />
+        <input
+          v-model="filterByText"
+          type="text"
+          placeholder="Description, category, wallet, or amount"
+        />
         <p class="input__addon input__addon--icon">
           <IconSearch :size="18" />
         </p>
@@ -12,16 +16,23 @@
     <div class="balance-filter-form__filter-by-date">
       <label for="input">Filter by</label>
       <div>
-        <BaseDropdown v-model="filterByYear" :options="yearOptions" />
-        <BaseDropdown v-model="filterByMonth" :options="monthOptions" />
+        <BaseDropdown
+          v-model="filterByYear"
+          :options="yearOptions"
+        />
+        <BaseDropdown
+          v-model="filterByMonth"
+          :options="monthOptions"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { IconSearch } from '@tabler/icons-vue';
+import dayjs from 'dayjs';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
@@ -46,11 +57,48 @@ const monthOptions = [
   { value: '12', label: 'December' },
 ];
 
-const now = new Date();
+interface Props {
+  year: string;
+  month: string;
+  search: string;
+}
 
-const filterByText = ref('');
-const filterByYear = ref(`${now.getFullYear()}`);
-const filterByMonth = ref(`00${now.getMonth() + 1}`.slice(-2));
+const props = defineProps<Props>();
+
+interface Emits {
+  (event: 'update:year', value: string): void;
+  (event: 'update:month', value: string): void;
+  (event: 'update:search', value: string): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const filterByYear = computed({
+  get() {
+    return props.year;
+  },
+  set(value) {
+    emit('update:year', value);
+  },
+});
+
+const filterByMonth = computed({
+  get() {
+    return props.month;
+  },
+  set(value) {
+    emit('update:month', value);
+  },
+});
+
+const filterByText = computed({
+  get() {
+    return props.search;
+  },
+  set(value) {
+    emit('update:search', value);
+  },
+});
 </script>
 
 <style lang="scss" scoped>

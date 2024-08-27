@@ -10,19 +10,38 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="group in props.data" :key="group.id">
+      <tr
+        v-for="group in props.data"
+        :key="group.id"
+      >
         <td>{{ group.code }}</td>
         <td>{{ group.name }}</td>
         <td>{{ toCamelCase(group.operation) }}</td>
         <td>
-          <span v-if="group.active" class="badge badge--success">Active</span>
-          <span v-else class="badge badge--warning">Inactive</span>
+          <span
+            v-if="group.active"
+            class="badge badge--success"
+          >
+            Active
+          </span>
+          <span
+            v-else
+            class="badge badge--warning"
+          >
+            Inactive
+          </span>
         </td>
         <td class="has-text-right">
-          <a class="link" @click="emit('edit', group)">
+          <a
+            class="link"
+            @click="emit('edit', group)"
+          >
             <IconEdit />
           </a>
-          <a class="link is-danger" @click="onDeleteHandler(group.id ?? 0)">
+          <a
+            class="link is-danger"
+            @click="onDeleteHandler(group.id ?? 0)"
+          >
             <IconTrash />
           </a>
         </td>
@@ -41,8 +60,9 @@
     @cancel="onCancelConfirmHandler"
   >
     <p>
-      Are you sure you want to delete <b>{{ selectedGroup?.name }}</b
-      >?
+      Delete
+      <b>{{ selectedGroup?.name }}</b>
+      ?
     </p>
     <p>This action cannot be undone.</p>
   </BaseConfirmModal>

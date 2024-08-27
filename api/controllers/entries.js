@@ -1,9 +1,12 @@
 exports.getEntries = async (req, res) => {
+  const { year, month } = req.query;
   const entries = await global.knex
+    .select(['entries.*', 'groups.name as groupName', 'groups.operation'])
     .from('entries')
     .innerJoin('groups', 'groups.code', 'entries.group')
-    .select(['entries.*', 'groups.name as groupName', 'groups.operation'])
+    .whereRaw(global.knex.raw(`strftime('%Y', entries.date) = '${year}' AND strftime('%m', entries.date) = '${month}'`))
     .orderBy('entries.date', 'asc');
+
   res.json({ entries });
 };
 
@@ -25,8 +28,8 @@ exports.saveEntry = async (req, res) => {
   return res.json({ entry });
 };
 
-// exports.deleteWallet = async (req, res) => {
-//   const { id } = req.params;
-//   await global.knex('wallets').where({ id }).del();
-//   res.json({ success: true });
-// };
+exports.deleteEntry = async (req, res) => {
+  const { id } = req.params;
+  await global.knex('entries').where({ id }).del();
+  res.json({ success: true });
+};
