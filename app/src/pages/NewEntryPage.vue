@@ -15,6 +15,7 @@
           v-model:year="year"
           v-model:month="month"
           v-model:search="search"
+          :years="recordedYears"
         />
         <BalanceTable
           :data="entries"
@@ -48,8 +49,15 @@ const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
 
 const toast = useToast();
+const { getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useEntries();
 const { getEntries, invalidateQuery: invalidateEntriesQuery } = useEntries(year, month);
 const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
+const {
+  isLoading: isRecordedYearsLoading,
+  isError: isRecordedYearsError,
+  data: recordedYearsData,
+  error: recordedYearsError,
+} = await getRecordedYears();
 
 const form = reactive<any>({
   id: null,
@@ -61,6 +69,7 @@ const form = reactive<any>({
 });
 
 const entries = computed(() => (entriesData.value?.entries ?? []) as ExtendedEntry[]);
+const recordedYears = computed(() => (recordedYearsData.value?.years ?? []) as string[]);
 
 const resetForm = (hard = false) => {
   form.id = null;

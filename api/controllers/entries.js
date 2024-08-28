@@ -11,6 +11,15 @@ exports.getEntries = async (req, res) => {
   res.json({ entries });
 };
 
+exports.getRecordedYears = async (req, res) => {
+  const years = await global
+    .knex('entries')
+    .select([global.knex.raw('distinct strftime("%Y", date) as year')])
+    .orderBy('year', 'desc');
+
+  res.json({ years: years.map(({ year }) => year) });
+};
+
 exports.saveEntry = async (req, res) => {
   const { date, description, amount = 0, group, wallet } = req.body;
   const { id } = req.params;

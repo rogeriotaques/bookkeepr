@@ -5,9 +5,9 @@
 
 const router = require('express').Router();
 
-router.use('/settings', require('@/routes/v1/settings'));
-router.use('/wallets', require('@/routes/v1/wallets'));
-router.use('/groups', require('@/routes/v1/groups'));
-router.use('/entries', require('@/routes/v1/entries'));
+router.use('/settings', require('@/routes/settings'));
+router.use('/wallets', require('@/routes/wallets'));
+router.use('/groups', require('@/routes/groups'));
+router.use('/entries', require('@/routes/entries'));
 
 module.exports = router;

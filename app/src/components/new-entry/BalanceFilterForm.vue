@@ -36,11 +36,22 @@ import dayjs from 'dayjs';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
-const yearOptions = [
-  { value: '2024', label: '2024' },
-  { value: '2023', label: '2023' },
-  { value: '2022', label: '2022' },
-];
+interface Props {
+  year: string;
+  month: string;
+  search: string;
+  years: string[];
+}
+
+const props = defineProps<Props>();
+
+interface Emits {
+  (event: 'update:year', value: string): void;
+  (event: 'update:month', value: string): void;
+  (event: 'update:search', value: string): void;
+}
+
+const emit = defineEmits<Emits>();
 
 const monthOptions = [
   { value: '01', label: 'January' },
@@ -57,21 +68,7 @@ const monthOptions = [
   { value: '12', label: 'December' },
 ];
 
-interface Props {
-  year: string;
-  month: string;
-  search: string;
-}
-
-const props = defineProps<Props>();
-
-interface Emits {
-  (event: 'update:year', value: string): void;
-  (event: 'update:month', value: string): void;
-  (event: 'update:search', value: string): void;
-}
-
-const emit = defineEmits<Emits>();
+const yearOptions = computed(() => props.years.map((year) => ({ value: year, label: year })));
 
 const filterByYear = computed({
   get() {

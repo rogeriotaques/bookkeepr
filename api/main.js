@@ -82,7 +82,7 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
   app.use('/', express.static(path.join(__dirname, '..', 'app', 'dist')));
 
   // Routes
-  app.use('/api/v1', require('@/routes'));
+  app.use('/api', require('@/routes'));
 
   try {
     createDatabase();
