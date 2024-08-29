@@ -4,33 +4,73 @@
       <thead>
         <tr>
           <th width="10%">&nbsp;</th>
-          <th v-for="month in months" :key="month.label">{{ month.label }}</th>
+          <th
+            v-for="month in months"
+            :key="month.label"
+          >
+            {{ month.label }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="category in liabilityCategories" :key="category.label">
+        <tr
+          v-for="category in liabilityCategories"
+          :key="category.label"
+        >
           <td>{{ category.label }}</td>
-          <td v-for="month in months" :key="month.label">¥0,000</td>
+          <td
+            v-for="month in months"
+            :key="month.label"
+          >
+            ¥0,000
+          </td>
         </tr>
       </tbody>
 
       <thead>
         <tr>
           <th width="10%">&nbsp;</th>
-          <th v-for="month in months" :key="month.label">{{ month.label }}</th>
+          <th
+            v-for="month in months"
+            :key="month.label"
+          >
+            {{ month.label }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="category in assetsCategories" :key="category.label">
+        <tr
+          v-for="category in assetsCategories"
+          :key="category.label"
+        >
           <td>{{ category.label }}</td>
-          <td v-for="month in months" :key="month.label">¥0,000</td>
+          <td
+            v-for="month in months"
+            :key="month.label"
+          >
+            ¥0,000
+          </td>
         </tr>
       </tbody>
 
       <tfoot>
         <tr>
-          <td width="15%">&nbsp;</td>
-          <td v-for="month in months" :key="month.label">¥0,000</td>
+          <td width="15%">Balance</td>
+          <td
+            v-for="month in months"
+            :key="month.label"
+          >
+            ¥0,000
+          </td>
+        </tr>
+        <tr>
+          <td width="15%">Consumption tax</td>
+          <td
+            v-for="month in months"
+            :key="month.label"
+          >
+            ¥0,000
+          </td>
         </tr>
       </tfoot>
     </table>
@@ -95,6 +135,10 @@ const assetsCategories = [
 
   td:not(:first-child) {
     text-align: right;
+  }
+
+  tfoot tr:first-child td {
+    padding-top: 48px;
   }
 }
 </style>

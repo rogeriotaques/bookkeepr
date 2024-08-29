@@ -3,7 +3,10 @@
     <div class="row">
       <div class="col-1" />
       <div class="col-2 report-page__filter">
-        <BaseDropdown v-model="filterByYear" :options="yearOptions" />
+        <BaseDropdown
+          v-model="filterByYear"
+          :options="recordedYears"
+        />
       </div>
       <div class="col-6">
         <ReportInsights />
@@ -14,20 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 import ReportInsights from '@/components/report/ReportInsights.vue';
 import ReportData from '@/components/report/ReportData.vue';
 
-const now = new Date();
-const yearOptions = [
-  { value: '2024', label: '2024' },
-  { value: '2023', label: '2023' },
-  { value: '2022', label: '2022' },
-];
+import useEntries from '@/composable/useEntries';
 
-const filterByYear = ref(`${now.getFullYear()}`);
+const { getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useEntries();
+const { data: recordedYearsData } = await getRecordedYears();
+
+const filterByYear = ref(`${new Date().getFullYear()}`);
+
+const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year) => ({ value: year, label: year })));
 </script>
 
 <style lang="scss" scoped>
