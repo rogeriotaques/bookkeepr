@@ -8,13 +8,22 @@
     placement="bottom-start"
     @open:popper="onOpenPopperHandler"
   >
-    <button class="base-dropdown__trigger" type="button" @click="isOpen = !isOpen" @blur="isOpen = false">
+    <button
+      :disabled="props.disabled"
+      class="base-dropdown__trigger"
+      type="button"
+      @click="isOpen = !isOpen"
+      @blur="isOpen = false"
+    >
       <span class="base-dropdown__trigger-label">{{ selectedOption?.label ?? props.placeholder }}</span>
       <IconChevronDown :size="16" />
     </button>
 
     <template #content="{ close }">
-      <div ref="itemsRef" class="base-dropdown__items">
+      <div
+        ref="itemsRef"
+        class="base-dropdown__items"
+      >
         <button
           v-for="option in props.options"
           :key="option.value ?? 'empty'"
@@ -27,7 +36,12 @@
         >
           {{ option.label }}
         </button>
-        <div v-if="props.options.length === 0" class="base-dropdown__item base-dropdown__item--empty">No options found</div>
+        <div
+          v-if="props.options.length === 0"
+          class="base-dropdown__item base-dropdown__item--empty"
+        >
+          No options found
+        </div>
       </div>
     </template>
   </Popper>
@@ -72,6 +86,7 @@ interface Props {
   placeholder?: string;
   fullWidth?: boolean;
   placement?: PopperPlacement;
+  disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {

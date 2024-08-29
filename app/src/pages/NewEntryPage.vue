@@ -20,6 +20,7 @@
         <BalanceTable
           :data="entries"
           :editing="editingID"
+          :loading="isEntriesLoading"
           @update="invalidateEntriesQuery"
           @edit="onEditHandler"
         />
@@ -57,7 +58,7 @@ const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
 const { data: recordedYearsData } = await getRecordedYears();
 
 const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
-const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
+const { isLoading: isEntriesLoading, data: entriesData } = await getEntries();
 
 const form = reactive<any>({
   id: null,

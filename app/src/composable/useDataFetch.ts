@@ -2,6 +2,7 @@ import { Ref } from 'vue';
 import { useQueryClient, useQuery } from '@tanstack/vue-query';
 
 import { http } from '@/domain/network';
+import { ApiResponse } from '@/domain/interfaces';
 
 const useDataFetch = (url: Ref<string>) => {
   const queryKey = ['fetch', url];
@@ -10,7 +11,10 @@ const useDataFetch = (url: Ref<string>) => {
   const fetchData = async () => {
     const { isLoading, isError, data, error } = useQuery({
       queryKey,
-      queryFn: (): any => http.get(url.value),
+      queryFn: async (): Promise<ApiResponse> => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        return http.get(url.value);
+      },
     });
 
     return { isLoading, isError, data, error };

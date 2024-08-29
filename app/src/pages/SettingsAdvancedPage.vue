@@ -3,12 +3,17 @@
     <h4>Advanced settings</h4>
 
     <TaxSettings
-      v-if="hasTaxSettingsLoaded"
       :data="taxSettings"
+      :loading="isLoadingSettings"
       @update="onUpdatedSettingsHandler"
     />
+
     <hr />
-    <DatabaseSettings :data="databaseSettings" />
+
+    <DatabaseSettings
+      :data="databaseSettings"
+      :loading="isLoadingSettings"
+    />
   </div>
 </template>
 
@@ -27,9 +32,8 @@ const settingsUrl = ref('/settings');
 
 const toast = useToast();
 const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
-const { isLoading: isLoadingTaxSettings, isError: isErrorTaxSettings, data: settingsData } = await fetchData();
+const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 
-const hasTaxSettingsLoaded = computed(() => !isLoadingTaxSettings.value && !isErrorTaxSettings.value);
 const taxSettings = computed(() => (settingsData.value as any)?.config || {});
 const databaseSettings = computed(() => ({ dbFilePath: (settingsData.value as any)?.dbFilePath || '' }));
 

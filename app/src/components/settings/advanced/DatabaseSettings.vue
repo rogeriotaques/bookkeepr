@@ -5,17 +5,31 @@
         <hgroup>
           <h5>Database</h5>
           <p>Maintenace actions for this app database</p>
-          <code>Database file: {{ props.data.dbFilePath }}</code>
+          <code>Database file: {{ props.loading ? 'Loading ...' : props.data.dbFilePath }}</code>
         </hgroup>
       </div>
       <div class="col-4 settings-advanced-database__actions">
-        <button class="has-tooltip has-tooltip--left" type="button" data-tooltip="Free up space and reduce database size" @click="onVacuumHandler">
-          <IconLoader2 v-if="isLoading" class="is-spinning" width="16" height="16" />
+        <button
+          :disabled="props.loading"
+          class="has-tooltip has-tooltip--left"
+          type="button"
+          data-tooltip="Free up space and reduce database size"
+          @click="onVacuumHandler"
+        >
+          <IconLoader2
+            v-if="isLoading"
+            class="is-spinning"
+            width="16"
+            height="16"
+          />
           <IconRefresh v-else />
           <span>Vacuum</span>
         </button>
 
-        <button disabled type="button">
+        <button
+          disabled
+          type="button"
+        >
           <IconDeviceFloppy />
           <span>Backup</span>
         </button>
@@ -35,6 +49,7 @@ interface Props {
   data: {
     dbFilePath: string;
   };
+  loading?: boolean;
 }
 
 const props = defineProps<Props>();

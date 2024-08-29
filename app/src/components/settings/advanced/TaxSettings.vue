@@ -8,7 +8,12 @@
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
-        <BaseDropdown :modelValue="props.data.shouhizei" :options="taxOptions" @select="emit('update', $event)" />
+        <BaseDropdown
+          :modelValue="props.data.shouhizei"
+          :options="taxOptions"
+          :disabled="props.loading"
+          @select="emit('update', $event)"
+        />
       </div>
     </div>
   </div>
@@ -20,6 +25,7 @@ import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 interface Props {
   data: TaxData;
+  loading?: boolean;
 }
 
 const props = defineProps<Props>();

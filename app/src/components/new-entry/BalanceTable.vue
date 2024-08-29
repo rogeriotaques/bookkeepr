@@ -52,9 +52,20 @@
           </td>
         </tr>
 
-        <TableEmptyCard v-if="entries.length === 0" />
+        <TableEmptyCard v-if="props.loading">
+          <div>
+            <IconLoader2
+              :size="48"
+              color="gray"
+              class="is-spinning"
+            />
+          </div>
+          <p>Loading ...</p>
+        </TableEmptyCard>
+
+        <TableEmptyCard v-else-if="entries.length === 0" />
       </tbody>
-      <tfoot>
+      <tfoot v-if="!props.loading">
         <tr>
           <th colspan="2">Total</th>
           <th class="has-text-right">
@@ -92,7 +103,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { IconEdit, IconTrash, IconEye } from '@tabler/icons-vue';
+import { IconEdit, IconTrash, IconEye, IconLoader2 } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { ExtendedEntry } from '@/domain/interfaces';
@@ -105,6 +116,7 @@ import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 interface Props {
   data: ExtendedEntry[];
   editing?: number | null;
+  loading?: boolean;
 }
 
 const props = defineProps<Props>();

@@ -38,32 +38,20 @@
           <div class="col-6">
             <label for="input">Category</label>
             <BaseDropdown
-              v-if="isGroupsLoaded"
               v-model="data.group"
+              :disabled="isGroupsLoading"
               :options="categoryOptions"
               full-width
             />
-            <div
-              v-else-if="isGroupsError"
-              class="notification is-danger"
-            >
-              {{ groupsError }}
-            </div>
           </div>
           <div class="col-6">
             <label for="input">Wallet</label>
             <BaseDropdown
-              v-if="isWalletsLoaded"
               v-model="data.wallet"
+              :disabled="isWalletsLoading"
               :options="walletOptions"
               full-width
             />
-            <div
-              v-else-if="isWalletsError"
-              class="notification is-danger"
-            >
-              {{ walletsError }}
-            </div>
           </div>
         </div>
 
@@ -139,13 +127,11 @@ const activeGroupsUrl = ref('/groups?active=1');
 const activeWalletsUrl = ref('/wallets?active=1');
 
 const { fetchData: getActiveGroups } = useDataFetch(activeGroupsUrl);
-const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, error: groupsError } = await getActiveGroups();
+const { isLoading: isGroupsLoading, data: groupsData } = await getActiveGroups();
 
 const { fetchData: getActiveWallets } = useDataFetch(activeWalletsUrl);
-const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getActiveWallets();
+const { isLoading: isWalletsLoading, data: walletsData } = await getActiveWallets();
 
-const isGroupsLoaded = computed(() => !isGroupsLoading.value && !isGroupsError.value);
-const isWalletsLoaded = computed(() => !isWalletsLoading.value && !isWalletsError.value);
 const wallets: any = computed(() => walletsData.value?.wallets ?? []);
 const groups: any = computed(() => groupsData.value?.groups ?? []);
 
