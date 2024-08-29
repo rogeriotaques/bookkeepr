@@ -116,10 +116,7 @@ import { IconCalendar, IconCurrencyYen, IconLoader2 } from '@tabler/icons-vue';
 
 import { Entry, Wallet, Group } from '@/domain/interfaces';
 import { V_MONEY_OPTIONS } from '@/domain/constants';
-
-import useGroups from '@/composable/useGroups';
-import useWallets from '@/composable/useWallets';
-
+import useDataFetch from '@/composable/useDataFetch';
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 interface Props {
@@ -137,13 +134,15 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const { getActiveGroups } = useGroups();
+const amountRef: Ref<HTMLInputElement | null> = ref(null);
+const activeGroupsUrl = ref('/groups?active=1');
+const activeWalletsUrl = ref('/wallets?active=1');
+
+const { fetchData: getActiveGroups } = useDataFetch(activeGroupsUrl);
 const { isLoading: isGroupsLoading, isError: isGroupsError, data: groupsData, error: groupsError } = await getActiveGroups();
 
-const { getActiveWallets } = useWallets();
+const { fetchData: getActiveWallets } = useDataFetch(activeWalletsUrl);
 const { isLoading: isWalletsLoading, isError: isWalletsError, data: walletsData, error: walletsError } = await getActiveWallets();
-
-const amountRef: Ref<HTMLInputElement | null> = ref(null);
 
 const isGroupsLoaded = computed(() => !isGroupsLoading.value && !isGroupsError.value);
 const isWalletsLoaded = computed(() => !isWalletsLoading.value && !isWalletsError.value);

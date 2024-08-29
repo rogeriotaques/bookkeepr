@@ -1,15 +1,16 @@
+import { Ref } from 'vue';
 import { useQueryClient, useQuery } from '@tanstack/vue-query';
 
-import { getSettings } from '@/domain/network';
+import { http } from '@/domain/network';
 
-const useSettings = () => {
-  const queryKey = ['settings'];
+const useDataFetch = (url: Ref<string>) => {
+  const queryKey = ['fetch', url];
   const queryClient = useQueryClient();
 
-  const getSettingsData = async () => {
+  const fetchData = async () => {
     const { isLoading, isError, data, error } = useQuery({
       queryKey,
-      queryFn: getSettings,
+      queryFn: (): any => http.get(url.value),
     });
 
     return { isLoading, isError, data, error };
@@ -20,9 +21,9 @@ const useSettings = () => {
   };
 
   return {
-    getSettingsData,
+    fetchData,
     invalidateQuery,
   };
 };
 
-export default useSettings;
+export default useDataFetch;

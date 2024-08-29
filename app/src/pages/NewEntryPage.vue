@@ -40,7 +40,7 @@ import BalanceFilterForm from '@/components/new-entry/BalanceFilterForm.vue';
 import { addEntry, updateEntry } from '@/domain/network';
 import { ExtendedEntry } from '@/domain/interfaces';
 
-import useEntries from '@/composable/useEntries';
+import useDataFetch from '@/composable/useDataFetch';
 
 const editingID = ref<number | null>(null);
 const isSubmitting = ref(false);
@@ -48,11 +48,16 @@ const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
 
+const recordedYearsUrl = ref('/entries/recorded-years');
+const entriesUrl = computed(() => `/entries?year=${year.value}&month=${month.value}`);
+
 const toast = useToast();
-const { getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useEntries();
-const { getEntries, invalidateQuery: invalidateEntriesQuery } = useEntries(year, month);
-const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
+
+const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
 const { data: recordedYearsData } = await getRecordedYears();
+
+const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
+const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
 
 const form = reactive<any>({
   id: null,

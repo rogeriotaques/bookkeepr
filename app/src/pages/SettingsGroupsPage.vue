@@ -14,11 +14,16 @@
       <p class="subtitle">
         <span v-if="isLoading">Loading...</span>
         <span v-else-if="isError">{{ error }}</span>
-        <span v-else> Manage your categories </span>
+        <span v-else>Manage your categories</span>
       </p>
     </hgroup>
 
-    <GroupTable v-if="isLoaded" :data="groups" @update="invalidateQuery('groups')" @edit="onEditClickHandler" />
+    <GroupTable
+      v-if="isLoaded"
+      :data="groups"
+      @update="invalidateQuery()"
+      @edit="onEditClickHandler"
+    />
   </div>
 
   <BaseModal
@@ -31,7 +36,10 @@
     @confirm="onAddConfirmClickHandler"
     @cancel="onCancelModalHandler"
   >
-    <GroupForm :form="form" :submitting="isSubmitting" />
+    <GroupForm
+      :form="form"
+      :submitting="isSubmitting"
+    />
   </BaseModal>
 </template>
 
@@ -40,8 +48,7 @@ import { ref, reactive, computed, nextTick } from 'vue';
 import { IconPlus } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
-import useGroups from '@/composable/useGroups';
-
+import useDataFetch from '@/composable/useDataFetch';
 import { Group } from '@/domain/interfaces';
 import { addGroup, updateGroup } from '@/domain/network';
 
@@ -49,12 +56,13 @@ import BaseModal from '@/components/shared/BaseModal.vue';
 import GroupForm from '@/components/settings/groups/GroupForm.vue';
 import GroupTable from '@/components/settings/groups/GroupTable.vue';
 
-const toast = useToast();
-const { getGroups, invalidateQuery } = useGroups();
-const { isLoading, isError, data, error } = await getGroups();
-
 const isModalOpen = ref(false);
 const isSubmitting = ref(false);
+const groupsUrl = ref('/groups');
+
+const toast = useToast();
+const { fetchData, invalidateQuery } = useDataFetch(groupsUrl);
+const { isLoading, isError, data, error } = await fetchData();
 
 const form = reactive<Group>({
   id: undefined,
@@ -106,7 +114,7 @@ const onAddConfirmClickHandler = async () => {
     }
 
     onCancelModalHandler();
-    invalidateQuery('groups');
+    invalidateQuery();
 
     toast.success(message);
   } catch (error) {

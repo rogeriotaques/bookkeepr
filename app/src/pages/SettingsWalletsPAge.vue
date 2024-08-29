@@ -14,11 +14,16 @@
       <p class="subtitle">
         <span v-if="isLoading">Loading...</span>
         <span v-else-if="isError">{{ error }}</span>
-        <span v-else> Manage your wallets </span>
+        <span v-else>Manage your wallets</span>
       </p>
     </hgroup>
 
-    <WalletsTable v-if="isLoaded" :data="wallets" @update="invalidateQuery('wallets')" @edit="onEditClickHandler" />
+    <WalletsTable
+      v-if="isLoaded"
+      :data="wallets"
+      @update="invalidateQuery()"
+      @edit="onEditClickHandler"
+    />
   </div>
 
   <BaseModal
@@ -31,7 +36,10 @@
     @confirm="onAddConfirmClickHandler"
     @cancel="onCancelModalHandler"
   >
-    <WalletForm :form="form" :submitting="isSubmitting" />
+    <WalletForm
+      :form="form"
+      :submitting="isSubmitting"
+    />
   </BaseModal>
 </template>
 
@@ -43,18 +51,18 @@ import { useToast } from 'vue-toastification';
 import { Wallet } from '@/domain/interfaces';
 import { addWallet, updateWallet } from '@/domain/network';
 
-import useWallets from '@/composable/useWallets';
-
+import useDataFetch from '@/composable/useDataFetch';
 import BaseModal from '@/components/shared/BaseModal.vue';
 import WalletForm from '@/components/settings/wallets/WalletForm.vue';
 import WalletsTable from '@/components/settings/wallets/WalletsTable.vue';
 
-const toast = useToast();
-const { getWallets, invalidateQuery } = useWallets();
-const { isLoading, isError, data, error } = await getWallets();
-
 const isModalOpen = ref(false);
 const isSubmitting = ref(false);
+const walletsUrl = ref('/wallets');
+
+const toast = useToast();
+const { fetchData, invalidateQuery } = useDataFetch(walletsUrl);
+const { isLoading, isError, data, error } = await fetchData();
 
 const form = reactive<Wallet>({
   id: undefined,
@@ -100,7 +108,7 @@ const onAddConfirmClickHandler = async () => {
     }
 
     onCancelModalHandler();
-    invalidateQuery('wallets');
+    invalidateQuery();
 
     toast.success(message);
   } catch (error) {

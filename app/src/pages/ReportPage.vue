@@ -23,14 +23,15 @@ import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 import ReportInsights from '@/components/report/ReportInsights.vue';
 import ReportData from '@/components/report/ReportData.vue';
 
-import useEntries from '@/composable/useEntries';
+import useDataFetch from '@/composable/useDataFetch';
 
-const { getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useEntries();
-const { data: recordedYearsData } = await getRecordedYears();
-
+const recordedYearsUrl = ref('/entries/recorded-years');
 const filterByYear = ref(`${new Date().getFullYear()}`);
 
-const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year) => ({ value: year, label: year })));
+const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
+const { data: recordedYearsData } = await getRecordedYears();
+
+const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year: string) => ({ value: year, label: year })));
 </script>
 
 <style lang="scss" scoped>

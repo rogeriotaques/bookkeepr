@@ -2,7 +2,11 @@
   <div class="settings-advanced">
     <h4>Advanced settings</h4>
 
-    <TaxSettings v-if="hasTaxSettingsLoaded" :data="taxSettings" @update="onUpdatedSettingsHandler" />
+    <TaxSettings
+      v-if="hasTaxSettingsLoaded"
+      :data="taxSettings"
+      @update="onUpdatedSettingsHandler"
+    />
     <hr />
     <DatabaseSettings :data="databaseSettings" />
   </div>
@@ -14,18 +18,18 @@ import { useToast } from 'vue-toastification';
 
 import { setSettings } from '@/domain/network';
 
-import useSettings from '@/composable/useSettings';
-
+import useDataFetch from '@/composable/useDataFetch';
 import DatabaseSettings from '@/components/settings/advanced/DatabaseSettings.vue';
 import TaxSettings from '@/components/settings/advanced/TaxSettings.vue';
 
-const { getSettingsData, invalidateQuery } = useSettings();
-const { isLoading: isLoadingTaxSettings, isError: isErrorTaxSettings, data: settingsData, error: taxSettingsError } = await getSettingsData();
-const toast = useToast();
-
 const isLoading = ref(false);
+const settingsUrl = ref('/settings');
 
-const hasTaxSettingsLoaded = computed(() => !isLoadingTaxSettings.value);
+const toast = useToast();
+const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
+const { isLoading: isLoadingTaxSettings, isError: isErrorTaxSettings, data: settingsData } = await fetchData();
+
+const hasTaxSettingsLoaded = computed(() => !isLoadingTaxSettings.value && !isErrorTaxSettings.value);
 const taxSettings = computed(() => (settingsData.value as any)?.config || {});
 const databaseSettings = computed(() => ({ dbFilePath: (settingsData.value as any)?.dbFilePath || '' }));
 
