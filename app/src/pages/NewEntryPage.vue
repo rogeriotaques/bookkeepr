@@ -52,12 +52,7 @@ const toast = useToast();
 const { getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useEntries();
 const { getEntries, invalidateQuery: invalidateEntriesQuery } = useEntries(year, month);
 const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
-const {
-  isLoading: isRecordedYearsLoading,
-  isError: isRecordedYearsError,
-  data: recordedYearsData,
-  error: recordedYearsError,
-} = await getRecordedYears();
+const { data: recordedYearsData } = await getRecordedYears();
 
 const form = reactive<any>({
   id: null,
