@@ -108,15 +108,15 @@ const onClickHandler = (value: Nullable<string | number>) => {
 
 const onOpenPopperHandler = async () => {
   await nextTick();
-  itemsRef.value?.querySelector('.base-dropdown-item--selected')?.scrollIntoView({ block: 'nearest' });
+  itemsRef.value?.querySelector('.base-dropdown__item--selected')?.scrollIntoView({ block: 'end' });
 };
 
 const onDocumentScrollHandler = () => {
   isOpen.value = false;
 };
 
-watch(isOpen, (value) => {
-  if (value) {
+watch(isOpen, () => {
+  if (isOpen.value) {
     const document = window.document;
     document.addEventListener('scroll', onDocumentScrollHandler);
   } else {
