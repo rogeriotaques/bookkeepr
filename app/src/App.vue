@@ -28,8 +28,9 @@ import AppFooter from '@/components/navigation/AppFooter.vue';
   &__header {
     background-color: var(--c-background);
     padding: 16px 0 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    width: 100%;
     z-index: 999;
   }
 

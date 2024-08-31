@@ -43,10 +43,5 @@ export interface ExtendedEntry extends Entry {
 }
 
 export interface ApiResponse<T = any> {
-  wallets?: Wallet[];
-  groups?: Group[];
-  entries?: Entry[] | ExtendedEntry[];
-  years?: string[];
-  success?: boolean;
-  error?: string;
+  [key: string]: T;
 }

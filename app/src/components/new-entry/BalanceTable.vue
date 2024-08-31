@@ -109,6 +109,7 @@ import { useToast } from 'vue-toastification';
 import { ExtendedEntry } from '@/domain/interfaces';
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 import { deleteEntry } from '@/domain/network';
+import { formatCurrency } from '@/domain/utils';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
@@ -155,7 +156,6 @@ const finalBalance = computed(() => entries.value[entries.value.length - 1]?.bal
 
 const isIncome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.INCOME;
 const isOutcome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.EXPENSE;
-const formatCurrency = (value: number) => value.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });
 
 const onDeleteHandler = (id: number) => {
   const entry = props.data.find((entry) => entry.id === id);

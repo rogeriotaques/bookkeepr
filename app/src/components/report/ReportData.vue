@@ -3,7 +3,7 @@
     <table class="report__table--liability">
       <thead>
         <tr>
-          <th width="10%">&nbsp;</th>
+          <th width="10%">Expenses</th>
           <th
             v-for="month in months"
             :key="month.label"
@@ -14,22 +14,22 @@
       </thead>
       <tbody>
         <tr
-          v-for="category in liabilityCategories"
-          :key="category.label"
+          v-for="entry in expenses"
+          :key="entry[0]"
         >
-          <td>{{ category.label }}</td>
+          <td>{{ entry[0] }}</td>
           <td
             v-for="month in months"
             :key="month.label"
           >
-            ¥0,000
+            {{ formatCurrency(entry[month.value] ?? 0) }}
           </td>
         </tr>
       </tbody>
 
       <thead>
         <tr>
-          <th width="10%">&nbsp;</th>
+          <th width="10%">Income</th>
           <th
             v-for="month in months"
             :key="month.label"
@@ -40,15 +40,15 @@
       </thead>
       <tbody>
         <tr
-          v-for="category in assetsCategories"
-          :key="category.label"
+          v-for="entry in income"
+          :key="entry[0]"
         >
-          <td>{{ category.label }}</td>
+          <td>{{ entry[0] }}</td>
           <td
             v-for="month in months"
             :key="month.label"
           >
-            ¥0,000
+            {{ formatCurrency(entry[month.value] ?? 0) }}
           </td>
         </tr>
       </tbody>
@@ -78,6 +78,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
+import { formatCurrency } from '@/domain/utils';
+
+interface Props {
+  data: Record<string, number>;
+  loading: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  data: {} as any,
+  loading: true,
+});
+
 const months = [
   { value: 1, label: 'Jan' },
   { value: 2, label: 'Feb' },
@@ -92,6 +106,11 @@ const months = [
   { value: 11, label: 'Nov' },
   { value: 12, label: 'Dec' },
 ];
+
+const expenses = computed(() => props.data?.outcome ?? []);
+const income = computed(() => props.data?.income ?? []);
+const balance = computed(() => props.data?.balance ?? []);
+const consumptionTax = computed(() => props.data?.tax ?? []);
 
 const liabilityCategories = [
   { value: '1', label: '00 - Food' },
@@ -119,6 +138,12 @@ const assetsCategories = [
 
 [class^='report__table'] {
   margin-top: 16px;
+
+  thead {
+    background-color: var(--c-background);
+    position: sticky;
+    top: 60px;
+  }
 
   tbody + thead th {
     padding-top: 16px;

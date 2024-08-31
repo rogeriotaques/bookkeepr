@@ -6,13 +6,20 @@
         <BaseDropdown
           v-model="filterByYear"
           :options="recordedYears"
+          :disabled="isRecordedYearsLoading"
         />
       </div>
       <div class="col-6">
-        <ReportInsights />
+        <ReportInsights
+          :data="reportData?.insights || {}"
+          :loading="isReportLoading"
+        />
       </div>
     </div>
-    <ReportData />
+    <ReportData
+      :data="reportData?.data || {}"
+      :loading="isReportLoading"
+    />
   </section>
 </template>
 
@@ -25,13 +32,17 @@ import ReportData from '@/components/report/ReportData.vue';
 
 import useDataFetch from '@/composable/useDataFetch';
 
-const recordedYearsUrl = ref('/entries/recorded-years');
 const filterByYear = ref(`${new Date().getFullYear()}`);
+const recordedYearsUrl = ref('/entries/recorded-years');
+const reportUrl = computed(() => `/reports?year=${filterByYear.value}`);
 
 const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
-const { data: recordedYearsData } = await getRecordedYears();
+const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
 const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year: string) => ({ value: year, label: year })));
+
+const { fetchData: getReportData } = useDataFetch(reportUrl);
+const { isLoading: isReportLoading, data: reportData } = await getReportData();
 </script>
 
 <style lang="scss" scoped>
