@@ -48,8 +48,6 @@
 import { computed } from 'vue';
 
 import { formatCurrency } from '@/domain/utils';
-import { ENTRY_OPERATIONS } from '@/domain/constants';
-
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Insight {
@@ -70,18 +68,18 @@ const props = withDefaults(defineProps<Props>(), {
 const cards = computed(() => [
   {
     label: 'This year',
-    income: props.data.thisYear.income,
-    outcome: props.data.thisYear.outcome,
+    income: props.data?.thisYear?.income ?? 0,
+    outcome: props.data?.thisYear?.outcome ?? 0,
   },
   {
     label: 'This month',
-    income: props.data.thisMonth.income,
-    outcome: props.data.thisMonth.outcome,
+    income: props.data?.thisMonth?.income ?? 0,
+    outcome: props.data?.thisMonth?.outcome ?? 0,
   },
   {
     label: 'Today',
-    income: props.data.today.income,
-    outcome: props.data.today.outcome,
+    income: props.data?.today?.income ?? 0,
+    outcome: props.data?.today?.outcome ?? 0,
   },
 ]);
 </script>

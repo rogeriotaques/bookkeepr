@@ -123,8 +123,8 @@ const months = [
 
 const expenses = computed(() => props.data?.outcome ?? []);
 const income = computed(() => props.data?.income ?? []);
-const balance = computed(() => props.data?.balance.slice(1) ?? []);
-const consumptionTax = computed(() => props.data?.tax.slice(1) ?? []);
+const balance = computed(() => props.data?.balance?.slice(1) ?? []);
+const consumptionTax = computed(() => props.data?.tax?.slice(1) ?? []);
 
 const liabilityCategories = [
   { value: '1', label: '00 - Food' },
