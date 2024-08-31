@@ -17,7 +17,14 @@
           v-for="entry in expenses"
           :key="entry[0]"
         >
-          <td>{{ entry[0] }}</td>
+          <td>
+            <span
+              class="report__item-title"
+              :title="entry[0]"
+            >
+              {{ entry[0] }}
+            </span>
+          </td>
           <td
             v-for="month in months"
             :key="month.label"
@@ -43,7 +50,14 @@
           v-for="entry in income"
           :key="entry[0]"
         >
-          <td>{{ entry[0] }}</td>
+          <td>
+            <span
+              class="report__item-title"
+              :title="entry[0]"
+            >
+              {{ entry[0] }}
+            </span>
+          </td>
           <td
             v-for="month in months"
             :key="month.label"
@@ -57,19 +71,19 @@
         <tr>
           <td width="15%">Balance</td>
           <td
-            v-for="month in months"
-            :key="month.label"
+            v-for="entry in balance"
+            :key="`balance-${entry}`"
           >
-            ¥0,000
+            {{ formatCurrency(entry ?? 0) }}
           </td>
         </tr>
         <tr>
           <td width="15%">Consumption tax</td>
           <td
-            v-for="month in months"
-            :key="month.label"
+            v-for="entry in consumptionTax"
+            :key="entry"
           >
-            ¥0,000
+            {{ formatCurrency(entry ?? 0) }}
           </td>
         </tr>
       </tfoot>
@@ -83,7 +97,7 @@ import { computed } from 'vue';
 import { formatCurrency } from '@/domain/utils';
 
 interface Props {
-  data: Record<string, number>;
+  data: Record<string, any>;
   loading: boolean;
 }
 
@@ -109,8 +123,8 @@ const months = [
 
 const expenses = computed(() => props.data?.outcome ?? []);
 const income = computed(() => props.data?.income ?? []);
-const balance = computed(() => props.data?.balance ?? []);
-const consumptionTax = computed(() => props.data?.tax ?? []);
+const balance = computed(() => props.data?.balance.slice(1) ?? []);
+const consumptionTax = computed(() => props.data?.tax.slice(1) ?? []);
 
 const liabilityCategories = [
   { value: '1', label: '00 - Food' },
@@ -134,6 +148,14 @@ const assetsCategories = [
   &__data {
     padding: 24px 16px;
   }
+
+  &__item-title {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 214px;
+  }
 }
 
 [class^='report__table'] {
@@ -154,10 +176,7 @@ const assetsCategories = [
     font-weight: bold;
   }
 
-  th:not(:first-child) {
-    text-align: center;
-  }
-
+  th:not(:first-child),
   td:not(:first-child) {
     text-align: right;
   }

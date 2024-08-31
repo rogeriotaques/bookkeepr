@@ -35,6 +35,7 @@ import AppFooter from '@/components/navigation/AppFooter.vue';
   }
 
   &__body {
+    margin: 60px 0 0;
     min-height: calc(100vh - 174px);
   }
 
