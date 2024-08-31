@@ -125,22 +125,6 @@ const expenses = computed(() => props.data?.outcome ?? []);
 const income = computed(() => props.data?.income ?? []);
 const balance = computed(() => props.data?.balance?.slice(1) ?? []);
 const consumptionTax = computed(() => props.data?.tax?.slice(1) ?? []);
-
-const liabilityCategories = [
-  { value: '1', label: '00 - Food' },
-  { value: '2', label: '00 - Transport' },
-  { value: '3', label: '00 - Entertainment' },
-  { value: '4', label: '00 - Health' },
-  { value: '5', label: '00 - Education' },
-  { value: '6', label: '00 - Other' },
-];
-
-const assetsCategories = [
-  { value: '1', label: '00 - Salary' },
-  { value: '2', label: '00 - Bonus' },
-  { value: '3', label: '00 - Invoice' },
-  { value: '4', label: '00 - Other' },
-];
 </script>
 
 <style lang="scss" scoped>
