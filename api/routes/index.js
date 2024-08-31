@@ -9,5 +9,6 @@ router.use('/settings', require('@/routes/settings'));
 router.use('/wallets', require('@/routes/wallets'));
 router.use('/groups', require('@/routes/groups'));
 router.use('/entries', require('@/routes/entries'));
+router.use('/reports', require('@/routes/reports'));
 
 module.exports = router;
