@@ -13,25 +13,40 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="entry in expenses"
-          :key="entry[0]"
-        >
-          <td>
-            <span
-              class="report__item-title"
-              :title="entry[0]"
+        <template v-if="props.loading">
+          <tr v-for="entry in 3">
+            <td>
+              <BaseSkeleton />
+            </td>
+            <td
+              v-for="month in months"
+              :key="month.label"
             >
-              {{ entry[0] }}
-            </span>
-          </td>
-          <td
-            v-for="month in months"
-            :key="month.label"
+              <BaseSkeleton />
+            </td>
+          </tr>
+        </template>
+        <template v-else>
+          <tr
+            v-for="entry in expenses"
+            :key="entry[0]"
           >
-            {{ formatCurrency(entry[month.value] ?? 0) }}
-          </td>
-        </tr>
+            <td>
+              <span
+                class="report__item-title"
+                :title="entry[0]"
+              >
+                {{ entry[0] }}
+              </span>
+            </td>
+            <td
+              v-for="month in months"
+              :key="month.label"
+            >
+              {{ formatCurrency(entry[month.value] ?? 0) }}
+            </td>
+          </tr>
+        </template>
       </tbody>
 
       <thead>
@@ -46,45 +61,80 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="entry in income"
-          :key="entry[0]"
-        >
-          <td>
-            <span
-              class="report__item-title"
-              :title="entry[0]"
+        <template v-if="props.loading">
+          <tr v-for="entry in 3">
+            <td>
+              <BaseSkeleton />
+            </td>
+            <td
+              v-for="month in months"
+              :key="month.label"
             >
-              {{ entry[0] }}
-            </span>
-          </td>
-          <td
-            v-for="month in months"
-            :key="month.label"
+              <BaseSkeleton />
+            </td>
+          </tr>
+        </template>
+        <template v-else>
+          <tr
+            v-for="entry in income"
+            :key="entry[0]"
           >
-            {{ formatCurrency(entry[month.value] ?? 0) }}
-          </td>
-        </tr>
+            <td>
+              <span
+                class="report__item-title"
+                :title="entry[0]"
+              >
+                {{ entry[0] }}
+              </span>
+            </td>
+            <td
+              v-for="month in months"
+              :key="month.label"
+            >
+              {{ formatCurrency(entry[month.value] ?? 0) }}
+            </td>
+          </tr>
+        </template>
       </tbody>
 
       <tfoot>
         <tr>
           <td width="15%">Balance</td>
-          <td
-            v-for="entry in balance"
-            :key="`balance-${entry}`"
-          >
-            {{ formatCurrency(entry ?? 0) }}
-          </td>
+          <template v-if="props.loading">
+            <td
+              v-for="month in months"
+              :key="month.label"
+            >
+              <BaseSkeleton />
+            </td>
+          </template>
+          <template v-else>
+            <td
+              v-for="entry in balance"
+              :key="`balance-${entry}`"
+            >
+              {{ formatCurrency(entry ?? 0) }}
+            </td>
+          </template>
         </tr>
         <tr>
           <td width="15%">Consumption tax</td>
-          <td
-            v-for="entry in consumptionTax"
-            :key="entry"
-          >
-            {{ formatCurrency(entry ?? 0) }}
-          </td>
+          <template v-if="props.loading">
+            <td
+              v-for="month in months"
+              :key="month.label"
+            >
+              <BaseSkeleton />
+            </td>
+          </template>
+          <template v-else>
+            <td
+              v-for="entry in consumptionTax"
+              :key="entry"
+            >
+              {{ formatCurrency(entry ?? 0) }}
+            </td>
+          </template>
         </tr>
       </tfoot>
     </table>
@@ -95,6 +145,7 @@
 import { computed } from 'vue';
 
 import { formatCurrency } from '@/domain/utils';
+import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
   data: Record<string, any>;
