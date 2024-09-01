@@ -11,16 +11,12 @@
 
     <hgroup>
       <h4 class="title">Categories</h4>
-      <p class="subtitle">
-        <span v-if="isLoading">Loading...</span>
-        <span v-else-if="isError">{{ error }}</span>
-        <span v-else>Manage your categories</span>
-      </p>
+      <p class="subtitle">Manage your categories</p>
     </hgroup>
 
     <GroupTable
-      v-if="isLoaded"
       :data="groups"
+      :loading="isLoading"
       @update="invalidateQuery()"
       @edit="onEditClickHandler"
     />
@@ -62,7 +58,7 @@ const groupsUrl = ref('/groups');
 
 const toast = useToast();
 const { fetchData, invalidateQuery } = useDataFetch(groupsUrl);
-const { isLoading, isError, data, error } = await fetchData();
+const { isLoading, data } = await fetchData();
 
 const form = reactive<Group>({
   id: undefined,
@@ -72,7 +68,6 @@ const form = reactive<Group>({
   active: 1,
 });
 
-const isLoaded = computed(() => !isLoading.value && !isError.value);
 const groups = computed(() => data.value?.groups ?? []);
 const isEditing = computed(() => form.id !== undefined);
 const modalTitle = computed(() => (isEditing.value ? 'Edit category' : 'Add new category'));

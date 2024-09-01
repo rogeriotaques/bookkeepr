@@ -12,7 +12,8 @@ const useDataFetch = (url: Ref<string>) => {
     const { isLoading, isError, data, error } = useQuery({
       queryKey,
       queryFn: async (): Promise<ApiResponse> => {
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // Note: Comment/uncomment this to throttle the requests
+        // await new Promise((resolve) => setTimeout(resolve, 5000));
         return http.get(url.value);
       },
     });

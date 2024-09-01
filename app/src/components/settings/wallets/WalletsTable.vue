@@ -8,22 +8,60 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="wallet in props.data" :key="wallet.id">
+      <tr
+        v-for="wallet in props.data"
+        :key="wallet.id"
+      >
         <td>{{ wallet.name }}</td>
         <td>
-          <span v-if="wallet.active" class="badge badge--success">Active</span>
-          <span v-else class="badge badge--warning">Inactive</span>
+          <span
+            v-if="wallet.active"
+            class="badge badge--success"
+          >
+            Active
+          </span>
+          <span
+            v-else
+            class="badge badge--warning"
+          >
+            Inactive
+          </span>
         </td>
         <td class="has-text-right">
-          <a class="link" @click="emit('edit', wallet)">
+          <a
+            class="link"
+            @click="emit('edit', wallet)"
+          >
             <IconEdit />
           </a>
-          <a class="link is-danger" @click="onDeleteHandler(wallet.id ?? 0)">
+          <a
+            class="link is-danger"
+            @click="onDeleteHandler(wallet.id ?? 0)"
+          >
             <IconTrash />
           </a>
         </td>
       </tr>
-      <TableEmptyCard v-if="!props.data.length" colspan="3" />
+
+      <template v-if="props.loading">
+        <tr v-for="wallet in 5">
+          <td>
+            <BaseSkeleton />
+          </td>
+          <td>
+            <BaseSkeleton
+              width="55%"
+              height="36px"
+            />
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+      </template>
+
+      <TableEmptyCard
+        v-if="!props.data.length"
+        colspan="3"
+      />
     </tbody>
   </table>
 
@@ -37,8 +75,9 @@
     @cancel="onCancelConfirmHandler"
   >
     <p>
-      Are you sure you want to delete <b>{{ selectedWallet?.name }}</b
-      >?
+      Are you sure you want to delete
+      <b>{{ selectedWallet?.name }}</b>
+      ?
     </p>
     <p>This action cannot be undone.</p>
   </BaseConfirmModal>
@@ -54,12 +93,17 @@ import { deleteWallet } from '@/domain/network';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
+import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
-  data: Wallet[];
+  data?: any;
+  loading?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  data: [] as Wallet[],
+  loading: true,
+});
 
 interface Emits {
   (e: 'update'): void;
@@ -73,7 +117,7 @@ const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
 
 const onDeleteHandler = (id: number) => {
-  const wallet = props.data.find((wallet) => wallet.id === id);
+  const wallet = props.data.find((wallet: Wallet) => wallet.id === id);
 
   if (wallet) {
     selectedWallet.value = wallet;

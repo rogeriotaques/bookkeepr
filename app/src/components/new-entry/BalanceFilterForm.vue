@@ -19,6 +19,7 @@
         <BaseDropdown
           v-model="filterByYear"
           :options="yearOptions"
+          :disabled="props.loading"
         />
         <BaseDropdown
           v-model="filterByMonth"
@@ -30,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { IconSearch } from '@tabler/icons-vue';
 import dayjs from 'dayjs';
 
@@ -41,9 +42,12 @@ interface Props {
   month: string;
   search: string;
   years: string[];
+  loading?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  loading: true,
+});
 
 interface Emits {
   (event: 'update:year', value: string): void;

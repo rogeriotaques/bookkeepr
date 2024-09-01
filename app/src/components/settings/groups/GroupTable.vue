@@ -46,7 +46,29 @@
           </a>
         </td>
       </tr>
-      <TableEmptyCard v-if="!props.data.length" />
+
+      <template v-if="props.loading">
+        <tr v-for="group in 5">
+          <td>
+            <BaseSkeleton width="50%" />
+          </td>
+          <td>
+            <BaseSkeleton />
+          </td>
+          <td>
+            <BaseSkeleton width="55%" />
+          </td>
+          <td>
+            <BaseSkeleton
+              width="55%"
+              height="36px"
+            />
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+      </template>
+
+      <TableEmptyCard v-else-if="!props.data.length" />
     </tbody>
   </table>
 
@@ -78,12 +100,17 @@ import { deleteGroup } from '@/domain/network';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
+import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
-  data: Group[];
+  data?: any;
+  loading?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  data: [] as Group[],
+  loading: true,
+});
 
 interface Emits {
   (e: 'edit', group: Group): void;
@@ -104,10 +131,10 @@ const toCamelCase = (str: string) => {
 };
 
 const onDeleteHandler = (id: number) => {
-  const wallet = props.data.find((wallet) => wallet.id === id);
+  const group = props.data.find((group: Group) => group.id === id);
 
-  if (wallet) {
-    selectedGroup.value = wallet;
+  if (group) {
+    selectedGroup.value = group;
     isDeleteModalOpen.value = true;
   }
 };

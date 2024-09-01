@@ -11,16 +11,12 @@
 
     <hgroup>
       <h4 class="title">Wallets</h4>
-      <p class="subtitle">
-        <span v-if="isLoading">Loading...</span>
-        <span v-else-if="isError">{{ error }}</span>
-        <span v-else>Manage your wallets</span>
-      </p>
+      <p class="subtitle">Manage your wallets</p>
     </hgroup>
 
     <WalletsTable
-      v-if="isLoaded"
       :data="wallets"
+      :loading="isLoading"
       @update="invalidateQuery()"
       @edit="onEditClickHandler"
     />
@@ -62,7 +58,7 @@ const walletsUrl = ref('/wallets');
 
 const toast = useToast();
 const { fetchData, invalidateQuery } = useDataFetch(walletsUrl);
-const { isLoading, isError, data, error } = await fetchData();
+const { isLoading, data } = await fetchData();
 
 const form = reactive<Wallet>({
   id: undefined,
@@ -70,7 +66,6 @@ const form = reactive<Wallet>({
   active: 1,
 });
 
-const isLoaded = computed(() => !isLoading.value && !isError.value);
 const wallets = computed(() => data.value?.wallets ?? []);
 const isEditing = computed(() => form.id !== undefined);
 const modalTitle = computed(() => (isEditing.value ? 'Edit wallet' : 'Add new wallet'));

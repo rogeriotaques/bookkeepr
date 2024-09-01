@@ -16,6 +16,7 @@
           v-model:month="month"
           v-model:search="search"
           :years="recordedYears"
+          :loading="isEntriesLoading"
         />
         <BalanceTable
           :data="entries"

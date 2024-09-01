@@ -52,16 +52,26 @@
           </td>
         </tr>
 
-        <TableEmptyCard v-if="props.loading">
-          <div>
-            <IconLoader2
-              :size="48"
-              color="gray"
-              class="is-spinning"
-            />
-          </div>
-          <p>Loading ...</p>
-        </TableEmptyCard>
+        <template v-if="props.loading">
+          <tr v-for="entry in 5">
+            <td>
+              <BaseSkeleton />
+            </td>
+            <td>
+              <BaseSkeleton />
+            </td>
+            <td class="has-text-right">
+              <BaseSkeleton />
+            </td>
+            <td class="has-text-right">
+              <BaseSkeleton />
+            </td>
+            <td class="has-text-right">
+              <BaseSkeleton />
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+        </template>
 
         <TableEmptyCard v-else-if="entries.length === 0" />
       </tbody>
@@ -113,6 +123,7 @@ import { formatCurrency } from '@/domain/utils';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
+import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
   data: ExtendedEntry[];
