@@ -16,7 +16,7 @@
           v-model:month="month"
           v-model:search="search"
           :years="recordedYears"
-          :loading="isEntriesLoading"
+          :loading="isRecordedYearsLoading"
         />
         <BalanceTable
           :data="entries"
@@ -56,7 +56,7 @@ const entriesUrl = computed(() => `/entries?year=${year.value}&month=${month.val
 const toast = useToast();
 
 const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
-const { data: recordedYearsData } = await getRecordedYears();
+const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
 const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
 const { isLoading: isEntriesLoading, data: entriesData } = await getEntries();
