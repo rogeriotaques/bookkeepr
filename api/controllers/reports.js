@@ -31,7 +31,7 @@ exports.getOverviewReport = async (req, res) => {
         })
       );
 
-      data[group.operation].push(entry);
+      data[group.operation] && data[group.operation].push(entry);
     })
   );
 
