@@ -42,6 +42,7 @@
               :disabled="isGroupsLoading"
               :options="categoryOptions"
               full-width
+              searchable
             />
           </div>
           <div class="col-6">
@@ -51,6 +52,7 @@
               :disabled="isWalletsLoading"
               :options="walletOptions"
               full-width
+              searchable
             />
           </div>
         </div>
@@ -208,6 +210,7 @@ const onSaveClickHandler = () => {
   .card {
     max-width: 640px;
     box-shadow: none;
+    overflow: visible;
 
     &__body {
       padding: 16px;

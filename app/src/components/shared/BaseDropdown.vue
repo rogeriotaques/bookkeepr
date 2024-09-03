@@ -1,6 +1,8 @@
 <template>
   <Popper
-    :show="isOpen"
+    :show="isOpen || props.opened"
+    :disable-click-away="true"
+    :interactive="false"
     :class="{ 'base-dropdown--full-width': props.fullWidth }"
     class="base-dropdown"
     trigger="click"
@@ -12,32 +14,43 @@
       :disabled="props.disabled"
       class="base-dropdown__trigger"
       type="button"
-      @click="isOpen = !isOpen"
-      @blur="isOpen = false"
+      @click="onTriggerClickHandler"
+      @blur="onTriggerBlurHandler"
     >
       <span class="base-dropdown__trigger-label">{{ selectedOption?.label ?? props.placeholder }}</span>
       <IconChevronDown :size="16" />
     </button>
 
-    <template #content="{ close }">
+    <template #content>
+      <div
+        v-if="props.searchable"
+        class="base-dropdown__filter"
+      >
+        <input
+          v-model="filter"
+          ref="filterRef"
+          class="base-dropdown__filter-input"
+          type="text"
+          placeholder="Filter"
+          @focus="isFilterFocused = true"
+          @blur="onFilterInputBlurHandler"
+        />
+      </div>
       <div
         ref="itemsRef"
         class="base-dropdown__items"
       >
         <button
-          v-for="option in props.options"
+          v-for="option in filteredOptions"
           :key="option.value ?? 'empty'"
           :class="{ 'base-dropdown__item--selected': option.value === selectedOptionValue }"
           class="base-dropdown__item"
-          @click="
-            onClickHandler(option.value);
-            close();
-          "
+          @click="onItemClickHandler(option.value)"
         >
           {{ option.label }}
         </button>
         <div
-          v-if="props.options.length === 0"
+          v-if="filteredOptions.length === 0"
           class="base-dropdown__item base-dropdown__item--empty"
         >
           No options found
@@ -48,16 +61,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
 import type { Nullable } from '@/domain/interfaces';
-
-const itemsRef = ref<HTMLDivElement | null>(null);
-
-const selectedOptionValue = defineModel();
-const isOpen = ref(false);
 
 interface DropdownOption {
   value: Nullable<string | number>;
@@ -87,6 +95,8 @@ interface Props {
   fullWidth?: boolean;
   placement?: PopperPlacement;
   disabled?: boolean;
+  searchable?: boolean;
+  opened?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -99,11 +109,33 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+const filterRef = ref<HTMLInputElement | null>(null);
+const itemsRef = ref<HTMLDivElement | null>(null);
+
+const selectedOptionValue = defineModel();
+const isOpen = ref(false);
+const filter = ref('');
+const isFilterFocused = ref(false);
+
 const selectedOption = computed(() => props.options.find((option) => option.value === selectedOptionValue.value));
 
-const onClickHandler = (value: Nullable<string | number>) => {
-  selectedOptionValue.value = value;
-  emit('select', value);
+const filteredOptions = computed(() => {
+  if (!props.searchable) return props.options;
+  return props.options.filter((option) => option.label.toLowerCase().includes(filter.value.toLowerCase()));
+});
+
+const wait = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const onTriggerClickHandler = async () => {
+  isOpen.value = !isOpen.value;
+};
+
+const onTriggerBlurHandler = async () => {
+  // Note: wait to see if the filter input is focused
+  await wait(100);
+  if (isFilterFocused.value) return;
+
+  isOpen.value = false;
 };
 
 const onOpenPopperHandler = async () => {
@@ -111,17 +143,40 @@ const onOpenPopperHandler = async () => {
   itemsRef.value?.querySelector('.base-dropdown__item--selected')?.scrollIntoView({ block: 'end' });
 };
 
+const onItemClickHandler = (value: Nullable<string | number>) => {
+  selectedOptionValue.value = value;
+  isOpen.value = false;
+  emit('select', value);
+};
+
+const onFilterInputBlurHandler = async () => {
+  await wait(100);
+  isFilterFocused.value = false;
+
+  if (isOpen.value) {
+    isOpen.value = false;
+  }
+};
+
 const onDocumentScrollHandler = () => {
   isOpen.value = false;
 };
 
-watch(isOpen, () => {
+watch(isOpen, async () => {
   if (isOpen.value) {
     const document = window.document;
     document.addEventListener('scroll', onDocumentScrollHandler);
+
+    if (props.searchable) {
+      await await wait(100);
+      filterRef.value?.focus();
+    }
   } else {
     const document = window.document;
     document.removeEventListener('scroll', onDocumentScrollHandler);
+
+    // Reset the filter whenever the dropdown is closed
+    filter.value = '';
   }
 });
 </script>
@@ -133,6 +188,25 @@ watch(isOpen, () => {
 
   &--full-width {
     width: 100%;
+  }
+
+  &__filter {
+    &-input {
+      background-color: var(--c-white);
+      padding: 8px 16px;
+      border-top: 0;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 8px 8px 0 0;
+      box-shadow: none;
+      width: 100%;
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        background-color: var(--c-info-background);
+      }
+    }
   }
 
   &__trigger {
@@ -166,7 +240,6 @@ watch(isOpen, () => {
     background-color: transparent;
     border: none;
     border-radius: 0;
-    padding: 0;
     box-shadow: none;
     text-align: left;
     width: 100%;

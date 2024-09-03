@@ -24,6 +24,7 @@
         <BaseDropdown
           v-model="filterByMonth"
           :options="monthOptions"
+          searchable
         />
       </div>
     </div>
