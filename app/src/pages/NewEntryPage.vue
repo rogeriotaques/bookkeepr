@@ -1,7 +1,7 @@
 <template>
   <section class="new-entry">
     <div class="row">
-      <div class="col-4">
+      <div class="col-4 col-4--sticky">
         <EntryForm
           :data="form"
           :is-submitting="isSubmitting"
@@ -186,5 +186,11 @@ watch(search, async () => {
 ::highlight(search-results) {
   background-color: #f06;
   color: white;
+}
+
+.col-4--sticky {
+  position: sticky;
+  top: 85px;
+  z-index: 1;
 }
 </style>
