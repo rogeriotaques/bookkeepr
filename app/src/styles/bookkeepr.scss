@@ -20,7 +20,7 @@ body.noscroll {
 
 table {
   tbody tr:not(.table__empty):hover td {
-    background-color: #e5e5e5;
+    background-color: var(--c-success-background);
   }
 }
 

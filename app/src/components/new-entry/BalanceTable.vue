@@ -215,10 +215,6 @@ const onDeleteConfirmHandler = async () => {
       padding: 8px 16px;
       font-size: 18px;
     }
-
-    tr:nth-child(even) {
-      background-color: #e9e9e9;
-    }
   }
 
   &__editing {
