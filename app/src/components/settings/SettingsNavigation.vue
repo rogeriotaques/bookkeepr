@@ -1,7 +1,7 @@
 <template>
   <div class="settings-navigation">
     <div class="row">
-      <div class="col-3">
+      <div class="col-3 col-3--sticky">
         <dl class="box is-shadowless settings-navigation__menu">
           <dt class="settings-navigation__menu-item">
             <router-link to="/settings/groups">Categories</router-link>
@@ -40,5 +40,11 @@
   &::before {
     content: none !important;
   }
+}
+
+.col-3--sticky {
+  position: sticky;
+  top: 85px;
+  z-index: 1;
 }
 </style>

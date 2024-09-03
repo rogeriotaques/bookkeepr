@@ -35,7 +35,10 @@ const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
 const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 
 const taxSettings = computed(() => (settingsData.value as any)?.config || {});
-const databaseSettings = computed(() => ({ dbFilePath: (settingsData.value as any)?.dbFilePath || '' }));
+const databaseSettings = computed(() => ({
+  dbFilePath: (settingsData.value as any)?.dbFilePath || '',
+  dbFileSize: (settingsData.value as any)?.dbFileSize || 0,
+}));
 
 const onUpdatedSettingsHandler = async (value: number) => {
   isLoading.value = true;

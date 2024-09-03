@@ -5,8 +5,17 @@
         <hgroup>
           <h5>Database</h5>
           <p>Maintenace actions for this app database</p>
-          <code>Database file: {{ props.loading ? 'Loading ...' : props.data.dbFilePath }}</code>
         </hgroup>
+
+        <div>
+          <b>Database file:</b>
+        </div>
+        <code>{{ props.loading ? '...' : props.data.dbFilePath }}</code>
+
+        <div>
+          <b>Database file size:</b>
+        </div>
+        <code>{{ props.loading ? '...' : props.data.dbFileSize.toFixed(2) }} MB</code>
       </div>
       <div class="col-4 settings-advanced-database__actions">
         <button
@@ -48,6 +57,7 @@ import { runVacuum } from '@/domain/network';
 interface Props {
   data: {
     dbFilePath: string;
+    dbFileSize: number;
   };
   loading?: boolean;
 }
