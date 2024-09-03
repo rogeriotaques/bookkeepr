@@ -162,10 +162,51 @@ const onDocumentScrollHandler = () => {
   isOpen.value = false;
 };
 
+const navigateItems = (event: KeyboardEvent) => {
+  const direction = event.key === 'ArrowDown' ? 'nextSibling' : 'previousSibling';
+
+  let currentItem = itemsRef.value?.querySelector('.base-dropdown__item--focused');
+  let sibling = currentItem?.[direction] as HTMLButtonElement;
+
+  if (!currentItem) {
+    currentItem = itemsRef.value?.querySelector('.base-dropdown__item:first-child');
+    sibling = currentItem as HTMLButtonElement;
+  }
+
+  if (!sibling || sibling instanceof HTMLButtonElement === false) return;
+
+  currentItem?.classList?.remove('base-dropdown__item--focused');
+  sibling.classList?.add('base-dropdown__item--focused');
+  sibling.scrollIntoView({ block: 'end' });
+};
+
+const onDocumentKeydownHandler = (event: KeyboardEvent) => {
+  if (!['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'].includes(event.key)) return;
+
+  event.preventDefault();
+
+  switch (event.key) {
+    case 'Escape':
+      isOpen.value = false;
+      break;
+    case 'ArrowDown':
+    case 'ArrowUp':
+      navigateItems(event);
+      break;
+    default: // Enter,Tab
+      const currentItem = itemsRef.value?.querySelector('.base-dropdown__item--focused') as HTMLButtonElement;
+
+      if (!currentItem) return;
+      currentItem.click();
+      break;
+  }
+};
+
 watch(isOpen, async () => {
   if (isOpen.value) {
     const document = window.document;
     document.addEventListener('scroll', onDocumentScrollHandler);
+    document.addEventListener('keydown', onDocumentKeydownHandler);
 
     if (props.searchable) {
       await await wait(100);
@@ -174,6 +215,7 @@ watch(isOpen, async () => {
   } else {
     const document = window.document;
     document.removeEventListener('scroll', onDocumentScrollHandler);
+    document.removeEventListener('keydown', onDocumentKeydownHandler);
 
     // Reset the filter whenever the dropdown is closed
     filter.value = '';
@@ -236,6 +278,8 @@ watch(isOpen, async () => {
   }
 
   &__item {
+    $itemClass: &;
+
     display: block !important;
     background-color: transparent;
     border: none;
@@ -263,10 +307,15 @@ watch(isOpen, async () => {
 
     &:hover,
     &:focus,
-    &:active {
+    &:active,
+    &--focused {
       background-color: var(--c-smoke);
       box-shadow: none;
       transform: none;
+
+      &#{$itemClass}--selected {
+        background-color: var(--c-warning);
+      }
     }
 
     &--empty {
