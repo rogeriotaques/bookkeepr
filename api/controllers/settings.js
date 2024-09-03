@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 exports.getSettings = async (req, res) => {
   const config = await global.knex('config').select(['key', 'value']);
   const configObj = {};
@@ -6,7 +8,11 @@ exports.getSettings = async (req, res) => {
     configObj[item.key] = isNaN(item.value) ? item.value : Number(item.value);
   });
 
-  res.json({ config: configObj, dbFilePath: global.pathToDb });
+  // Get database file size in MB
+  const stats = fs.statSync(global.pathToDb);
+  const dbFileSize = stats.size / 1024 / 1024;
+
+  res.json({ config: configObj, dbFilePath: global.pathToDb, dbFileSize });
 };
 
 exports.setSettings = async (req, res) => {
