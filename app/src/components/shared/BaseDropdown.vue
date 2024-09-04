@@ -3,7 +3,10 @@
     :show="isOpen || props.opened"
     :disable-click-away="true"
     :interactive="false"
-    :class="{ 'base-dropdown--full-width': props.fullWidth }"
+    :class="{
+      'base-dropdown--full-width': props.fullWidth,
+      'base-dropdown--searchable': props.searchable,
+    }"
     class="base-dropdown"
     trigger="click"
     offset-distance="-12"
@@ -295,16 +298,6 @@ watch(isOpen, async () => {
       border-top: 1px solid var(--c-border);
     }
 
-    &:first-child {
-      border-top-left-radius: 8px;
-      border-top-right-radius: 8px;
-    }
-
-    &:last-child {
-      border-bottom-left-radius: 8px;
-      border-bottom-right-radius: 8px;
-    }
-
     &:hover,
     &:focus,
     &:active,
@@ -342,5 +335,6 @@ watch(isOpen, async () => {
 :deep(.popper) {
   text-align: initial;
   padding: 0 !important;
+  overflow: hidden;
 }
 </style>
