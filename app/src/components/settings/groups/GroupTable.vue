@@ -1,5 +1,5 @@
 <template>
-  <table class="table">
+  <table class="table group-table">
     <thead>
       <tr>
         <th width="10%">Code</th>
@@ -32,18 +32,20 @@
           </span>
         </td>
         <td class="has-text-right">
-          <a
-            class="link"
-            @click="emit('edit', group)"
-          >
-            <IconEdit />
-          </a>
-          <a
-            class="link is-danger"
-            @click="onDeleteHandler(group.id ?? 0)"
-          >
-            <IconTrash />
-          </a>
+          <div class="group-table__actions">
+            <a
+              class="link"
+              @click="emit('edit', group)"
+            >
+              <IconEdit />
+            </a>
+            <a
+              class="link is-danger"
+              @click="onDeleteHandler(group.id ?? 0)"
+            >
+              <IconTrash />
+            </a>
+          </div>
         </td>
       </tr>
 
@@ -187,6 +189,21 @@ const onDeleteConfirmHandler = async () => {
   &.is-danger:hover {
     > svg {
       stroke: var(--c-danger);
+    }
+  }
+}
+
+.group-table {
+  $class: &;
+
+  tbody > tr {
+    #{$class}__actions {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    &:hover #{$class}__actions {
+      opacity: 1;
     }
   }
 }

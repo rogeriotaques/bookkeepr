@@ -29,26 +29,28 @@
           <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? formatCurrency(entry.amount) : '' }}</td>
           <td class="has-text-right">{{ formatCurrency(entry.balance) }}</td>
           <td class="has-text-right">
-            <a
-              v-if="props.editing !== entry.id"
-              class="link"
-              @click="emit('edit', entry)"
-            >
-              <IconEdit />
-            </a>
-            <span
-              v-else
-              class="link link--editing"
-            >
-              <IconEye />
-            </span>
+            <div class="balance-table__actions">
+              <a
+                v-if="props.editing !== entry.id"
+                class="link"
+                @click="emit('edit', entry)"
+              >
+                <IconEdit />
+              </a>
+              <span
+                v-else
+                class="link link--editing"
+              >
+                <IconEye />
+              </span>
 
-            <a
-              class="link is-danger"
-              @click="onDeleteHandler(entry.id ?? 0)"
-            >
-              <IconTrash />
-            </a>
+              <a
+                class="link is-danger"
+                @click="onDeleteHandler(entry.id ?? 0)"
+              >
+                <IconTrash />
+              </a>
+            </div>
           </td>
         </tr>
 
@@ -205,6 +207,8 @@ const onDeleteConfirmHandler = async () => {
 
 <style lang="scss" scoped>
 .balance-table {
+  $class: &;
+
   table {
     th {
       font-family: Impact, sans-serif;
@@ -214,6 +218,17 @@ const onDeleteConfirmHandler = async () => {
     td {
       padding: 8px 16px;
       font-size: 18px;
+    }
+  }
+
+  tbody > tr:not(#{$class}__editing) {
+    #{$class}__actions {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    &:hover #{$class}__actions {
+      opacity: 1;
     }
   }
 

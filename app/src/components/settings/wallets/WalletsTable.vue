@@ -1,5 +1,5 @@
 <template>
-  <table class="table">
+  <table class="table wallets-table">
     <thead>
       <tr>
         <th width="65%">Name</th>
@@ -28,18 +28,20 @@
           </span>
         </td>
         <td class="has-text-right">
-          <a
-            class="link"
-            @click="emit('edit', wallet)"
-          >
-            <IconEdit />
-          </a>
-          <a
-            class="link is-danger"
-            @click="onDeleteHandler(wallet.id ?? 0)"
-          >
-            <IconTrash />
-          </a>
+          <div class="wallets-table__actions">
+            <a
+              class="link"
+              @click="emit('edit', wallet)"
+            >
+              <IconEdit />
+            </a>
+            <a
+              class="link is-danger"
+              @click="onDeleteHandler(wallet.id ?? 0)"
+            >
+              <IconTrash />
+            </a>
+          </div>
         </td>
       </tr>
 
@@ -173,6 +175,21 @@ const onDeleteConfirmHandler = async () => {
   &.is-danger:hover {
     > svg {
       stroke: var(--c-danger);
+    }
+  }
+}
+
+.wallets-table {
+  $class: &;
+
+  tbody > tr {
+    #{$class}__actions {
+      opacity: 0;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    &:hover #{$class}__actions {
+      opacity: 1;
     }
   }
 }
