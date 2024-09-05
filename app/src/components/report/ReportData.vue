@@ -117,7 +117,7 @@
             </td>
           </template>
         </tr>
-        <tr>
+        <tr v-if="shouldShowConsumptionTax">
           <td width="15%">Consumption tax</td>
           <template v-if="props.loading">
             <td
@@ -142,8 +142,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
+import useDataFetch from '@/composable/useDataFetch';
 import { formatCurrency } from '@/domain/utils';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
@@ -172,10 +173,16 @@ const months = [
   { value: 12, label: 'Dec' },
 ];
 
+const settingsUrl = ref('/settings');
+const { fetchData } = useDataFetch(settingsUrl);
+const { isLoading: isSettingsLoading, data: settingsData } = await fetchData();
+
+const taxSettings = computed(() => (settingsData.value as any)?.config || {});
 const expenses = computed(() => props.data?.outcome ?? []);
 const income = computed(() => props.data?.income ?? []);
 const balance = computed(() => props.data?.balance?.slice(1) ?? []);
 const consumptionTax = computed(() => props.data?.tax?.slice(1) ?? []);
+const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.config?.shouhizei > 0 ?? false);
 </script>
 
 <style lang="scss" scoped>
