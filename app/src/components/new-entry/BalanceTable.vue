@@ -221,6 +221,12 @@ const onDeleteConfirmHandler = async () => {
     }
   }
 
+  thead {
+    position: sticky;
+    top: 58px;
+    background-color: var(--c-background);
+  }
+
   tbody > tr:not(#{$class}__editing) {
     #{$class}__actions {
       opacity: 0;

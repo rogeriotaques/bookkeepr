@@ -182,6 +182,12 @@ const onDeleteConfirmHandler = async () => {
 .wallets-table {
   $class: &;
 
+  thead {
+    position: sticky;
+    top: 58px;
+    background-color: var(--c-background);
+  }
+
   tbody > tr {
     #{$class}__actions {
       opacity: 0;
