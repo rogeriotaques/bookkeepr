@@ -40,6 +40,9 @@ const routes = [
 const router = new createRouter({
   history: createWebHashHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0, behavior: 'smooth' };
+  },
 });
 
 export default router;
