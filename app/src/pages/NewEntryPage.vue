@@ -67,7 +67,7 @@ const form = reactive<any>({
   description: '',
   group: '',
   wallet: '',
-  date: '',
+  date: dayjs().format('YYYY-MM-DD'),
 });
 
 const entries = computed(() => (entriesData.value?.entries ?? []) as ExtendedEntry[]);
@@ -81,7 +81,7 @@ const resetForm = (hard = false) => {
   if (hard) {
     form.group = '';
     form.wallet = '';
-    form.date = '';
+    form.date = dayjs().format('YYYY-MM-DD');
 
     editingID.value = null;
   }
