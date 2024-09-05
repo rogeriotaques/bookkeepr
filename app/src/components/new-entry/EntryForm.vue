@@ -12,7 +12,7 @@
               <input
                 v-model="data.amount"
                 v-money="V_MONEY_OPTIONS"
-                ref="amount"
+                ref="amountRef"
                 type="text"
                 placeholder="E.g. 1,234"
                 maxlength="11"

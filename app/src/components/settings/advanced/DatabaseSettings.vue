@@ -38,6 +38,8 @@
         <button
           disabled
           type="button"
+          class="has-tooltip has-tooltip--left"
+          data-tooltip="Backup your database on the cloud"
         >
           <IconDeviceFloppy />
           <span>Backup</span>
