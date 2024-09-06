@@ -31,7 +31,7 @@
             width="16"
             height="16"
           />
-          <IconRefresh v-else />
+          <IconLayoutBottombarCollapseFilled v-else />
           <span>Vacuum</span>
         </button>
 
@@ -39,10 +39,10 @@
           disabled
           type="button"
           class="has-tooltip has-tooltip--left"
-          data-tooltip="Backup your database on the cloud"
+          data-tooltip="Sync your database on the cloud and use this app in multiple devices"
         >
-          <IconDeviceFloppy />
-          <span>Backup</span>
+          <IconRefresh />
+          <span>Sync</span>
         </button>
       </div>
     </div>
@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { IconRefresh, IconDeviceFloppy, IconLoader2 } from '@tabler/icons-vue';
+import { IconRefresh, IconLoader2, IconLayoutBottombarCollapseFilled } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { runVacuum } from '@/domain/network';
