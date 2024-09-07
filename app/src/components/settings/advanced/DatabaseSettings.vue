@@ -8,12 +8,7 @@
         </hgroup>
 
         <div>
-          <b>Database file:</b>
-        </div>
-        <code>{{ props.loading ? '...' : props.data.dbFilePath }}</code>
-
-        <div>
-          <b>Database file size:</b>
+          <b>Database size:</b>
         </div>
         <code>{{ props.loading ? '...' : props.data.dbFileSize.toFixed(2) }} MB</code>
       </div>

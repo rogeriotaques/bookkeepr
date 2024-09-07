@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="app_footer container">
     <p>2021 &copy; Abtz Labs</p>
     <p>
       <span class="branding">
@@ -35,11 +35,17 @@ const version = __VERSION__;
 </script>
 
 <style lang="scss" scoped>
-.branding {
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+.app_footer {
+  @media print {
+    display: none;
+  }
 
-  code {
-    margin-left: 8px;
+  .branding {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+
+    code {
+      margin-left: 8px;
+    }
   }
 }
 </style>

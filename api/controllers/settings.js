@@ -12,7 +12,7 @@ exports.getSettings = async (req, res) => {
   const stats = fs.statSync(global.pathToDb);
   const dbFileSize = stats.size / 1024 / 1024;
 
-  res.json({ config: configObj, dbFilePath: global.pathToDb, dbFileSize });
+  res.json({ config: configObj, dbFileSize });
 };
 
 exports.setSettings = async (req, res) => {

@@ -29,6 +29,7 @@ button, .button {
   align-items: center;
   justify-content: space-around;
   height: 48px;
+  gap: 8px;
 
   &.is-auto-width {
     width: auto;

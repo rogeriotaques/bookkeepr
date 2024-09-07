@@ -9,7 +9,7 @@ export const ENTRY_OPERATIONS = {
 
 export const TOAST_BASE_SETTINGS = {
   // transition: 'Vue-Toastification__bounce',
-  position: POSITION.TOP_CENTER,
+  position: POSITION.BOTTOM_CENTER,
   draggable: false,
   pauseOnHover: true,
   timeout: 3000,

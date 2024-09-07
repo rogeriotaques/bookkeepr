@@ -1,8 +1,7 @@
 <template>
   <section class="report-page">
-    <div class="row">
-      <div class="col-1" />
-      <div class="col-2 report-page__filter">
+    <div class="report-page__insights row">
+      <div class="col-3 report-page__filter">
         <BaseDropdown
           v-model="filterByYear"
           :options="recordedYears"
@@ -14,6 +13,16 @@
           :data="reportData?.insights || {}"
           :loading="isReportLoading"
         />
+      </div>
+      <div class="col-3 report-page__print">
+        <button
+          type="button"
+          class="is-auto-width has-tooltip has-tooltip--bottom"
+          data-tooltip="Print report"
+          @click="onPrintClickHandler"
+        >
+          <IconPrinter />
+        </button>
       </div>
     </div>
 
@@ -37,6 +46,7 @@
 import { ref, computed, watch } from 'vue';
 import { Bar } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement } from 'chart.js';
+import { IconPrinter } from '@tabler/icons-vue';
 
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 
@@ -125,6 +135,10 @@ const chartStyles: any = {
   margin: '8px auto',
   width: '850px',
 };
+
+const onPrintClickHandler = () => {
+  window.print();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -135,8 +149,19 @@ const chartStyles: any = {
     box-shadow: rgba(0, 0, 0, 0.15) 0 0 12px inset;
   }
 
-  &__filter {
-    padding-top: 64px;
+  &__filter,
+  &__print {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__insights {
+    display: flex;
+
+    @media print {
+      display: none;
+    }
   }
 }
 </style>
