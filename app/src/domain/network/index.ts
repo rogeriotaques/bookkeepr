@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { ApiResponse, SettingsData, SettingsPayloadData, Wallet, Group, Entry } from '@/domain/interfaces';
+import { ApiResponse, SettingsPayloadData, Wallet, Group, Entry } from '@/domain/interfaces';
 import { respHandler, errorHandler } from '@/domain/network/utils';
 import { BASE_URL } from '@/domain/constants';
 
