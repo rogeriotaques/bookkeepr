@@ -1,5 +1,7 @@
 # BookKeepr
 
+by [Rogerio Taques](https://x.com/rogeriotaques).
+
 BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a macOS bookkeeping app for small businesses and self-employed professionals in Japan. Designed to be simple and easy.
 
 Supports both `single-entry` and `double-entry` methods.
@@ -20,11 +22,29 @@ Source: [Wikipedia](https://en.wikipedia.org/wiki/Bookkeeping).
 
 Clone this repository.
 
-Run `npm install` to install all the dependencies.
+Run the following commands:
 
-Run `npm run pack` to pack a distributable version.
+```sh
+$ cd <path-of-cloned-repository>
+$ yarn install
+$ (cd api; yarn install;)
+$ (cd app; yarn install; yarn build)
+$ yarn make
+```
 
-Go to `<path-of-cloned-repository>/out` and copy `BookKeepr` to `~/Applications`.
+Next, go to `<path-of-cloned-repository>/out` and copy `BookKeepr` to `~/Applications`. Or, from your terminal, run:
+
+```sh
+$ cp -r <path-of-cloned-repository>/out/BookKeepr ~/Applications
+```
+
+\* Make sure to replace `<path-of-cloned-repository>` with the actual path to the cloned repository.
+
+Run the following command if you want to create a distributable `.tgz` file:
+
+```sh
+$ yarn pack
+```
 
 Done. BookKeepr can be started as you usually do for any other app. 🤘
 
@@ -32,7 +52,7 @@ Done. BookKeepr can be started as you usually do for any other app. 🤘
 
 If you run into problems related to `sqlite3` and `node-gyp` while running `npm install` or `npm run pack`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
 
-```
+```sh
 $ npm install -g node-gyp
 ```
 
@@ -40,14 +60,14 @@ Also, `PYTHON` should be exported pointing to the supported python version.
 
 Additionally, you may try to configure `NPM` to use the supported version of python you might be using:
 
-```
+```sh
 $ npm config set python <path/to/python>
 ```
 
 ### Tech stack
 
-- Node 14+
-- EJS
+- Node 18.20+
+- Vue 3.4+
 - SQLite
 - Electron
 

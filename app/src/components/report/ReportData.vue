@@ -175,14 +175,13 @@ const months = [
 
 const settingsUrl = ref('/settings');
 const { fetchData } = useDataFetch(settingsUrl);
-const { isLoading: isSettingsLoading, data: settingsData } = await fetchData();
+const { data: settingsData } = await fetchData();
 
-const taxSettings = computed(() => (settingsData.value as any)?.config || {});
 const expenses = computed(() => props.data?.outcome ?? []);
 const income = computed(() => props.data?.income ?? []);
 const balance = computed(() => props.data?.balance?.slice(1) ?? []);
 const consumptionTax = computed(() => props.data?.tax?.slice(1) ?? []);
-const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.config?.shouhizei > 0 ?? false);
+const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.config?.shouhizei > 0 || false);
 </script>
 
 <style lang="scss" scoped>
