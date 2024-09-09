@@ -34,10 +34,10 @@
           disabled
           type="button"
           class="has-tooltip has-tooltip--left"
-          data-tooltip="Sync your database on the cloud and use this app in multiple devices"
+          data-tooltip="Download a copy of your database"
         >
-          <IconRefresh />
-          <span>Sync</span>
+          <IconDeviceFloppy />
+          <span>Backup</span>
         </button>
       </div>
     </div>
@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { IconRefresh, IconLoader2, IconLayoutBottombarCollapseFilled } from '@tabler/icons-vue';
+import { IconDeviceFloppy, IconLoader2, IconLayoutBottombarCollapseFilled } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { runVacuum } from '@/domain/network';

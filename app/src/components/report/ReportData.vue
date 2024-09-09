@@ -118,7 +118,18 @@
           </template>
         </tr>
         <tr v-if="shouldShowConsumptionTax">
-          <td width="15%">Consumption tax</td>
+          <td width="15%">
+            Consumption tax
+            <span
+              class="has-tooltip has-tooltip--right"
+              data-tooltip="Estimation to be provisioned and paid to the government"
+            >
+              <IconInfoCircle
+                :width="16"
+                :height="16"
+              />
+            </span>
+          </td>
           <template v-if="props.loading">
             <td
               v-for="month in months"
@@ -143,6 +154,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { IconInfoCircle } from '@tabler/icons-vue';
 
 import useDataFetch from '@/composable/useDataFetch';
 import { formatCurrency } from '@/domain/utils';
@@ -220,6 +232,7 @@ const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.con
   th:not(:first-child),
   td:not(:first-child) {
     text-align: right;
+    width: 6.9%;
   }
 
   tfoot tr:first-child td {

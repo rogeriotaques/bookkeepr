@@ -5,34 +5,33 @@
 
 const fs = require('fs');
 const path = require('path');
-const { app, BrowserWindow } = require('electron');
-const watcher = fs.watch(path.join(__dirname, 'app', 'src'));
+const electron = require('electron');
+
+const { app, BrowserWindow } = electron;
 
 let win;
 
 const createWindow = () => {
+  const ratio = 0.9;
+  const screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+  const width = Math.round(screenSize.width * ratio);
+  const height = Math.round(screenSize.height * ratio);
+
+  // Create the browser window.
   win = new BrowserWindow({
-    autoHideMenuBar: true,
-    width: 1280,
-    height: 780,
+    width,
+    height,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
 
   require('./api/main.js')(app.getVersion(), app.getName(), (port) => {
+    fs.writeFileSync(path.join(__dirname, 'app', 'dist', 'config.json'), JSON.stringify({ port }));
     win.loadURL(`http://127.0.0.1:${port}`);
     console.info('Electron app running');
   });
 };
-
-watcher.on('change', () => {
-  console.info('Changes detected, reloading');
-
-  setTimeout(() => {
-    win.reload(); // Debounced reload
-  }, 1000);
-});
 
 app.whenReady().then(() => {
   createWindow();

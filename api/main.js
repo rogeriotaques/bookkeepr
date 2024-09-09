@@ -88,7 +88,6 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
     createDatabase();
 
     const server = app.listen(port, () => {
-      const port = server.address().port;
       console.info(`Server started at http://127.0.0.1:${port}`);
       if (callback) callback(port);
     });

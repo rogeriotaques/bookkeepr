@@ -2,6 +2,14 @@
   <div class="settings-advanced">
     <h4>Advanced settings</h4>
 
+    <CurrencySettings
+      :symbol="'$'"
+      :loading="isLoadingSettings"
+      @update="onUpdatedSettingsHandler"
+    />
+
+    <hr />
+
     <TaxSettings
       :data="taxSettings"
       :loading="isLoadingSettings"
@@ -24,6 +32,8 @@ import { useToast } from 'vue-toastification';
 import { setSettings } from '@/domain/network';
 
 import useDataFetch from '@/composable/useDataFetch';
+
+import CurrencySettings from '@/components/settings/advanced/CurrencySettings.vue';
 import DatabaseSettings from '@/components/settings/advanced/DatabaseSettings.vue';
 import TaxSettings from '@/components/settings/advanced/TaxSettings.vue';
 

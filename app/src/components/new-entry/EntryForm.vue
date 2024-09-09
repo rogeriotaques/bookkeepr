@@ -83,7 +83,7 @@
       </button>
 
       <button
-        :disabled="!isFormValid || props.isSubmitting"
+        :disabled="isSaveButtonDisabled"
         type="submit"
         class="is-full-width"
         @click="onSaveClickHandler"
@@ -94,14 +94,14 @@
           height="16"
           class="is-spinning"
         />
-        <span v-else>Save</span>
+        <template v-else>Save (⌘+S)</template>
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, Ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { IconCalendar, IconCurrencyYen, IconLoader2 } from '@tabler/icons-vue';
 
 import { Entry, Wallet, Group } from '@/domain/interfaces';
@@ -169,6 +169,9 @@ const isFormValid = computed(
     props.data.date.length > 0
 );
 
+const isSaveButtonEnabled = computed(() => isFormValid.value && !props.isSubmitting);
+const isSaveButtonDisabled = computed(() => !isSaveButtonEnabled.value);
+
 watch(
   () => props.isSubmitting,
   async (submitting) => {
@@ -190,9 +193,23 @@ watch(
 );
 
 onMounted(async () => {
+  document.addEventListener('keydown', onCmdSaveHandler);
+
   await nextTick();
   amountRef?.value?.focus();
 });
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onCmdSaveHandler);
+});
+
+const onCmdSaveHandler = (e: KeyboardEvent) => {
+  if (isSaveButtonEnabled.value && e.metaKey && e.key === 's') {
+    e.preventDefault();
+    e.stopPropagation();
+    onSaveClickHandler();
+  }
+};
 
 const onSaveClickHandler = () => {
   emit('submit');

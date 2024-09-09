@@ -6,21 +6,6 @@
         BookKeepr
         <code>{{ version }}</code>
       </span>
-      <span>•</span>
-      <span>
-        Chromium
-        <code id="chrome-version">#</code>
-      </span>
-      <span>•</span>
-      <span>
-        Node
-        <code id="node-version">#</code>
-      </span>
-      <span>•</span>
-      <span>
-        Electron
-        <code id="electron-version">#</code>
-      </span>
     </p>
     <p>
       Need help?
