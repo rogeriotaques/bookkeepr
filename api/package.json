@@ -24,5 +24,9 @@
   },
   "_moduleAliases": {
     "@": "."
+  },
+  "volta": {
+    "node": "20.17.0",
+    "yarn": "4.4.1-git.20240825.hash-b2f315f6"
   }
 }
