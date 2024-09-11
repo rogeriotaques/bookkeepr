@@ -43,7 +43,7 @@
               v-for="month in months"
               :key="month.label"
             >
-              {{ formatCurrency(entry[month.value] ?? 0) }}
+              {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
           </tr>
         </template>
@@ -91,7 +91,7 @@
               v-for="month in months"
               :key="month.label"
             >
-              {{ formatCurrency(entry[month.value] ?? 0) }}
+              {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
           </tr>
         </template>
@@ -113,7 +113,7 @@
               v-for="entry in balance"
               :key="`balance-${entry}`"
             >
-              {{ formatCurrency(entry ?? 0) }}
+              {{ getFormattedCurrency(entry ?? 0) }}
             </td>
           </template>
         </tr>
@@ -143,7 +143,7 @@
               v-for="entry in consumptionTax"
               :key="entry"
             >
-              {{ formatCurrency(entry ?? 0) }}
+              {{ getFormattedCurrency(entry ?? 0) }}
             </td>
           </template>
         </tr>
@@ -157,17 +157,22 @@ import { ref, computed } from 'vue';
 import { IconInfoCircle } from '@tabler/icons-vue';
 
 import useDataFetch from '@/composable/useDataFetch';
+
 import { formatCurrency } from '@/domain/utils';
+import { CurrencyLocale } from '@/domain/interfaces';
+
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
   data: Record<string, any>;
   loading: boolean;
+  locale: CurrencyLocale;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: {} as any,
   loading: true,
+  locale: {} as CurrencyLocale
 });
 
 const months = [
@@ -194,6 +199,8 @@ const income = computed(() => props.data?.income ?? []);
 const balance = computed(() => props.data?.balance?.slice(1) ?? []);
 const consumptionTax = computed(() => props.data?.tax?.slice(1) ?? []);
 const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.config?.shouhizei > 0 || false);
+
+const getFormattedCurrency = (value: number) => formatCurrency(value, { currency: props.locale.currencyCode, locale: props.locale.currencyLocale });
 </script>
 
 <style lang="scss" scoped>

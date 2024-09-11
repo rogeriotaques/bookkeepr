@@ -11,7 +11,8 @@
       <div class="col-6">
         <ReportInsights
           :data="reportData?.insights || {}"
-          :loading="isReportLoading"
+          :loading="isReportLoading || isSettingsLoading"
+          :locale="locale"
         />
       </div>
       <div class="col-3 report-page__print">
@@ -35,9 +36,12 @@
       />
     </div>
 
+    <div class="pagebreak" />
+
     <ReportData
       :data="reportData?.data || {}"
       :loading="isReportLoading"
+      :locale="locale"
     />
   </section>
 </template>
@@ -68,6 +72,7 @@ const randomColor = (opacity = 0.1) => {
 const filterByYear = ref(`${new Date().getFullYear()}`);
 const recordedYearsUrl = ref('/entries/recorded-years');
 const reportUrl = computed(() => `/reports?year=${filterByYear.value}`);
+const settingsUrl = ref('/settings');
 
 const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
 const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
@@ -76,6 +81,18 @@ const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map(
 
 const { fetchData: getReportData } = useDataFetch(reportUrl);
 const { isLoading: isReportLoading, data: reportData } = await getReportData();
+
+const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
+const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
+
+const locale = computed(() => {
+  const { config } = settingsData?.value || {} as any;
+
+  return {
+    currencyCode: config?.currencyCode || 'JPY',
+    currencyLocale: config?.currencyLocale || 'ja-JP',
+  };
+});
 
 const datasets = computed(() => {
   const _ds: any = [];
@@ -173,6 +190,8 @@ const onPrintClickHandler = () => {
       box-shadow: none;
       background-color: transparent;
     }
+
+    .pagebreak { page-break-before: always; }
   }
 }
 </style>

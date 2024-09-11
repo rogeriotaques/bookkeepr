@@ -14,7 +14,7 @@
                 width="60%"
                 centered
               />
-              <span v-else>+ {{ formatCurrency(card.income) }}</span>
+              <span v-else>+ {{ getFormattedCurrency(card.income) }}</span>
             </p>
             <p class="card__figure card__figure--outcome">
               <BaseSkeleton
@@ -22,7 +22,7 @@
                 width="60%"
                 centered
               />
-              <span v-else>- {{ formatCurrency(card.outcome) }}</span>
+              <span v-else>- {{ getFormattedCurrency(card.outcome) }}</span>
             </p>
           </div>
           <h3 class="title">
@@ -34,7 +34,7 @@
               centered
             />
             <template v-else>
-              {{ formatCurrency(card.income - card.outcome) }}
+              {{ formatCurrency(card.income - card.outcome, { style: 'decimal' }) }}
             </template>
           </h3>
           <p class="subtitle">{{ card.label }}</p>
@@ -48,6 +48,8 @@
 import { computed } from 'vue';
 
 import { formatCurrency } from '@/domain/utils';
+import { CurrencyLocale } from '@/domain/interfaces';
+
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Insight {
@@ -58,11 +60,13 @@ interface Insight {
 interface Props {
   data: Record<string, Insight>;
   loading: boolean;
+  locale: CurrencyLocale;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   data: {} as any,
   loading: true,
+  locale: {} as CurrencyLocale
 });
 
 const cards = computed(() => [
@@ -82,6 +86,8 @@ const cards = computed(() => [
     outcome: props.data?.today?.outcome ?? 0,
   },
 ]);
+
+const getFormattedCurrency = (value: number) => formatCurrency(value, { currency: props.locale.currencyCode, locale: props.locale.currencyLocale });
 </script>
 
 <style lang="scss" scoped>

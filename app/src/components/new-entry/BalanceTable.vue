@@ -25,9 +25,9 @@
               <span class="badge">{{ entry.walletName }}</span>
             </div>
           </td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? decimalFormattedCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? decimalFormattedCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ decimalFormattedCurrency(entry.balance) }}</td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? getFormattedCurrency(entry.amount) : '' }}</td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? getFormattedCurrency(entry.amount) : '' }}</td>
+          <td class="has-text-right">{{ getFormattedCurrency(entry.balance) }}</td>
           <td class="has-text-right">
             <div class="balance-table__actions">
               <a
@@ -81,13 +81,13 @@
         <tr>
           <th colspan="2">Total</th>
           <th class="has-text-right">
-            {{ decimalFormattedCurrency(totalOutcome) }}
+            {{ getFormattedCurrency(totalOutcome) }}
           </th>
           <th class="has-text-right">
-            {{ decimalFormattedCurrency(totalIncome) }}
+            {{ getFormattedCurrency(totalIncome) }}
           </th>
           <th class="has-text-right">
-            {{ decimalFormattedCurrency(finalBalance) }}
+            {{ getFormattedCurrency(finalBalance) }}
           </th>
           <th></th>
         </tr>
@@ -118,7 +118,7 @@ import { ref, computed } from 'vue';
 import { IconEdit, IconTrash, IconEye, IconLoader2 } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
-import { ExtendedEntry } from '@/domain/interfaces';
+import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 import { deleteEntry } from '@/domain/network';
 import { formatCurrency } from '@/domain/utils';
@@ -131,9 +131,12 @@ interface Props {
   data: ExtendedEntry[];
   editing?: number | null;
   loading?: boolean;
+  locale: CurrencyLocale;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  locale: {} as CurrencyLocale
+});
 
 interface Emits {
   (e: 'edit', entry: ExtendedEntry): void;
@@ -169,7 +172,7 @@ const finalBalance = computed(() => entries.value[entries.value.length - 1]?.bal
 
 const isIncome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.INCOME;
 const isOutcome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.EXPENSE;
-const decimalFormattedCurrency = (value: number) => formatCurrency(value, { style: 'decimal' });
+const getFormattedCurrency = (value: number) => formatCurrency(value, { currency: props.locale.currencyCode, locale: props.locale.currencyLocale });
 
 const onDeleteHandler = (id: number) => {
   const entry = props.data.find((entry) => entry.id === id);

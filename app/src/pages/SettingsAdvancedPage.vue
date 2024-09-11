@@ -51,6 +51,7 @@ const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 const taxPercentage = computed(() => (settingsData.value as any)?.config?.shouhizei || 0);
 const currencySettings = computed(() => {
   const { config } = settingsData.value as any;
+
   return {
     currencyCode: config?.currencyCode || 'JPY',
     currencyLocale: config?.currencyLocale || 'ja-JP',

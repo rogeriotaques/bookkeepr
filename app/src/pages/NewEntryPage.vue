@@ -6,6 +6,7 @@
           :data="form"
           :is-submitting="isSubmitting"
           :is-editing="!!editingID"
+          :locale="locale"
           @submit="onSubmitHandler"
           @cancel="resetForm(true)"
         />
@@ -21,7 +22,8 @@
         <BalanceTable
           :data="entries"
           :editing="editingID"
-          :loading="isEntriesLoading"
+          :loading="isEntriesLoading || isSettingsLoading"
+          :locale="locale"
           @update="invalidateEntriesQuery"
           @edit="onEditHandler"
         />
@@ -50,6 +52,7 @@ const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
 
+const settingsUrl = ref('/settings');
 const recordedYearsUrl = ref('/entries/recorded-years');
 const entriesUrl = computed(() => `/entries?year=${year.value}&month=${month.value}`);
 
@@ -61,6 +64,9 @@ const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await get
 const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
 const { isLoading: isEntriesLoading, data: entriesData } = await getEntries();
 
+const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
+const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
+
 const form = reactive<any>({
   id: null,
   amount: '',
@@ -68,6 +74,15 @@ const form = reactive<any>({
   group: '',
   wallet: '',
   date: dayjs().format('YYYY-MM-DD'),
+});
+
+const locale = computed(() => {
+  const { config } = settingsData?.value || {} as any;
+
+  return {
+    currencyCode: config?.currencyCode || 'JPY',
+    currencyLocale: config?.currencyLocale || 'ja-JP',
+  };
 });
 
 const entries = computed(() => (entriesData.value?.entries ?? []) as ExtendedEntry[]);

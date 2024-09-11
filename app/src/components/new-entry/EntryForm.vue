@@ -114,7 +114,7 @@
 import { ref, Ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { IconCalendar, IconLoader2 } from '@tabler/icons-vue';
 
-import { Entry, Wallet, Group } from '@/domain/interfaces';
+import { Entry, Wallet, Group, CurrencyLocale } from '@/domain/interfaces';
 import { V_MONEY_OPTIONS } from '@/domain/constants';
 import { getCurrencySymbol } from '@/domain/utils';
 
@@ -125,9 +125,12 @@ interface Props {
   data: Entry;
   isSubmitting: boolean;
   isEditing: boolean;
+  locale: CurrencyLocale;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  locale: {} as CurrencyLocale
+});
 
 interface Emits {
   (event: 'submit'): void;
@@ -139,7 +142,6 @@ const emit = defineEmits<Emits>();
 const amountRef: Ref<HTMLInputElement | null> = ref(null);
 const activeGroupsUrl = ref('/groups?active=1');
 const activeWalletsUrl = ref('/wallets?active=1');
-const settingsUrl = ref('/settings');
 
 const { fetchData: getActiveGroups } = useDataFetch(activeGroupsUrl);
 const { isLoading: isGroupsLoading, data: groupsData } = await getActiveGroups();
@@ -147,12 +149,9 @@ const { isLoading: isGroupsLoading, data: groupsData } = await getActiveGroups()
 const { fetchData: getActiveWallets } = useDataFetch(activeWalletsUrl);
 const { isLoading: isWalletsLoading, data: walletsData } = await getActiveWallets();
 
-const { fetchData: getSettings } = useDataFetch(settingsUrl);
-const { data: settingsData } = await getSettings();
-
 const wallets: any = computed(() => walletsData.value?.wallets ?? []);
 const groups: any = computed(() => groupsData.value?.groups ?? []);
-const currencyCode = computed(() => (settingsData.value as any)?.config?.currencyCode || 'JPY');
+const currencyCode = computed(() => (props.locale?.currencyCode ?? 'JPY'));
 
 interface DropdownOption {
   value: string;
