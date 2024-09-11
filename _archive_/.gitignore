@@ -1,7 +1,0 @@
-node_modules
-out
-
-*.db
-*.sqlite
-
-.DS_Store

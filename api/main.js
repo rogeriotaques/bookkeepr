@@ -11,7 +11,6 @@ const path = require('path');
 const express = require('express');
 const parser = require('body-parser');
 const compression = require('compression');
-const electron = require('electron');
 const cors = require('cors');
 const helmet = require('helmet');
 
@@ -22,15 +21,9 @@ global.appName = null;
 global.pathToDb = null;
 
 // Database file will be created either at
-// - ./api/bookkeepr.db
-// - ~/Library/Application Support/BookKeepr/bookkeepr.db"
+// ./api/data/bookkeepr.db
 const createDatabase = async () => {
-  let userDataPath = __dirname;
-
-  if (electron.app) userDataPath = electron.app.getPath('userData');
-  if (electron.remote) userDataPath = electron.remote.app.getPath('userData');
-
-  pathToDb = path.join(userDataPath, 'data', 'bookkeepr.db');
+  pathToDb = path.join(__dirname, 'data', 'bookkeepr.db');
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');

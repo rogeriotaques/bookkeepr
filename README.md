@@ -20,56 +20,39 @@ Source: [Wikipedia](https://en.wikipedia.org/wiki/Bookkeeping).
 
 ### Build it on your own
 
-Clone this repository.
+Once this repository is cloned, open a terminal window and go to the project folder.
 
-Run the following commands:
+#### Run the backend (api) with:
 
 ```sh
-$ cd <path-of-cloned-repository>
+$ cd api
 $ yarn install
-$ (cd api; yarn install;)
-$ (cd app; yarn install; yarn build)
-$ yarn make
+$ yarn start
 ```
 
-Next, go to `<path-of-cloned-repository>/out` and copy `BookKeepr` to `~/Applications`. Or, from your terminal, run:
+#### Tun the frontend (app) with:
 
 ```sh
-$ cp -r <path-of-cloned-repository>/out/BookKeepr ~/Applications
+$ cd app
+$ yarn install
+$ yarn start
 ```
 
-\* Make sure to replace `<path-of-cloned-repository>` with the actual path to the cloned repository.
-
-Run the following command if you want to create a distributable `.tgz` file:
-
-```sh
-$ yarn pack
-```
-
-Done. BookKeepr can be started as you usually do for any other app. 🤘
+Next, open your preferred browser and visit to `http://localhost:5173` 🤘
 
 #### Troubleshooting
 
-If you run into problems related to `sqlite3` and `node-gyp` while running `npm install` or `npm run pack`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
+If you run into problems related to `sqlite3` and `node-gyp` while running `yarn install` or `yarn start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
 
 ```sh
 $ npm install -g node-gyp
 ```
 
-Also, `PYTHON` should be exported pointing to the supported python version.
-
-Additionally, you may try to configure `NPM` to use the supported version of python you might be using:
-
-```sh
-$ npm config set python <path/to/python>
-```
-
 ### Tech stack
 
-- Node 18.20+
+- Node 20.17+
 - Vue 3.4+
 - SQLite
-- Electron
 
 ## Questions?
 
