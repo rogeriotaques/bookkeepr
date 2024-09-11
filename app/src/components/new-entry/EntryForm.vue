@@ -129,7 +129,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  locale: {} as CurrencyLocale
+  locale: {} as any,
 });
 
 interface Emits {
@@ -151,7 +151,7 @@ const { isLoading: isWalletsLoading, data: walletsData } = await getActiveWallet
 
 const wallets: any = computed(() => walletsData.value?.wallets ?? []);
 const groups: any = computed(() => groupsData.value?.groups ?? []);
-const currencyCode = computed(() => (props.locale?.currencyCode ?? 'JPY'));
+const currencyCode = computed(() => props.locale?.currencyCode ?? 'JPY');
 
 interface DropdownOption {
   value: string;

@@ -135,7 +135,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  locale: {} as CurrencyLocale
+  locale: {} as any,
 });
 
 interface Emits {
