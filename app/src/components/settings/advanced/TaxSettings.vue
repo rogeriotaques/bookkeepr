@@ -9,7 +9,7 @@
       </div>
       <div class="col-4 has-text-right">
         <BaseDropdown
-          :modelValue="props.data.shouhizei"
+          :modelValue="props.taxPercentage"
           :options="taxOptions"
           :disabled="props.loading"
           @select="emit('update', $event)"
@@ -20,11 +20,10 @@
 </template>
 
 <script setup lang="ts">
-import { TaxData } from '@/domain/interfaces';
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
 interface Props {
-  data: TaxData;
+  taxPercentage: number;
   loading?: boolean;
 }
 
@@ -43,15 +42,4 @@ const taxOptions = [
 ];
 </script>
 
-<style lang="scss" scoped>
-.settings-advanced-tax {
-  hgroup {
-    margin-bottom: 16px;
-
-    h5,
-    p {
-      margin: 0;
-    }
-  }
-}
-</style>
+<style lang="scss" scoped></style>

@@ -41,6 +41,20 @@ button, .button {
   }
 }
 
+hgroup {
+  margin-bottom: 16px;
+
+  h1, h2, h3, h4, h5, h6,
+  p {
+    margin: 0;
+  }
+
+  p + code {
+    padding: 4px;
+    margin-top: 8px;
+  }
+}
+
 .input {
   input,
   select {
@@ -54,6 +68,7 @@ button, .button {
       display: flex !important;
       align-items: center;
       height: 48px;
+      cursor: default;
     }
   }
 
@@ -104,11 +119,6 @@ button, .button {
       text-align: left !important;
     }
   }
-}
-
-.title + .subtitle {
-  margin-top: calc(var(--spacing) * 3 * -1);
-  margin-bottom: calc(var(--spacing) * 2);
 }
 
 .Vue-Toastification {

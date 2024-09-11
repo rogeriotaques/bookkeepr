@@ -1,11 +1,16 @@
 export type Nullable<T> = T | null;
 
-export interface TaxData {
+export interface CurrencyLocale {
+  currencyCode: string;
+  currencyLocale: string;
+}
+
+export interface ConfigData extends CurrencyLocale {
   shouhizei: number;
 }
 
 export interface SettingsData {
-  config: TaxData;
+  config: ConfigData;
   dbFilePath?: string;
 }
 

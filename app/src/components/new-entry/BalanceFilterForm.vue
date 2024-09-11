@@ -1,16 +1,20 @@
 <template>
   <div class="balance-filter-form">
     <div class="balance-filter-form__filter-by-string">
-      <label for="input">Search by</label>
+      <label for="search">Search by</label>
       <div class="input input--with-addons">
         <input
           v-model="filterByText"
+          id="search"
           type="text"
           placeholder="Description, category, wallet, or amount"
         />
-        <p class="input__addon input__addon--icon">
+        <label
+          class="input__addon input__addon--icon"
+          for="search"
+        >
           <IconSearch :size="18" />
-        </p>
+        </label>
       </div>
     </div>
     <div class="balance-filter-form__filter-by-date">

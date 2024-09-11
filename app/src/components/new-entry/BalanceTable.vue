@@ -25,9 +25,9 @@
               <span class="badge">{{ entry.walletName }}</span>
             </div>
           </td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? formatCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? formatCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ formatCurrency(entry.balance) }}</td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? decimalFormattedCurrency(entry.amount) : '' }}</td>
+          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? decimalFormattedCurrency(entry.amount) : '' }}</td>
+          <td class="has-text-right">{{ decimalFormattedCurrency(entry.balance) }}</td>
           <td class="has-text-right">
             <div class="balance-table__actions">
               <a
@@ -81,13 +81,13 @@
         <tr>
           <th colspan="2">Total</th>
           <th class="has-text-right">
-            {{ formatCurrency(totalOutcome) }}
+            {{ decimalFormattedCurrency(totalOutcome) }}
           </th>
           <th class="has-text-right">
-            {{ formatCurrency(totalIncome) }}
+            {{ decimalFormattedCurrency(totalIncome) }}
           </th>
           <th class="has-text-right">
-            {{ formatCurrency(finalBalance) }}
+            {{ decimalFormattedCurrency(finalBalance) }}
           </th>
           <th></th>
         </tr>
@@ -169,6 +169,7 @@ const finalBalance = computed(() => entries.value[entries.value.length - 1]?.bal
 
 const isIncome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.INCOME;
 const isOutcome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.EXPENSE;
+const decimalFormattedCurrency = (value: number) => formatCurrency(value, { style: 'decimal' });
 
 const onDeleteHandler = (id: number) => {
   const entry = props.data.find((entry) => entry.id === id);

@@ -1,19 +1,23 @@
 <template>
   <div class="settings-advanced">
-    <h4>Advanced settings</h4>
+    <hgroup>
+      <h4>Advanced settings</h4>
+      <p v-if="isLoadingSettings">Loading ...</p>
+      <p v-else>Configure advanced settings</p>
+    </hgroup>
 
     <CurrencySettings
-      :symbol="'$'"
+      :data="currencySettings"
       :loading="isLoadingSettings"
-      @update="onUpdatedSettingsHandler"
+      @update="onUpdatedCurrencySettingsHandler"
     />
 
     <hr />
 
     <TaxSettings
-      :data="taxSettings"
+      :tax-percentage="taxPercentage"
       :loading="isLoadingSettings"
-      @update="onUpdatedSettingsHandler"
+      @update="onUpdatedSettingsHandler('shouhizei', $event)"
     />
 
     <hr />
@@ -44,17 +48,38 @@ const toast = useToast();
 const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
 const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 
-const taxSettings = computed(() => (settingsData.value as any)?.config || {});
+const taxPercentage = computed(() => (settingsData.value as any)?.config?.shouhizei || 0);
+const currencySettings = computed(() => {
+  const { config } = settingsData.value as any;
+  return {
+    currencyCode: config?.currencyCode || 'JPY',
+    currencyLocale: config?.currencyLocale || 'ja-JP',
+  };
+});
 const databaseSettings = computed(() => ({
   dbFilePath: (settingsData.value as any)?.dbFilePath || '',
   dbFileSize: (settingsData.value as any)?.dbFileSize || 0,
 }));
 
-const onUpdatedSettingsHandler = async (value: number) => {
+const onUpdatedCurrencySettingsHandler = async (data: { key: string; value: string }) => {
   isLoading.value = true;
 
   try {
-    await setSettings({ config: { key: 'shouhizei', value } });
+    await setSettings({ config: { key: data.key, value: data.value } });
+    toast.success('Settings updated!');
+  } catch (error: any) {
+    toast.error(`Error: ${error.message}`);
+  } finally {
+    isLoading.value = false;
+    invalidateQuery();
+  }
+};
+
+const onUpdatedSettingsHandler = async (key: string, value: number) => {
+  isLoading.value = true;
+
+  try {
+    await setSettings({ config: { key, value } });
     toast.success('Settings updated!');
   } catch (error: any) {
     toast.error(`Error: ${error.message}`);

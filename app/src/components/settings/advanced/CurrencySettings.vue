@@ -8,13 +8,30 @@
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
-        <div class="input">
-          <input
-            v-model="props.symbol"
-            type="text"
-            placeholder="E.g. ¥"
-            maxlength="2"
-          />
+        <div>
+          <div class="input">
+            <!-- @vue-expect-error -->
+            <input
+              :value="props.data.currencyCode"
+              :disabled="props.loading"
+              type="text"
+              placeholder="E.g. JPY"
+              maxlength="3"
+              @change="emit('update', { key: 'currencyCode', value: $event.target.value })"
+            />
+          </div>
+
+          <div class="input">
+            <!-- @vue-expect-error -->
+            <input
+              :value="props.data.currencyLocale"
+              :disabled="props.loading"
+              type="text"
+              placeholder="E.g. ja-JP"
+              maxlength="5"
+              @change="emit('update', { key: 'currencyLocale', value: $event.target.value })"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -22,8 +39,10 @@
 </template>
 
 <script setup lang="ts">
+import { CurrencyLocale } from '@/domain/interfaces';
+
 interface Props {
-  symbol: string;
+  data: CurrencyLocale;
   loading?: boolean;
 }
 
@@ -38,15 +57,6 @@ const emit = defineEmits<Emits>();
 
 <style lang="scss" scoped>
 .settings-advanced-currency {
-  hgroup {
-    margin-bottom: 16px;
-
-    h5,
-    p {
-      margin: 0;
-    }
-  }
-
   .input > input {
     text-align: center;
     width: 149px;

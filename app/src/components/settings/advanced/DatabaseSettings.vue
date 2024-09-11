@@ -84,20 +84,6 @@ const onVacuumHandler = async () => {
 
 <style lang="scss" scoped>
 .settings-advanced-database {
-  hgroup {
-    margin-bottom: 16px;
-
-    h5,
-    p {
-      margin: 0;
-    }
-
-    p + code {
-      padding: 4px;
-      margin-top: 8px;
-    }
-  }
-
   &__actions {
     display: flex;
     flex-direction: column;

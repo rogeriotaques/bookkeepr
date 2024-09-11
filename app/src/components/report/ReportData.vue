@@ -239,4 +239,14 @@ const shouldShowConsumptionTax = computed(() => (settingsData.value as any)?.con
     padding-top: 48px;
   }
 }
+
+@media print {
+  [class^='report__table'] tfoot {
+    display: table-row-group;
+  }
+
+  .has-tooltip {
+    display: none;
+  }
+}
 </style>

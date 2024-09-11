@@ -158,9 +158,20 @@ const onPrintClickHandler = () => {
 
   &__insights {
     display: flex;
+  }
+}
 
-    @media print {
+@media print {
+  .report-page {
+    padding: 0;
+
+    &__insights {
       display: none;
+    }
+
+    &__chart {
+      box-shadow: none;
+      background-color: transparent;
     }
   }
 }

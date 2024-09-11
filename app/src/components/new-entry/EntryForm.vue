@@ -6,13 +6,17 @@
           <div class="col-12">
             <label for="input">Amount</label>
             <div class="input input--with-addons">
-              <p class="input__addon input__addon--icon">
-                <IconCurrencyYen :size="18" />
-              </p>
+              <label
+                class="input__addon input__addon--icon"
+                for="input"
+              >
+                <span>{{ getCurrencySymbol(currencyCode) }}</span>
+              </label>
               <input
                 v-model="data.amount"
                 v-money="V_MONEY_OPTIONS"
                 ref="amountRef"
+                id="input"
                 type="text"
                 placeholder="E.g. 1,234"
                 maxlength="11"
@@ -59,12 +63,18 @@
 
         <div class="row">
           <div class="col-12">
-            <label for="input">Date</label>
+            <label for="date">Date</label>
             <div class="input input--with-addons">
-              <p class="input__addon input__addon--icon"><IconCalendar :size="18" /></p>
+              <label
+                class="input__addon input__addon--icon"
+                for="date"
+              >
+                <IconCalendar :size="18" />
+              </label>
               <input
                 v-model="data.date"
                 type="date"
+                id="date"
               />
             </div>
           </div>
@@ -102,10 +112,12 @@
 
 <script setup lang="ts">
 import { ref, Ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { IconCalendar, IconCurrencyYen, IconLoader2 } from '@tabler/icons-vue';
+import { IconCalendar, IconLoader2 } from '@tabler/icons-vue';
 
 import { Entry, Wallet, Group } from '@/domain/interfaces';
 import { V_MONEY_OPTIONS } from '@/domain/constants';
+import { getCurrencySymbol } from '@/domain/utils';
+
 import useDataFetch from '@/composable/useDataFetch';
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
@@ -127,6 +139,7 @@ const emit = defineEmits<Emits>();
 const amountRef: Ref<HTMLInputElement | null> = ref(null);
 const activeGroupsUrl = ref('/groups?active=1');
 const activeWalletsUrl = ref('/wallets?active=1');
+const settingsUrl = ref('/settings');
 
 const { fetchData: getActiveGroups } = useDataFetch(activeGroupsUrl);
 const { isLoading: isGroupsLoading, data: groupsData } = await getActiveGroups();
@@ -134,8 +147,12 @@ const { isLoading: isGroupsLoading, data: groupsData } = await getActiveGroups()
 const { fetchData: getActiveWallets } = useDataFetch(activeWalletsUrl);
 const { isLoading: isWalletsLoading, data: walletsData } = await getActiveWallets();
 
+const { fetchData: getSettings } = useDataFetch(settingsUrl);
+const { data: settingsData } = await getSettings();
+
 const wallets: any = computed(() => walletsData.value?.wallets ?? []);
 const groups: any = computed(() => groupsData.value?.groups ?? []);
+const currencyCode = computed(() => (settingsData.value as any)?.config?.currencyCode || 'JPY');
 
 interface DropdownOption {
   value: string;
