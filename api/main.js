@@ -30,7 +30,7 @@ const createDatabase = async () => {
   if (electron.app) userDataPath = electron.app.getPath('userData');
   if (electron.remote) userDataPath = electron.remote.app.getPath('userData');
 
-  pathToDb = path.join(userDataPath, 'bookkeepr.db');
+  pathToDb = path.join(userDataPath, 'data', 'bookkeepr.db');
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
