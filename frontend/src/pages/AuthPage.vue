@@ -2,7 +2,7 @@
   <div class="auth-page container">
     <div class="auth-page__wrapper">
       <hgroup class="auth-page__header">
-        <h2>Login</h2>
+        <h3>Authentication required</h3>
         <p>Enter your pin/password</p>
       </hgroup>
 
