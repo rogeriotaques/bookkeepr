@@ -47,9 +47,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement } from 'chart.js';
+import { Chart as ChartJS, registerables } from 'chart.js';
 import { IconPrinter } from '@tabler/icons-vue';
 
 import { ENTRY_OPERATIONS } from '@/domain/constants';
@@ -60,7 +60,7 @@ import ReportData from '@/components/report/ReportData.vue';
 
 import useDataFetch from '@/composable/useDataFetch';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement);
+ChartJS.register(...registerables);
 
 const randomColor = (opacity = 0.1) => {
   const o = Math.round,
@@ -86,7 +86,7 @@ const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
 const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
 
 const locale = computed(() => {
-  const { config } = settingsData?.value || {} as any;
+  const { config } = settingsData?.value || ({} as any);
 
   return {
     currencyCode: config?.currencyCode || 'JPY',
@@ -191,7 +191,9 @@ const onPrintClickHandler = () => {
       background-color: transparent;
     }
 
-    .pagebreak { page-break-before: always; }
+    .pagebreak {
+      page-break-before: always;
+    }
   }
 }
 </style>
