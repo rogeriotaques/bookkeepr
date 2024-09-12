@@ -18,7 +18,7 @@ Source: [Wikipedia](https://en.wikipedia.org/wiki/Bookkeeping).
 
 ## Get started
 
-### Build it on your own
+### Running locally (development)
 
 Once this repository is cloned, open a terminal window and go to the project folder.
 
@@ -30,7 +30,7 @@ $ yarn install
 $ yarn start
 ```
 
-#### Tun the frontend (app) with:
+#### Run the frontend (app) with:
 
 ```sh
 $ cd app
@@ -38,7 +38,45 @@ $ yarn install
 $ yarn start
 ```
 
-Next, open your preferred browser and visit to `http://localhost:5173` 🤘
+Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
+
+### Running the Docker image locally
+
+First, build the image:
+
+```sh
+$ docker build -t abtzco/bookkeepr .
+```
+
+Then, run the image:
+
+```sh
+$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/api/data abtzco/bookkeepr:latest
+```
+
+> All the data will be stored in `/tmp/bookkeepr` folder in your local machine.
+
+### Running the Docker image in `PRODUCTION `
+
+Once you SSH into the server, run the following command to download the image:
+
+```sh
+$ docker pull abtzco/bookkeepr:latest
+```
+
+Remove any existing container:
+
+```sh
+$ docker rm -f bookkeepr
+```
+
+Then, run the image:
+
+```sh
+$ docker run -d --restart unless-stopped --name bookkeepr -p 8090:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/api/data abtzco/bookkeepr:latest
+```
+
+> All the data will be stored in `/home/<USER>/bookkeepr/data` folder in your server.
 
 #### Troubleshooting
 

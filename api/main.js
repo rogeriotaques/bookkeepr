@@ -23,7 +23,14 @@ global.pathToDb = null;
 // Database file will be created either at
 // ./api/data/bookkeepr.db
 const createDatabase = async () => {
-  pathToDb = path.join(__dirname, 'data', 'bookkeepr.db');
+  const pathToDataDir = path.join(__dirname, 'data');
+  pathToDb = path.join(pathToDataDir, 'bookkeepr.db');
+
+  // Check if the directory exists
+  if (!fs.existsSync(path.dirname(pathToDb))) {
+    console.info('Directory does not exist, creating it ...');
+    fs.mkdirSync(pathToDataDir, { recursive: true });
+  }
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
@@ -45,8 +52,8 @@ const createDatabase = async () => {
   console.info('Database migrated');
 };
 
-const startServer = async (version = 'devel', name = 'BookKeepr', callback = null) => {
-  const port = !callback ? 8083 : 0;
+const startServer = async (version = 'devel', name = 'BookKeepr') => {
+  const port = 8083;
 
   appVersion = version;
   appName = name;
@@ -56,6 +63,18 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
 
   // Enable Helmet
   app.use(helmet());
+  app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        'connect-src': ['self', 'http://localhost:8090'],
+        'default-src': ['self', 'http://localhost:8090'],
+        'font-src': ['self', 'http://localhost:8090'],
+        'img-src': ['self', 'http://localhost:8090'],
+        'script-src': ['self', 'http://localhost:8090'],
+        'style-src': ['self', "'unsafe-inline'", 'http://localhost:8090', 'https://fonts.googleapis.com'],
+      },
+    })
+  );
 
   // To support URL-encoded bodies
   app.use(
@@ -82,7 +101,6 @@ const startServer = async (version = 'devel', name = 'BookKeepr', callback = nul
 
     const server = app.listen(port, () => {
       console.info(`Server started at http://127.0.0.1:${port}`);
-      if (callback) callback(port);
     });
   } catch (error) {
     console.error('Error starting server', error);
