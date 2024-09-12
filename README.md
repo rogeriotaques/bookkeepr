@@ -4,6 +4,8 @@ by [Rogerio Taques](https://x.com/rogeriotaques).
 
 BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a macOS bookkeeping app for small businesses and self-employed professionals in Japan. Designed to be simple and easy.
 
+![BookKeepr](screenshot.png)
+
 Supports both `single-entry` and `double-entry` methods.
 
 ## What is bookkeeping?

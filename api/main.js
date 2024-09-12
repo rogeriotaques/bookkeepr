@@ -51,20 +51,8 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
 
   // Enable CORS to accept requests from any origin
   app.use(cors({ origin: '*', credentials: true }));
-
-  // const helmetSecurityPolicyOptions = {
-  //   directives: {
-  //     defaultSrc: ["'self'", "http://localhost:8083", "http://localhost:8090"],
-  //     connectSrc: ["'self'", "http://localhost:8083", "http://localhost:8090", "https://fonts.googleapis.com"],
-  //     scriptSrc: ["'self'", "'unsafe-inline'", "http://localhost:8083", "http://localhost:8090"],
-  //     styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-  //     imgSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
-  //   }
-  // };
-
-  // Enable Helmet
+  // Enable Helmet with contentSecurityPolicy disabled
   app.use(helmet({ contentSecurityPolicy: false }));
-  // app.use(helmet.contentSecurityPolicy(helmetSecurityPolicyOptions));
 
   // To support URL-encoded bodies
   app.use(
