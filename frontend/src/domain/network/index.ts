@@ -31,3 +31,5 @@ export const updateEntry = (id: number, data: Entry): Promise<ApiResponse> => AP
 export const deleteEntry = (id: number): Promise<ApiResponse> => API.delete(`/entries/${id}`);
 
 export const runVacuum = (): Promise<ApiResponse> => API.post('/settings/vacuum');
+
+export const authUser = (password: string): Promise<ApiResponse> => API.post('/auth', { password });

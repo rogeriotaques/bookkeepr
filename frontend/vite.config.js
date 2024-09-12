@@ -7,7 +7,8 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@': './src',
+      '@': '/src',
+      vue: 'vue/dist/vue.esm-bundler.js',
     },
   },
 

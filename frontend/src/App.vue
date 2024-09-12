@@ -1,27 +1,47 @@
 <template>
-  <header class="app__header">
-    <app-nav-bar />
+  <header
+    v-if="isAuthenticated"
+    class="app__header"
+  >
+    <AppNavBar />
   </header>
   <main class="app__body">
     <Suspense>
-      <router-view />
+      <RouterView v-if="isAuthenticated" />
+      <AuthPage
+        v-else
+        @authenticate="onAuthHandler"
+      />
 
       <template #fallback>
         <div class="app__loader">Loading ...</div>
       </template>
     </Suspense>
   </main>
-  <footer class="app__footer">
-    <app-footer />
+  <footer
+    v-if="isAuthenticated"
+    class="app__footer"
+  >
+    <AppFooter />
   </footer>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import { RouterView } from 'vue-router';
+import { useToast } from 'vue-toastification';
 
 import AppNavBar from '@/components/navigation/AppNavBar.vue';
 import AppFooter from '@/components/navigation/AppFooter.vue';
+import AuthPage from '@/pages/AuthPage.vue';
+
+const toast = useToast();
+
+const isAuthenticated = ref(false);
+
+const onAuthHandler = (status: boolean) => {
+  isAuthenticated.value = status;
+};
 </script>
 
 <style lang="scss" scoped>

@@ -1,10 +1,13 @@
 const fs = require('fs');
 
+const KEY_BLACK_LIST = ['passwd'];
+
 exports.getSettings = async (req, res) => {
   const config = await global.knex('config').select(['key', 'value']);
   const configObj = {};
 
   config.forEach((item) => {
+    if (KEY_BLACK_LIST.includes(item.key)) return;
     configObj[item.key] = isNaN(item.value) ? item.value : Number(item.value);
   });
 
@@ -17,6 +20,10 @@ exports.getSettings = async (req, res) => {
 
 exports.setSettings = async (req, res) => {
   const { config } = req.body;
+
+  if (config && KEY_BLACK_LIST.includes(config.key)) {
+    return res.json({ success: false, message: 'Invalid key' });
+  }
 
   const row = await global.knex('config').select(['id']).where({ key: config.key }).first();
 
