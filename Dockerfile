@@ -9,17 +9,17 @@ RUN npm install -g pm2
 USER node
 
 WORKDIR /bookkeepr
-COPY --chown=node:node ./app ./app
-COPY --chown=node:node ./api/ ./api
-RUN mkdir -p /bookkeepr/api/data
+COPY --chown=node:node ./frontend ./frontend
+COPY --chown=node:node ./backend/ ./backend
+RUN mkdir -p /bookkeepr/data
 
-WORKDIR /bookkeepr/app
+WORKDIR /bookkeepr/frontend
 RUN yarn install && yarn build
 
-WORKDIR /bookkeepr/api
+WORKDIR /bookkeepr/backend
 RUN yarn install
 
-VOLUME [ "/bookkeepr/api/data" ]
+VOLUME [ "/bookkeepr/data" ]
 
 EXPOSE 8083
 

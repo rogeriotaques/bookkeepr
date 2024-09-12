@@ -8,6 +8,8 @@ export const ENTRY_OPERATIONS = {
   EXPENSE: 'outcome',
 } as const;
 
+export const AUTH_COOKIE_NAME = '_bk.a';
+
 export const TOAST_BASE_SETTINGS = {
   // transition: 'Vue-Toastification__bounce',
   position: POSITION.BOTTOM_CENTER,

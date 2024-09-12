@@ -12,6 +12,7 @@
   "dependencies": {
     "@tabler/icons-vue": "^2.47.0",
     "@tanstack/vue-query": "^5.51.21",
+    "@vueuse/core": "^11.0.3",
     "axios": "^1.7.4",
     "chart.js": "^4.4.4",
     "dayjs": "^1.11.13",

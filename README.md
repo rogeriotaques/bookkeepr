@@ -27,7 +27,7 @@ Once this repository is cloned, open a terminal window and go to the project fol
 #### Run the backend (api) with:
 
 ```sh
-$ cd api
+$ cd backend
 $ yarn install
 $ yarn start
 ```
@@ -35,7 +35,7 @@ $ yarn start
 #### Run the frontend (app) with:
 
 ```sh
-$ cd app
+$ cd frontend
 $ yarn install
 $ yarn start
 ```
@@ -53,7 +53,7 @@ $ docker build -t abtzco/bookkeepr .
 Then, run the image:
 
 ```sh
-$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/api/data abtzco/bookkeepr:latest
+$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
@@ -76,7 +76,7 @@ $ docker rm -f bookkeepr
 Then, run the image:
 
 ```sh
-$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/api/data abtzco/bookkeepr:latest
+$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
