@@ -89,7 +89,7 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
   try {
     createDatabase();
 
-    const port = process.env.VITE_SERVER_PORT || 3000;
+    const port = 8083;
 
     app.listen(port, () => {
       console.info(`Server started at http://localhost:${port}`);
