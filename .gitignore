@@ -1,9 +1,10 @@
 node_modules/
 out/
 dist/
-data/
+api/data/
 
 *.db
 *.sqlite
+*.sqlite3
 
 .DS_Store

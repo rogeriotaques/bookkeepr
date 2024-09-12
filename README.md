@@ -45,13 +45,19 @@ Next, open your preferred browser and visit to `http://localhost:5173` and happy
 First, build the image:
 
 ```sh
-$ docker build -t abtzco/bookkeepr .
+$ docker build --no-cache -t abtzco/bookkeepr .
 ```
+
+> [!NOTE]
+> Currently, the service (API) listens to the por `3000` by default. If you want to change that port,
+> then you need to provide the desired port during build time, e.g 👇
+>
+> ``` $ docker build --no-cache --build-arg VITE_SERVER_PORT=8000 -t abtzco/bookkeepr . ```
 
 Then, run the image:
 
 ```sh
-$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/api/data abtzco/bookkeepr:latest
+$ docker run --name bookkeepr -p 3000:3000 -v /tmp/bookkeepr:/bookkeeper/api/data abtzco/bookkeepr:latest
 ```
 
 > All the data will be stored in `/tmp/bookkeepr` folder in your local machine.
@@ -73,9 +79,10 @@ $ docker rm -f bookkeepr
 Then, run the image:
 
 ```sh
-$ docker run -d --restart unless-stopped --name bookkeepr -p 8090:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/api/data abtzco/bookkeepr:latest
+$ docker run -d --restart unless-stopped --name bookkeepr -p 3000:3000 -v /home/<USER>/bookkeepr/data:/bookkeeper/api/data abtzco/bookkeepr:latest
 ```
 
+> [!WARNING]
 > All the data will be stored in `/home/<USER>/bookkeepr/data` folder in your server.
 
 #### Troubleshooting

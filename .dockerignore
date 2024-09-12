@@ -7,5 +7,9 @@ dist/
 .yarnrc.yml
 .editorconfig
 .gitignore
+.DS_Store
 LICENSE
 README.md
+*.db
+*.sqlite
+*.sqlite3

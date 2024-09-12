@@ -23,14 +23,7 @@ global.pathToDb = null;
 // Database file will be created either at
 // ./api/data/bookkeepr.db
 const createDatabase = async () => {
-  const pathToDataDir = path.join(__dirname, 'data');
-  pathToDb = path.join(pathToDataDir, 'bookkeepr.db');
-
-  // Check if the directory exists
-  if (!fs.existsSync(path.dirname(pathToDb))) {
-    console.info('Directory does not exist, creating it ...');
-    fs.mkdirSync(pathToDataDir, { recursive: true });
-  }
+  pathToDb = path.join(__dirname, 'data', 'bookkeepr.db');
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
@@ -53,28 +46,25 @@ const createDatabase = async () => {
 };
 
 const startServer = async (version = 'devel', name = 'BookKeepr') => {
-  const port = 8083;
-
   appVersion = version;
   appName = name;
 
   // Enable CORS to accept requests from any origin
-  app.use(cors({ origin: '*' }));
+  app.use(cors({ origin: '*', credentials: true }));
+
+  // const helmetSecurityPolicyOptions = {
+  //   directives: {
+  //     defaultSrc: ["'self'", "http://localhost:8083", "http://localhost:8090"],
+  //     connectSrc: ["'self'", "http://localhost:8083", "http://localhost:8090", "https://fonts.googleapis.com"],
+  //     scriptSrc: ["'self'", "'unsafe-inline'", "http://localhost:8083", "http://localhost:8090"],
+  //     styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+  //     imgSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
+  //   }
+  // };
 
   // Enable Helmet
-  app.use(helmet());
-  app.use(
-    helmet.contentSecurityPolicy({
-      directives: {
-        'connect-src': ['self', 'http://localhost:8090'],
-        'default-src': ['self', 'http://localhost:8090'],
-        'font-src': ['self', 'http://localhost:8090'],
-        'img-src': ['self', 'http://localhost:8090'],
-        'script-src': ['self', 'http://localhost:8090'],
-        'style-src': ['self', "'unsafe-inline'", 'http://localhost:8090', 'https://fonts.googleapis.com'],
-      },
-    })
-  );
+  app.use(helmet({ contentSecurityPolicy: false }));
+  // app.use(helmet.contentSecurityPolicy(helmetSecurityPolicyOptions));
 
   // To support URL-encoded bodies
   app.use(
@@ -99,8 +89,10 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
   try {
     createDatabase();
 
-    const server = app.listen(port, () => {
-      console.info(`Server started at http://127.0.0.1:${port}`);
+    const port = process.env.VITE_SERVER_PORT || 3000;
+
+    app.listen(port, () => {
+      console.info(`Server started at http://localhost:${port}`);
     });
   } catch (error) {
     console.error('Error starting server', error);
