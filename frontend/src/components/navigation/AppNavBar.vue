@@ -1,7 +1,3 @@
-<script setup lang="ts">
-import { RouterLink } from 'vue-router';
-</script>
-
 <template>
   <div class="app__navbar">
     <div class="tabs">
@@ -23,9 +19,29 @@ import { RouterLink } from 'vue-router';
       >
         Settings
       </router-link>
+      <a
+        class="tab tab--sign-out"
+        @click="onSignOutClickHandler"
+      >
+        Sign out
+      </a>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { RouterLink } from 'vue-router';
+
+interface Emit {
+  (e: 'sign-out'): void;
+}
+
+const emit = defineEmits<Emit>();
+
+const onSignOutClickHandler = () => {
+  emit('sign-out');
+};
+</script>
 
 <style lang="scss" scoped>
 @media print {
@@ -49,6 +65,11 @@ import { RouterLink } from 'vue-router';
     border-top-right-radius: 4px;
     border-top-left-radius: 4px;
     cursor: pointer;
+
+    &--sign-out {
+      position: absolute;
+      right: 0;
+    }
 
     &::before {
       content: unset;

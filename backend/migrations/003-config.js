@@ -6,6 +6,8 @@ exports.up = function(knex) {
           table.increments('id').primary();
           table.string('key', 60).notNullable().defaultTo('');
           table.text('value');
+
+          table.unique('key');
         });
       }
     })

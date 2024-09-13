@@ -3,7 +3,7 @@
     v-if="showFullTemplate"
     class="app__header"
   >
-    <AppNavBar />
+    <AppNavBar @sign-out="onAuthHandler(false)" />
   </header>
   <main
     :class="{ 'app__body--headless': !showFullTemplate }"

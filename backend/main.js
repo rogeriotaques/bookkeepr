@@ -23,7 +23,14 @@ global.pathToDb = null;
 // Database file will be created either at
 // ./api/data/bookkeepr.db
 const createDatabase = async () => {
-  pathToDb = path.join(__dirname, '..', 'data', 'bookkeepr.db');
+  const pathToDataDir = path.join(__dirname, '..', 'data');
+
+  if (!fs.existsSync(pathToDataDir)) {
+    fs.mkdirSync(pathToDataDir);
+    console.info('Data directory created');
+  }
+
+  pathToDb = path.join(pathToDataDir, 'bookkeepr.db');
 
   if (!fs.existsSync(pathToDb)) {
     fs.writeFileSync(pathToDb, '');
