@@ -1,4 +1,4 @@
-exports.up = function(knex) {
+exports.up = function (knex) {
   return Promise.all([
     knex.schema.hasTable('config').then((exists) => {
       if (!exists) {
@@ -7,13 +7,13 @@ exports.up = function(knex) {
           table.string('key', 60).notNullable().defaultTo('');
           table.text('value');
 
-          table.unique('key');
+          table.unique('key', { indexName: 'config_unique_key' });
         });
       }
-    })
+    }),
   ]);
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema.dropTableIfExists('config');
 };
