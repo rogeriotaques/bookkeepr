@@ -57,17 +57,21 @@ $ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/data ab
 ```
 
 > [!NOTE]
-> All the data will be stored in `/tmp/bookkeepr` folder in your local machine.
+> By running the docker as above, all the data will be stored in `/tmp/bookkeepr` folder in your local machine.
 
 ### Running the Docker image in `PRODUCTION `
 
-Once you SSH into the server, run the following command to download the image:
+BookKeeper is ready to be deployed so you can use it on the cloud.
+
+For that, you need to spare a server where you can deploy and run docker containers. These steps assume your server has Docker installed.
+
+Once you have SSHed into the server, run the following command to download the image:
 
 ```sh
 $ docker pull abtzco/bookkeepr:latest
 ```
 
-Remove any existing container:
+If you already have an old version of BookKeepr docker running, remove the existing container with the command below. If not, skip this step.
 
 ```sh
 $ docker rm -f bookkeepr
@@ -80,7 +84,7 @@ $ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<U
 ```
 
 > [!NOTE]
-> Adjust the host port number accordingly. All the data will be stored in `/home/<USER>/bookkeepr/data` folder in your server.
+> If needed, adjust the host port number accordingly. By running the docker with the above command, all the data will be stored in your server's `/home/<USER>/bookkeepr/data` folder.
 
 #### Troubleshooting
 
@@ -103,6 +107,6 @@ Drop me a line on [Twitter](https://twitter.com/rogeriotaques).
 
 ## Bug reports and contributions
 
-Please report bugs [here](https://github.com/rogeriotaques/bookkeepr/issues). 🙇‍♂️
+Please report bugs [here](https://github.com/rogeriotaques/bookkeepr/issues). 🙇‍♂️ 
 
-Contributions are very welcome as pull requests. 🙏
+Also, contributions are very welcome as `pull requests.` If you find a bug, want to improve, or add a new feature, please open a PR. 🙏
