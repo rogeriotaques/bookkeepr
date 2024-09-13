@@ -3,7 +3,10 @@
     v-if="showFullTemplate"
     class="app__header"
   >
-    <AppNavBar @sign-out="onAuthHandler(false)" />
+    <AppNavBar
+      :is-using-password="isUsingPasswd"
+      @sign-out="onAuthHandler(false)"
+    />
   </header>
   <main
     :class="{ 'app__body--headless': !showFullTemplate }"

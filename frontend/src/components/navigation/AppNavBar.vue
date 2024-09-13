@@ -20,6 +20,7 @@
         Settings
       </router-link>
       <a
+        v-if="props.isUsingPassword"
         class="tab tab--sign-out"
         @click="onSignOutClickHandler"
       >
@@ -31,6 +32,12 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
+
+interface Props {
+  isUsingPassword: boolean;
+}
+
+const props = defineProps<Props>();
 
 interface Emit {
   (e: 'sign-out'): void;
