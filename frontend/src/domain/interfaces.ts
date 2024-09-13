@@ -6,6 +6,7 @@ export interface CurrencyLocale {
 }
 
 export interface ConfigData extends CurrencyLocale {
+  usePasswd: boolean | null;
   shouhizei: number;
 }
 

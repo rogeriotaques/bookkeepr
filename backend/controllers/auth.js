@@ -24,4 +24,13 @@ exports.saveUserPassword = async (req, res) => {
   res.json({ success: true });
 };
 
+exports.deleteUserPassword = async (_req, res) => {
+  await Promise.allSettled([
+    global.knex('config').where({ key: 'passwd' }).delete(),
+    global.knex('config').where({ key: 'usePasswd' }).update({ value: 0 }),
+  ]);
+
+  res.json({ success: true });
+};
+
 // TODO: Implement a method to check if user is authenticated

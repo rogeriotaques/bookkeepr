@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { computed, watch, nextTick } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
 
 interface Props {

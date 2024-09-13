@@ -36,8 +36,19 @@ button, .button {
     min-width: min-content;
   }
 
-  &.has-tooltip {
+  &:not(:disabled).has-tooltip {
     cursor: pointer !important;
+  }
+
+  // Prenvent tolltip
+  // from showing on disabled buttons
+  &:disabled::before,
+  &:disabled::after {
+    content: none;
+  }
+
+  > span {
+    width: 100%;
   }
 }
 

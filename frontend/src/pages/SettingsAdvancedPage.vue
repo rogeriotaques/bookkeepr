@@ -26,6 +26,14 @@
       :data="databaseSettings"
       :loading="isLoadingSettings"
     />
+
+    <hr />
+
+    <PasswordSettings
+      :use-passwd="usePassword"
+      :loading="isLoadingSettings"
+      @update="onUpdatePasswordHandler"
+    />
   </div>
 </template>
 
@@ -39,6 +47,7 @@ import useDataFetch from '@/composable/useDataFetch';
 
 import CurrencySettings from '@/components/settings/advanced/CurrencySettings.vue';
 import DatabaseSettings from '@/components/settings/advanced/DatabaseSettings.vue';
+import PasswordSettings from '@/components/settings/advanced/PasswordSettings.vue';
 import TaxSettings from '@/components/settings/advanced/TaxSettings.vue';
 
 const isLoading = ref(false);
@@ -49,6 +58,7 @@ const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
 const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 
 const taxPercentage = computed(() => (settingsData.value as any)?.config?.shouhizei || 0);
+
 const currencySettings = computed(() => {
   const { config } = settingsData.value as any;
 
@@ -57,10 +67,17 @@ const currencySettings = computed(() => {
     currencyLocale: config?.currencyLocale || 'ja-JP',
   };
 });
+
 const databaseSettings = computed(() => ({
   dbFilePath: (settingsData.value as any)?.dbFilePath || '',
   dbFileSize: (settingsData.value as any)?.dbFileSize || 0,
 }));
+
+const usePassword = computed(() => (settingsData.value as any)?.config?.usePasswd ?? null);
+
+const onUpdatePasswordHandler = async () => {
+  invalidateQuery();
+};
 
 const onUpdatedCurrencySettingsHandler = async (data: { key: string; value: string }) => {
   isLoading.value = true;
