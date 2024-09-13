@@ -1,12 +1,11 @@
+const crypto = require('crypto');
+
 exports.authenticateUser = async (req, res) => {
   const { password } = req.body;
+  const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const authData = await global.knex('config').where({ key: 'passwd' }).select(['value']).first();
 
-  // TODO: Check if the password (hash) is correct
-
-  const isAuthenticated = !!(authData && authData.value === password);
-
-  res.json({ isAuthenticated });
+  res.json({ isAuthenticated: !!(authData && authData.value === hashedPassword) });
 };
 
 // TODO: Implement a set password method

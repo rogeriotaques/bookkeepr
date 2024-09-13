@@ -1,25 +1,39 @@
 <template>
   <header
-    v-if="isAuthenticated"
+    v-if="showFullTemplate"
     class="app__header"
   >
     <AppNavBar />
   </header>
-  <main class="app__body">
+  <main
+    :class="{ 'app__body--headless': !showFullTemplate }"
+    class="app__body"
+  >
     <Suspense>
-      <RouterView v-if="isAuthenticated" />
+      <div
+        v-if="isLoadingSettings"
+        class="app__loader"
+      >
+        <BaseProgress
+          width="300px"
+          height="24px"
+        >
+          Loading ...
+        </BaseProgress>
+      </div>
+      <FirstAccessPage
+        v-else-if="isFirstAccess"
+        @update="onAuthHandler(true)"
+      />
+      <RouterView v-else-if="isAuthenticated || !isUsingPasswd" />
       <AuthPage
         v-else
         @authenticate="onAuthHandler"
       />
-
-      <template #fallback>
-        <div class="app__loader">Loading ...</div>
-      </template>
     </Suspense>
   </main>
   <footer
-    v-if="isAuthenticated"
+    v-if="showFullTemplate"
     class="app__footer"
   >
     <AppFooter />
@@ -27,21 +41,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { RouterView } from 'vue-router';
-import { useToast } from 'vue-toastification';
 
 import AppNavBar from '@/components/navigation/AppNavBar.vue';
 import AppFooter from '@/components/navigation/AppFooter.vue';
-import AuthPage from '@/pages/AuthPage.vue';
+import BaseProgress from '@/components/shared/BaseProgress.vue';
 
-const toast = useToast();
+import AuthPage from '@/pages/AuthPage.vue';
+import FirstAccessPage from '@/pages/FirstAccessPage.vue';
+
+import useDataFetch from '@/composable/useDataFetch';
 
 const isAuthenticated = ref(false);
+const settingsUrl = ref('/settings');
+
+const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
+const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
+
+const isFirstAccess = computed(() => (settingsData.value as any)?.config?.usePasswd === null);
+const isUsingPasswd = computed(() => (settingsData.value as any)?.config?.usePasswd || false);
+const showFullTemplate = computed(() => isAuthenticated.value);
 
 const onAuthHandler = (status: boolean) => {
   isAuthenticated.value = status;
+  invalidateQuery();
 };
+
+watch(
+  isLoadingSettings,
+  () => {
+    if (!isLoadingSettings.value && !isFirstAccess.value && !isUsingPasswd.value) isAuthenticated.value = true;
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
@@ -58,6 +91,11 @@ const onAuthHandler = (status: boolean) => {
   &__body {
     margin: 60px 0 0;
     min-height: calc(100vh - 174px);
+
+    &--headless {
+      margin: 0;
+      min-height: 100vh;
+    }
   }
 
   &__footer {
@@ -65,6 +103,14 @@ const onAuthHandler = (status: boolean) => {
     margin: 16px 0 0;
     padding: 24px;
     text-align: center;
+  }
+
+  &__loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
   }
 }
 </style>

@@ -5,9 +5,16 @@ const KEY_BLACK_LIST = ['passwd'];
 exports.getSettings = async (req, res) => {
   const config = await global.knex('config').select(['key', 'value']);
   const configObj = {};
+  let usePasswd = null;
 
   config.forEach((item) => {
+    if ('usePasswd' === item.key && item.value !== null) {
+      usePasswd = item.value == 1;
+      return;
+    }
+
     if (KEY_BLACK_LIST.includes(item.key)) return;
+
     configObj[item.key] = isNaN(item.value) ? item.value : Number(item.value);
   });
 
@@ -15,7 +22,7 @@ exports.getSettings = async (req, res) => {
   const stats = fs.statSync(global.pathToDb);
   const dbFileSize = stats.size / 1024 / 1024;
 
-  res.json({ config: configObj, dbFileSize });
+  res.json({ config: { ...configObj, usePasswd }, dbFileSize });
 };
 
 exports.setSettings = async (req, res) => {

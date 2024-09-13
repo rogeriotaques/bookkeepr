@@ -88,7 +88,8 @@ const onAuthClickHandler = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick();
   inputRef.value?.focus();
 });
 </script>
@@ -97,7 +98,7 @@ onMounted(() => {
 .auth-page {
   display: flex;
   flex-direction: column;
-  justify-content: start;
+  justify-content: center;
   align-items: center;
   height: 100vh;
 

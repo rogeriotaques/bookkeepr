@@ -33,3 +33,5 @@ export const deleteEntry = (id: number): Promise<ApiResponse> => API.delete(`/en
 export const runVacuum = (): Promise<ApiResponse> => API.post('/settings/vacuum');
 
 export const authUser = (password: string): Promise<ApiResponse> => API.post('/auth', { password });
+export const saveUserPassword = (password: string): Promise<ApiResponse> => API.post('/auth/passwd', { password });
+export const disableUserPassword = () => setSettings({ config: { key: 'usePasswd', value: 0 } });
