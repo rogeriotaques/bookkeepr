@@ -1,0 +1,151 @@
+@import './boring_1.0.0.css';
+@import './boring_simple-grid.css';
+
+:root {
+  --spacing: 8px;
+}
+
+html,
+body,
+#app {
+  background-color: whitesmoke;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body.noscroll {
+  overflow: hidden;
+}
+
+table {
+  tbody tr:not(.table__empty):hover td {
+    background-color: var(--c-success-background);
+  }
+}
+
+button, .button {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-around;
+  height: 48px;
+  gap: 8px;
+
+  &.is-auto-width {
+    width: auto;
+    min-width: min-content;
+  }
+
+  &:not(:disabled).has-tooltip {
+    cursor: pointer !important;
+  }
+
+  // Prenvent tolltip
+  // from showing on disabled buttons
+  &:disabled::before,
+  &:disabled::after {
+    content: none;
+  }
+
+  > span {
+    width: 100%;
+  }
+}
+
+hgroup {
+  margin-bottom: 16px;
+
+  h1, h2, h3, h4, h5, h6,
+  p {
+    margin: 0;
+  }
+
+  p + code {
+    padding: 4px;
+    margin-top: 8px;
+  }
+}
+
+.input {
+  input,
+  select {
+    height: 48px;
+  }
+
+  &__addon {
+    min-width: 54px;
+
+    &--icon {
+      display: flex !important;
+      align-items: center;
+      height: 48px;
+      cursor: default;
+    }
+  }
+
+  input:active,
+  input:focus,
+  select:active,
+  select:focus {
+    background-color: var(--c-warning-background);
+  }
+}
+
+.is {
+  &-full-width {
+    display: block;
+    width: calc(100% - 8px);
+  }
+
+  &-centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &-shadowless {
+    box-shadow: none;
+  }
+
+  &-pulled-right {
+    margin-left: auto;
+  }
+
+  &-spinning {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.has {
+  &-text {
+    &-centered {
+      text-align: center !important;
+    }
+
+    &-right {
+      text-align: right !important;
+    }
+
+    &-left {
+      text-align: left !important;
+    }
+  }
+}
+
+.Vue-Toastification {
+  &__toast-body {
+    color: var(--c-white);
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+

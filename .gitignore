@@ -1,7 +1,10 @@
-node_modules
-out
+node_modules/
+out/
+dist/
+data/
 
 *.db
 *.sqlite
+*.sqlite3
 
 .DS_Store

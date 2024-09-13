@@ -1,0 +1,13 @@
+{
+  "arrowParens": "always",
+  "bracketSpacing": true,
+  "charset": "utf-8",
+  "endOfLine": "lf",
+  "htmlWhitespaceSensitivity": "ignore",
+  "printWidth": 150,
+  "semi": true,
+  "singleAttributePerLine": true,
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "es5"
+}

@@ -1,6 +1,10 @@
 # BookKeepr
 
-BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a macOS bookkeeping app for small businesses and self-employed professionals in Japan. Designed to be simple and easy.
+by [Rogerio Taques](https://x.com/rogeriotaques).
+
+BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a bookkeeping web app for small businesses and self-employed professionals in Japan. Designed to be simple and easy, it helps us keep track of incomes and expenses, therefore, making it easier to fill out the tax return at the end of each financial cycle. 100% free and open-source, under [MIT](LICENSE) license.
+
+![BookKeepr](assets/screenshot.png)
 
 Supports both `single-entry` and `double-entry` methods.
 
@@ -16,24 +20,85 @@ Source: [Wikipedia](https://en.wikipedia.org/wiki/Bookkeeping).
 
 ## Get started
 
-### Build it on your own
+### Running locally (development)
 
-Clone this repository.
+Once this repository is cloned, open a terminal window and go to the project folder.
 
-Run `npm install` to install all the dependencies.
+#### Run the backend (api) with:
 
-Run `npm run pack` to pack a distributable version.
+```sh
+$ cd backend
+$ yarn install
+$ yarn start
+```
 
-Go to `<path-of-cloned-repository>/out` and copy `BookKeepr` to `~/Applications`.
+#### Run the frontend (app) with:
 
-Done. BookKeepr can be started as you usually do for any other app. 🤘
+```sh
+$ cd frontend
+$ yarn install
+$ yarn start
+```
+
+Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
+
+### Running the Docker image locally
+
+First, build the image:
+
+```sh
+$ docker build -t abtzco/bookkeepr .
+```
+
+Then, run the image:
+
+```sh
+$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/data abtzco/bookkeepr:latest
+```
+
+> [!NOTE]
+> By running the docker as above, all the data will be stored in `/tmp/bookkeepr` folder in your local machine.
+
+### Running the Docker image in `PRODUCTION `
+
+BookKeeper is ready to be deployed so you can use it on the cloud.
+
+For that, you need to spare a server where you can deploy and run docker containers. These steps assume your server has Docker installed.
+
+Once you have SSHed into the server, run the following command to download the image:
+
+```sh
+$ docker pull abtzco/bookkeepr:latest
+```
+
+If you already have an old version of BookKeepr docker running, remove the existing container with the command below. If not, skip this step.
+
+```sh
+$ docker rm -f bookkeepr
+```
+
+Then, run the image:
+
+```sh
+$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/data abtzco/bookkeepr:latest
+```
+
+> [!NOTE]
+> If needed, adjust the host port number accordingly. By running the docker with the above command, all the data will be stored in your server's `/home/<USER>/bookkeepr/data` folder.
+
+#### Troubleshooting
+
+If you run into problems related to `sqlite3` and `node-gyp` while running `yarn install` or `yarn start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
+
+```sh
+$ npm install -g node-gyp
+```
 
 ### Tech stack
 
-- Node JS
-- EJS
+- Node 20.17+
+- Vue 3.4+
 - SQLite
-- Electron
 
 ## Questions?
 
@@ -44,4 +109,4 @@ Drop me a line on [Twitter](https://twitter.com/rogeriotaques).
 
 Please report bugs [here](https://github.com/rogeriotaques/bookkeepr/issues). 🙇‍♂️
 
-Contributions are very welcome as pull requests. 🙏
+Also, contributions are very welcome as `pull requests.` If you find a bug, want to improve, or add a new feature, please open a PR. 🙏
