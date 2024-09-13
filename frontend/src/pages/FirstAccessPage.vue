@@ -60,7 +60,7 @@ import { useToast } from 'vue-toastification';
 
 import AppFooter from '@/components/navigation/AppFooter.vue';
 
-import { saveUserPassword, disableUserPassword } from '@/domain/network';
+import { saveUserPassword, setSettings } from '@/domain/network';
 
 interface Emit {
   (e: 'update'): void;
@@ -82,7 +82,7 @@ const onCancelClickHandler = async () => {
   isCancelling.value = true;
 
   try {
-    await disableUserPassword();
+    await setSettings({ config: { key: 'usePasswd', value: 0 }});
     emit('update');
     toast.success('Password disabled!');
   } catch (error: any) {

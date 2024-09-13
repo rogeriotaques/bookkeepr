@@ -76,7 +76,7 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
 
   // Public directory
   // app.use(express.static(path.join(__dirname, 'public')));
-  app.use('/', express.static(path.join(__dirname, '..', 'app', 'dist')));
+  app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
   // Routes
   app.use('/api', require('@/routes'));
