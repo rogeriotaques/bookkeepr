@@ -4,7 +4,7 @@ by [Rogerio Taques](https://x.com/rogeriotaques).
 
 BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a bookkeeping web app for small businesses and self-employed professionals in Japan. Designed to be simple and easy, it helps us keep track of incomes and expenses, therefore, making it easier to fill out the tax return at the end of each financial cycle. 100% free and open-source, under [MIT](LICENSE) license.
 
-![BookKeepr](screenshot.png)
+![BookKeepr](assets/screenshot.png)
 
 Supports both `single-entry` and `double-entry` methods.
 
@@ -107,6 +107,6 @@ Drop me a line on [Twitter](https://twitter.com/rogeriotaques).
 
 ## Bug reports and contributions
 
-Please report bugs [here](https://github.com/rogeriotaques/bookkeepr/issues). 🙇‍♂️ 
+Please report bugs [here](https://github.com/rogeriotaques/bookkeepr/issues). 🙇‍♂️
 
 Also, contributions are very welcome as `pull requests.` If you find a bug, want to improve, or add a new feature, please open a PR. 🙏
