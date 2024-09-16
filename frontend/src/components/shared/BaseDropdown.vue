@@ -1,6 +1,6 @@
 <template>
   <Popper
-    :show="isOpen || props.opened"
+    :show="isOpen || props.show"
     :disable-click-away="true"
     :interactive="false"
     :class="{
@@ -17,7 +17,8 @@
       :disabled="props.disabled"
       class="base-dropdown__trigger"
       type="button"
-      @click="onTriggerClickHandler"
+      @focus="onTriggerHandler"
+      @click="onTriggerHandler"
       @blur="onTriggerBlurHandler"
     >
       <span class="base-dropdown__trigger-label">{{ selectedOption?.label ?? props.placeholder }}</span>
@@ -99,7 +100,8 @@ interface Props {
   placement?: PopperPlacement;
   disabled?: boolean;
   searchable?: boolean;
-  opened?: boolean;
+  openOnFocus?: boolean;
+  show?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -116,9 +118,10 @@ const filterRef = ref<HTMLInputElement | null>(null);
 const itemsRef = ref<HTMLDivElement | null>(null);
 
 const selectedOptionValue = defineModel();
+const isFilterFocused = ref(false);
+const isTriggerLocked = ref(false);
 const isOpen = ref(false);
 const filter = ref('');
-const isFilterFocused = ref(false);
 
 const selectedOption = computed(() => props.options.find((option) => option.value === selectedOptionValue.value));
 
@@ -129,8 +132,19 @@ const filteredOptions = computed(() => {
 
 const wait = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const onTriggerClickHandler = async () => {
+const onTriggerHandler = () => {
+  // Note: the lock prevents that a click event is triggered after a focus
+  if (isTriggerLocked.value) {
+    isTriggerLocked.value = false;
+    return;
+  }
+
   isOpen.value = !isOpen.value;
+  isTriggerLocked.value = true;
+
+  setTimeout(() => {
+    isTriggerLocked.value = false;
+  }, 250);
 };
 
 const onTriggerBlurHandler = async () => {
@@ -205,11 +219,23 @@ const onDocumentKeydownHandler = (event: KeyboardEvent) => {
   }
 };
 
+const highlightFirstItem = () => {
+  let itemToFocus = itemsRef.value?.querySelector('.base-dropdown__item--selected') as HTMLButtonElement;
+
+  if (!itemToFocus) {
+    itemToFocus = itemsRef.value?.querySelector(':not(.base-dropdown__item--empty).base-dropdown__item:first-child') as HTMLButtonElement;
+  }
+
+  itemToFocus?.classList?.add('base-dropdown__item--focused');
+};
+
 watch(isOpen, async () => {
   if (isOpen.value) {
     const document = window.document;
     document.addEventListener('scroll', onDocumentScrollHandler);
     document.addEventListener('keydown', onDocumentKeydownHandler);
+
+    highlightFirstItem();
 
     if (props.searchable) {
       await await wait(100);
@@ -255,7 +281,6 @@ watch(isOpen, async () => {
   }
 
   &__trigger {
-    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
@@ -270,6 +295,7 @@ watch(isOpen, async () => {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      text-align: left;
     }
   }
 
