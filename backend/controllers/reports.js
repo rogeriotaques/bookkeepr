@@ -16,7 +16,8 @@ exports.getOverviewReport = async (req, res) => {
 
   await Promise.all(
     activeGroups.map(async (group) => {
-      const entry = [`${`00${group.code}`.slice(-2)} - ${group.name}`];
+      const groupCode = `${group.code}`.padStart(2, '0');
+      const entry = [`${groupCode} - ${group.name}`];
 
       await Promise.all(
         months.map(async (month) => {
