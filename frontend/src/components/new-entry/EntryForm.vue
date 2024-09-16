@@ -20,6 +20,7 @@
                 type="text"
                 placeholder="E.g. 1,234"
                 maxlength="11"
+                @keypress.capture.enter="onHitEnterHandler"
               />
             </div>
           </div>
@@ -33,6 +34,7 @@
                 v-model="data.description"
                 type="text"
                 placeholder="E.g. Lunch with a friend"
+                @keypress.capture.enter="onHitEnterHandler"
               />
             </div>
           </div>
@@ -75,6 +77,7 @@
                 v-model="data.date"
                 type="date"
                 id="date"
+                @keypress.capture.enter="onHitEnterHandler"
               />
             </div>
           </div>
@@ -187,6 +190,12 @@ const isFormValid = computed(
 
 const isSaveButtonEnabled = computed(() => isFormValid.value && !props.isSubmitting);
 const isSaveButtonDisabled = computed(() => !isSaveButtonEnabled.value);
+
+const onHitEnterHandler = () => {
+  if (isSaveButtonEnabled.value) {
+    onSaveClickHandler();
+  }
+};
 
 watch(
   () => props.isSubmitting,
