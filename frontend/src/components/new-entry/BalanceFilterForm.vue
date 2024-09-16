@@ -5,9 +5,10 @@
       <div class="input input--with-addons">
         <input
           v-model="filterByText"
+          ref="searchRef"
           id="search"
           type="text"
-          placeholder="Description, category, wallet, or amount"
+          placeholder="Any text or amount"
         />
         <label
           class="input__addon input__addon--icon"
@@ -36,9 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { IconSearch } from '@tabler/icons-vue';
-import dayjs from 'dayjs';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
@@ -77,6 +77,8 @@ const monthOptions = [
   { value: '12', label: 'December' },
 ];
 
+const searchRef = ref<HTMLInputElement | null>(null);
+
 const yearOptions = computed(() => props.years.map((year) => ({ value: year, label: year })));
 
 const filterByYear = computed({
@@ -104,6 +106,26 @@ const filterByText = computed({
   set(value) {
     emit('update:search', value);
   },
+});
+
+const onSearchHotKeyHandler = (e: KeyboardEvent) => {
+  if (!e.metaKey || e.key !== 'k') return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  searchRef.value?.focus();
+};
+
+onMounted(async () => {
+  document.addEventListener('keydown', onSearchHotKeyHandler);
+
+  await nextTick();
+  searchRef.value?.focus();
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onSearchHotKeyHandler);
 });
 </script>
 

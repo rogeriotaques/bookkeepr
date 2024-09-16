@@ -46,6 +46,7 @@ export interface ExtendedEntry extends Entry {
   groupName: string;
   walletName: string;
   operation: string;
+  hasMatch: boolean;
 }
 
 export interface ApiResponse<T = any> {

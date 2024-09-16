@@ -15,7 +15,10 @@
         <tr
           v-for="entry in entries"
           :key="entry.id"
-          :class="{ 'balance-table__editing': props.editing === entry.id }"
+          :class="{
+            'balance-table__editing': props.editing === entry.id,
+            'balance-table__search-match': entry.hasMatch,
+          }"
         >
           <td>{{ entry.date }}</td>
           <td>
@@ -132,10 +135,12 @@ interface Props {
   editing?: number | null;
   loading?: boolean;
   locale: CurrencyLocale;
+  search?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   locale: {} as any,
+  search: '',
 });
 
 interface Emits {
@@ -151,16 +156,21 @@ const isDeleting = ref(false);
 
 const entries = computed(() => {
   const entries = props.data.map((entry) => ({ ...entry, balance: 0 }));
+  const searchRegExp = props.search ? new RegExp(props.search, 'ig') : null;
 
   entries.forEach((e, i) => {
     const expense = e.operation === ENTRY_OPERATIONS.EXPENSE;
 
-    if (i === 0) {
-      e.balance = expense ? -e.amount : e.amount;
-      return;
-    }
+    e.balance = i === 0 ? (e.balance = expense ? -e.amount : e.amount) : (e.balance = entries[i - 1].balance + (expense ? -e.amount : e.amount));
 
-    e.balance = entries[i - 1].balance + (expense ? -e.amount : e.amount);
+    e.hasMatch = !!(
+      searchRegExp?.test(e.date) ||
+      searchRegExp?.test(e.description) ||
+      searchRegExp?.test(e.groupName) ||
+      searchRegExp?.test(e.walletName) ||
+      searchRegExp?.test(`${e.amount}`) ||
+      searchRegExp?.test(`${e.balance}`)
+    );
   });
 
   return entries;
@@ -231,6 +241,10 @@ const onDeleteConfirmHandler = async () => {
     background-color: var(--c-background);
   }
 
+  tbody td {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  }
+
   tbody > tr:not(#{$class}__editing) {
     #{$class}__actions {
       opacity: 0;
@@ -250,6 +264,31 @@ const onDeleteConfirmHandler = async () => {
     &:hover {
       td {
         background-color: var(--c-warning);
+      }
+    }
+  }
+
+  &__search-match {
+    td {
+      background-color: var(--c-danger-background);
+
+      > div {
+        background-color: transparent;
+      }
+    }
+
+    &:hover {
+      td {
+        background-color: #f06;
+
+        &,
+        > div:first-child {
+          color: white;
+        }
+
+        svg {
+          stroke: white;
+        }
       }
     }
   }

@@ -109,7 +109,7 @@
           height="16"
           class="is-spinning"
         />
-        <template v-else>Save (⌘+S)</template>
+        <template v-else>Save</template>
       </button>
     </div>
   </div>
@@ -220,6 +220,7 @@ watch(
 );
 
 onMounted(async () => {
+  document.addEventListener('keydown', onCmdInputHandler);
   document.addEventListener('keydown', onCmdSaveHandler);
 
   await nextTick();
@@ -228,14 +229,25 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', onCmdSaveHandler);
+  document.removeEventListener('keydown', onCmdInputHandler);
 });
 
+const onCmdInputHandler = (e: KeyboardEvent) => {
+  if (!e.metaKey || e.key !== 'i') return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  amountRef?.value?.focus();
+};
+
 const onCmdSaveHandler = (e: KeyboardEvent) => {
-  if (isSaveButtonEnabled.value && e.metaKey && e.key === 's') {
-    e.preventDefault();
-    e.stopPropagation();
-    onSaveClickHandler();
-  }
+  if (!isSaveButtonEnabled.value || !e.metaKey || e.key !== 's') return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  onSaveClickHandler();
 };
 
 const onSaveClickHandler = () => {

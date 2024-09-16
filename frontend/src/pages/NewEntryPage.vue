@@ -24,10 +24,25 @@
           :editing="editingID"
           :loading="isEntriesLoading || isSettingsLoading"
           :locale="locale"
+          :search="search"
           @update="invalidateEntriesQuery"
           @edit="onEditHandler"
         />
       </div>
+    </div>
+
+    <br />
+
+    <div class="container new-entry__hot-keys">
+      <small>
+        Use
+        <code>⌘+S</code>
+        to save an entry,
+        <code>⌘+K</code>
+        to search, and
+        <code>⌘+I</code>
+        to entry a new amount.
+      </small>
     </div>
   </section>
 </template>
@@ -172,25 +187,31 @@ const applySearchHighlight = async () => {
   };
 
   const mapRangesToHighlight = ({ text, el }: { text: string; el: any }) => {
-    const indices = [];
+    const indexes = [];
     let startPos = 0;
 
     while (startPos < text.length) {
-      const index = text.indexOf(searchText, startPos);
+      const index = text.replace(/[,.]/g, '').indexOf(searchText, startPos);
       if (index === -1) break;
-      indices.push(index);
+      indexes.push(index);
       startPos = index + searchText.length;
     }
 
-    return indices.map((index) => {
+    return indexes.map((index) => {
       const range = new Range();
+      const gut = /[,.]/g.test(text.slice(index, index + searchText.length)) ? 1 : 0;
+
+      console.log('S', /[,.]/g.test(text.slice(index, index + searchText.length)));
+
       range.setStart(el, index);
-      range.setEnd(el, index + searchText.length);
+      range.setEnd(el, index + searchText.length + gut);
+
       return range;
     });
   };
 
   const ranges = allTextNodes.map(mapRanges).map(mapRangesToHighlight);
+
   const searchResultsHighlight = new Highlight(...ranges.flat());
 
   // @ts-ignore
@@ -221,5 +242,11 @@ watch(search, () => {
   position: sticky;
   top: 85px;
   z-index: 1;
+}
+
+.new-entry {
+  &__hot-keys {
+    text-align: center;
+  }
 }
 </style>
