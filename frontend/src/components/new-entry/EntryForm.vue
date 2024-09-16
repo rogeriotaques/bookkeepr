@@ -47,6 +47,7 @@
               v-model="data.group"
               :disabled="isGroupsLoading"
               :options="categoryOptions"
+              open-on-focus
               full-width
               searchable
             />
@@ -57,6 +58,7 @@
               v-model="data.wallet"
               :disabled="isWalletsLoading"
               :options="walletOptions"
+              open-on-focus
               full-width
               searchable
             />

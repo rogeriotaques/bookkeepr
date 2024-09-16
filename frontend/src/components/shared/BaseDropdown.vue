@@ -17,8 +17,8 @@
       :disabled="props.disabled"
       class="base-dropdown__trigger"
       type="button"
-      @focus="onTriggerHandler"
-      @click="onTriggerHandler"
+      @focus="onTriggerHandler(TRIGGER_CONTEXT.FOCUS)"
+      @click="onTriggerHandler(TRIGGER_CONTEXT.CLICK)"
       @blur="onTriggerBlurHandler"
     >
       <span class="base-dropdown__trigger-label">{{ selectedOption?.label ?? props.placeholder }}</span>
@@ -70,6 +70,11 @@ import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
 import type { Nullable } from '@/domain/interfaces';
+
+const TRIGGER_CONTEXT = {
+  CLICK: 'click',
+  FOCUS: 'focus',
+} as const;
 
 interface DropdownOption {
   value: Nullable<string | number>;
@@ -132,7 +137,9 @@ const filteredOptions = computed(() => {
 
 const wait = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const onTriggerHandler = () => {
+const onTriggerHandler = (ctx: string) => {
+  if (ctx === TRIGGER_CONTEXT.FOCUS && !props.openOnFocus) return;
+
   // Note: the lock prevents that a click event is triggered after a focus
   if (isTriggerLocked.value) {
     isTriggerLocked.value = false;
