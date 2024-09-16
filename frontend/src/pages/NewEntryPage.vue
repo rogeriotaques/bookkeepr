@@ -58,14 +58,14 @@ const entriesUrl = computed(() => `/entries?year=${year.value}&month=${month.val
 
 const toast = useToast();
 
-const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
+const { fetchData: getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useDataFetch(recordedYearsUrl);
 const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
 const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
 const { isLoading: isEntriesLoading, isFetched: isEntriesFeched, data: entriesData } = await getEntries();
 
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
-const { isLoading: isSettingsLoading, data: settingsData  } = await getSettingsData();
+const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
 
 const form = reactive<any>({
   id: null,
@@ -77,7 +77,7 @@ const form = reactive<any>({
 });
 
 const locale = computed(() => {
-  const { config } = settingsData?.value || {} as any;
+  const { config } = settingsData?.value || ({} as any);
 
   return {
     currencyCode: config?.currencyCode || 'JPY',
@@ -130,6 +130,9 @@ const onSubmitHandler = async () => {
     toast.error(`Error: ${error.message}`);
   } finally {
     invalidateEntriesQuery();
+    invalidateRecordedYearsQuery();
+    refreshAllTextNodes();
+
     isSubmitting.value = false;
   }
 };
