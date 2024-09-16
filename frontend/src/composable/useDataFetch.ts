@@ -9,7 +9,7 @@ const useDataFetch = (url: Ref<string>) => {
   const queryClient = useQueryClient();
 
   const fetchData = async () => {
-    const { isLoading, isError, data, error } = useQuery({
+    const { isLoading, isFetched, isError, data, error } = useQuery({
       queryKey,
       queryFn: async (): Promise<ApiResponse> => {
         // Note: Comment/uncomment this to throttle the requests
@@ -18,16 +18,16 @@ const useDataFetch = (url: Ref<string>) => {
       },
     });
 
-    return { isLoading, isError, data, error };
+    return { isLoading, isFetched, isError, data, error };
   };
 
   const invalidateQuery = () => {
-    queryClient.invalidateQueries({ queryKey });
+    return queryClient.invalidateQueries({ queryKey });
   };
 
   return {
     fetchData,
-    invalidateQuery,
+    invalidateQuery
   };
 };
 

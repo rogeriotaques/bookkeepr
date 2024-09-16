@@ -62,10 +62,10 @@ const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
 const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
 const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
-const { isLoading: isEntriesLoading, data: entriesData } = await getEntries();
+const { isLoading: isEntriesLoading, isFetched: isEntriesFeched, data: entriesData } = await getEntries();
 
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
-const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
+const { isLoading: isSettingsLoading, data: settingsData  } = await getSettingsData();
 
 const form = reactive<any>({
   id: null,
@@ -134,13 +134,13 @@ const onSubmitHandler = async () => {
   }
 };
 
-let isSearchTargetReady = false;
 let searchTarget = null;
 let treeWalker = null;
+
 const allTextNodes: any[] = [];
 
-onUpdated(() => {
-  if (isEntriesLoading.value || isSearchTargetReady) return;
+const refreshAllTextNodes = () => {
+  if (isEntriesLoading.value) return;
 
   searchTarget = document.querySelector('.balance-table tbody');
   treeWalker = document.createTreeWalker(searchTarget as Node, NodeFilter.SHOW_TEXT);
@@ -151,8 +151,14 @@ onUpdated(() => {
     allTextNodes.push(currentNode);
     currentNode = treeWalker.nextNode();
   }
+};
 
-  isSearchTargetReady = true;
+onUpdated(() => {
+  refreshAllTextNodes();
+});
+
+watch([year, month], () => {
+  search.value = '';
 });
 
 watch(search, async () => {
