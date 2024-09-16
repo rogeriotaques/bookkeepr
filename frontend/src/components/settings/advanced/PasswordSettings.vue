@@ -60,7 +60,7 @@
     v-model="showChangePasswordModal"
     :title="changePasswordModalTitle"
     :loading="isLoading"
-    :confirm-disabled="!!!password"
+    :confirm-disabled="!isPasswordValid"
     width="500px"
     confirm-text="Save"
     prevent-outside-click
@@ -82,12 +82,33 @@
         Avoid too simple passwords
       </p>
     </div>
+    <div class="input input--with-helpers">
+      <label for="confirm-password">Password confirmation</label>
+      <input
+        v-model="confirmPassword"
+        ref="confirmPasswordRef"
+        id="confirm-password"
+        type="password"
+        placeholder="Type your password again"
+        @keydown.capture.enter="onChangePasswordSaveClickHandler"
+      />
+      <p class="input__helper">
+        <template v-if="isPasswordAndConfirmPasswordGiven && !isPasswordValid">
+          <IconAlertTriangle />
+          Passwords do not match
+        </template>
+        <template v-else-if="isPasswordAndConfirmPasswordGiven">
+          <IconCheck />
+          Passwords match
+        </template>
+      </p>
+    </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
-import { IconEraser, IconPasswordUser, IconAlertTriangle, IconBulb } from '@tabler/icons-vue';
+import { IconEraser, IconPasswordUser, IconAlertTriangle, IconBulb, IconCheck } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
@@ -114,24 +135,37 @@ const isLoading = ref(false);
 const showRemovePasswordModal = ref(false);
 const showChangePasswordModal = ref(false);
 const password = ref('');
+const confirmPassword = ref('');
+
 const passwordRef = ref<HTMLInputElement | null>(null);
+const confirmPasswordRef = ref<HTMLInputElement | null>(null);
 
 const changePasswordModalTitle = computed(() => {
   return props.usePasswd ? 'Change password' : 'Set password';
 });
 
-const onChangePasswordCancelHandler = () => {
+const resetInputs = () => {
   password.value = '';
+  confirmPassword.value = '';
+};
+
+const onChangePasswordCancelHandler = () => {
+  resetInputs();
   showChangePasswordModal.value = false;
 };
 
+const isPasswordAndConfirmPasswordGiven = computed(() => password.value.trim().length > 0 && confirmPassword.value.trim().length > 0);
+const isPasswordValid = computed(() => isPasswordAndConfirmPasswordGiven.value && password.value === confirmPassword.value);
+
 const onChangePasswordSaveClickHandler = async () => {
+  if (!isPasswordValid.value) return;
+
   isLoading.value = true;
 
   try {
     await saveUserPassword(password.value);
     showChangePasswordModal.value = false;
-    password.value = '';
+    resetInputs();
     toast.success('Password saved!');
     emit('update');
   } catch (error: any) {
