@@ -156,15 +156,7 @@ const refreshAllTextNodes = () => {
   }
 };
 
-onUpdated(() => {
-  refreshAllTextNodes();
-});
-
-watch([year, month], () => {
-  search.value = '';
-});
-
-watch(search, async () => {
+const applySearchHighlight = async () => {
   await nextTick();
 
   if (!CSS.highlights) return;
@@ -203,6 +195,19 @@ watch(search, async () => {
 
   // @ts-ignore
   CSS.highlights.set('search-results', searchResultsHighlight);
+};
+
+onUpdated(() => {
+  refreshAllTextNodes();
+  applySearchHighlight();
+});
+
+watch([year, month], () => {
+  search.value = '';
+});
+
+watch(search, () => {
+  applySearchHighlight();
 });
 </script>
 
