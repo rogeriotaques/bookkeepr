@@ -39,6 +39,7 @@
     <div class="pagebreak" />
 
     <ReportData
+      :year="filterByYear"
       :data="reportData?.data || {}"
       :loading="isReportLoading"
       :locale="locale"

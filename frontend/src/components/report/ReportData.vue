@@ -6,7 +6,7 @@
           <th width="10%">Expenses</th>
           <th
             v-for="month in months"
-            :key="month.label"
+            :key="`header-expense-${year}-${month.label}`"
           >
             {{ month.label }}
           </th>
@@ -20,7 +20,7 @@
             </td>
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-expense-skeleton-${year}-${month.label}`"
             >
               <BaseSkeleton />
             </td>
@@ -28,8 +28,8 @@
         </template>
         <template v-else>
           <tr
-            v-for="entry in expenses"
-            :key="entry[0]"
+            v-for="(entry, idx) in expenses"
+            :key="`body-expense-${year}-${entry[0]}-${idx}`"
           >
             <td>
               <span
@@ -41,7 +41,7 @@
             </td>
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-expense-${year}-${entry[0]}-${idx}-${month.label}`"
             >
               {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
@@ -54,7 +54,7 @@
           <th width="10%">Income</th>
           <th
             v-for="month in months"
-            :key="month.label"
+            :key="`header-income-${year}-${month.label}`"
           >
             {{ month.label }}
           </th>
@@ -62,13 +62,16 @@
       </thead>
       <tbody>
         <template v-if="props.loading">
-          <tr v-for="entry in 3">
+          <tr
+            v-for="entry in 3"
+            :key="`body-income-skeleton-${year}-${entry}`"
+          >
             <td>
               <BaseSkeleton />
             </td>
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-income-skeleton-${year}-${month.label}`"
             >
               <BaseSkeleton />
             </td>
@@ -76,8 +79,8 @@
         </template>
         <template v-else>
           <tr
-            v-for="entry in income"
-            :key="entry[0]"
+            v-for="(entry, idx) in income"
+            :key="`body-income-${year}-${entry[0]}-${idx}`"
           >
             <td>
               <span
@@ -89,7 +92,7 @@
             </td>
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-income-${year}-${entry[0]}-${idx}-${month.label}`"
             >
               {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
@@ -103,17 +106,17 @@
           <template v-if="props.loading">
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-balance-skeleton-${year}-${month.label}`"
             >
               <BaseSkeleton />
             </td>
           </template>
           <template v-else>
             <td
-              v-for="entry in balance"
-              :key="`balance-${entry}`"
+              v-for="(amount, idx) in balance"
+              :key="`body-balance-${year}-${amount}-${idx}`"
             >
-              {{ getFormattedCurrency(entry ?? 0) }}
+              {{ getFormattedCurrency(amount ?? 0) }}
             </td>
           </template>
         </tr>
@@ -133,17 +136,17 @@
           <template v-if="props.loading">
             <td
               v-for="month in months"
-              :key="month.label"
+              :key="`body-tax-skeleton-${year}-${month.label}`"
             >
               <BaseSkeleton />
             </td>
           </template>
           <template v-else>
             <td
-              v-for="entry in consumptionTax"
-              :key="entry"
+              v-for="(amount, idx) in consumptionTax"
+              :key="`body-tax-${year}-${amount}-${idx}`"
             >
-              {{ getFormattedCurrency(entry ?? 0) }}
+              {{ getFormattedCurrency(amount ?? 0) }}
             </td>
           </template>
         </tr>
@@ -164,15 +167,17 @@ import { CurrencyLocale } from '@/domain/interfaces';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
 interface Props {
+  year: string;
   data: Record<string, any>;
   loading: boolean;
   locale: CurrencyLocale;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  year: '',
   data: {} as any,
   loading: true,
-  locale: {} as CurrencyLocale
+  locale: {} as any,
 });
 
 const months = [
