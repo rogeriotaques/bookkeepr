@@ -1,21 +1,21 @@
 <template>
   <section class="report-page">
     <div class="report-page__insights row">
-      <div class="col-3 report-page__filter">
+      <div class="col-2 report-page__filter">
         <BaseDropdown
           v-model="filterByYear"
           :options="recordedYears"
           :disabled="isRecordedYearsLoading"
         />
       </div>
-      <div class="col-6">
+      <div class="col-8">
         <ReportInsights
           :data="reportData?.insights || {}"
           :loading="isReportLoading || isSettingsLoading"
           :locale="locale"
         />
       </div>
-      <div class="col-3 report-page__print">
+      <div class="col-2 report-page__print">
         <button
           type="button"
           class="is-auto-width has-tooltip has-tooltip--bottom"

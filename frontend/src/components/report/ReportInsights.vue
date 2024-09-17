@@ -34,7 +34,7 @@
               centered
             />
             <template v-else>
-              {{ formatCurrency(card.income - card.outcome, { style: 'decimal' }) }}
+              {{ getFormattedCurrency(card.income - card.outcome) }}
             </template>
           </h3>
           <p class="subtitle">{{ card.label }}</p>
@@ -66,7 +66,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   data: {} as any,
   loading: true,
-  locale: {} as CurrencyLocale
+  locale: {} as any,
 });
 
 const cards = computed(() => [

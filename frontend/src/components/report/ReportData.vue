@@ -1,15 +1,17 @@
 <template>
   <div class="report__data">
     <table class="report__table--liability">
+      <!-- EXPENSES -->
       <thead>
         <tr>
-          <th width="10%">Expenses</th>
+          <th width="15%">Expenses</th>
           <th
             v-for="month in months"
             :key="`header-expense-${year}-${month.label}`"
           >
             {{ month.label }}
           </th>
+          <th width="10%">Total</th>
         </tr>
       </thead>
       <tbody>
@@ -22,6 +24,9 @@
               v-for="month in months"
               :key="`body-expense-skeleton-${year}-${month.label}`"
             >
+              <BaseSkeleton />
+            </td>
+            <td>
               <BaseSkeleton />
             </td>
           </tr>
@@ -45,19 +50,42 @@
             >
               {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
+            <td>
+              {{ getFormattedCurrency(entry.slice(1).reduce((acc: number, amount: number) => acc + amount, 0)) }}
+            </td>
+          </tr>
+          <tr>
+            <th width="15%">Total</th>
+            <th
+              v-for="month in months"
+              :key="`header-expense-${year}-${month.label}`"
+            >
+              {{ getFormattedCurrency(expenses.map((e: any) => e[month.value] ?? 0).reduce((acc: number, amount: number) => acc + amount, 0)) }}
+            </th>
+            <th width="10%">
+              {{
+                getFormattedCurrency(
+                  expenses
+                    .map((e: any) => e.slice(1).reduce((acc: number, amount: number) => acc + amount, 0))
+                    .reduce((acc: number, amount: number) => acc + amount, 0)
+                )
+              }}
+            </th>
           </tr>
         </template>
       </tbody>
 
+      <!-- INCOME -->
       <thead>
         <tr>
-          <th width="10%">Income</th>
+          <th width="15%">Income</th>
           <th
             v-for="month in months"
             :key="`header-income-${year}-${month.label}`"
           >
             {{ month.label }}
           </th>
+          <th width="10%">Total</th>
         </tr>
       </thead>
       <tbody>
@@ -73,6 +101,9 @@
               v-for="month in months"
               :key="`body-income-skeleton-${year}-${month.label}`"
             >
+              <BaseSkeleton />
+            </td>
+            <td>
               <BaseSkeleton />
             </td>
           </tr>
@@ -96,10 +127,32 @@
             >
               {{ getFormattedCurrency(entry[month.value] ?? 0) }}
             </td>
+            <td>
+              {{ getFormattedCurrency(entry.slice(1).reduce((acc: number, amount: number) => acc + amount, 0)) }}
+            </td>
+          </tr>
+          <tr>
+            <th width="15%">Total</th>
+            <th
+              v-for="month in months"
+              :key="`header-expense-${year}-${month.label}`"
+            >
+              {{ getFormattedCurrency(income.map((e: any) => e[month.value] ?? 0).reduce((acc: number, amount: number) => acc + amount, 0)) }}
+            </th>
+            <th width="10%">
+              {{
+                getFormattedCurrency(
+                  income
+                    .map((e: any) => e.slice(1).reduce((acc: number, amount: number) => acc + amount, 0))
+                    .reduce((acc: number, amount: number) => acc + amount, 0)
+                )
+              }}
+            </th>
           </tr>
         </template>
       </tbody>
 
+      <!-- BALANCE AND TAX ESTIMATION -->
       <tfoot>
         <tr>
           <td width="15%">Balance</td>
@@ -110,6 +163,9 @@
             >
               <BaseSkeleton />
             </td>
+            <td width="10%">
+              <BaseSkeleton />
+            </td>
           </template>
           <template v-else>
             <td
@@ -118,6 +174,7 @@
             >
               {{ getFormattedCurrency(amount ?? 0) }}
             </td>
+            <td width="10%">{{ getFormattedCurrency(balance.reduce((acc: number, amount: number) => acc + amount, 0)) }}</td>
           </template>
         </tr>
         <tr v-if="shouldShowConsumptionTax">
@@ -140,6 +197,9 @@
             >
               <BaseSkeleton />
             </td>
+            <td>
+              <BaseSkeleton />
+            </td>
           </template>
           <template v-else>
             <td
@@ -147,6 +207,9 @@
               :key="`body-tax-${year}-${amount}-${idx}`"
             >
               {{ getFormattedCurrency(amount ?? 0) }}
+            </td>
+            <td width="10%">
+              {{ getFormattedCurrency(consumptionTax.reduce((acc: number, amount: number) => acc + amount, 0)) }}
             </td>
           </template>
         </tr>
@@ -233,7 +296,7 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
   }
 
   tbody + thead th {
-    padding-top: 16px;
+    padding-top: 48px;
   }
 
   tbody + tfoot td {
@@ -244,7 +307,7 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
   th:not(:first-child),
   td:not(:first-child) {
     text-align: right;
-    width: 6.9%;
+    width: 6.25%;
   }
 
   tfoot tr:first-child td {

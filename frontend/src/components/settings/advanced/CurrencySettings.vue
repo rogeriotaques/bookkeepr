@@ -4,7 +4,7 @@
       <div class="col-8">
         <hgroup>
           <h5>Currency</h5>
-          <p>Defines the currency symbol to be used</p>
+          <p>Define the currency symbol to be used</p>
         </hgroup>
       </div>
       <div class="col-4 has-text-right">
