@@ -1,6 +1,6 @@
 {
   "name": "@bookkeepr/api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "The API layer from Bookkeepr",
   "main": "main.js",
   "scripts": {
