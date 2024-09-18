@@ -33,6 +33,7 @@
       :use-passwd="usePassword"
       :loading="isLoadingSettings"
       @update="onUpdatePasswordHandler"
+      @force-login="onForceLoginHandler"
     />
   </div>
 </template>
@@ -43,6 +44,7 @@ import { useToast } from 'vue-toastification';
 
 import { setSettings } from '@/domain/network';
 
+import { useState } from '@/composable/useState';
 import useDataFetch from '@/composable/useDataFetch';
 
 import CurrencySettings from '@/components/settings/advanced/CurrencySettings.vue';
@@ -52,6 +54,8 @@ import TaxSettings from '@/components/settings/advanced/TaxSettings.vue';
 
 const isLoading = ref(false);
 const settingsUrl = ref('/settings');
+
+const state = useState();
 
 const toast = useToast();
 const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
@@ -74,6 +78,11 @@ const databaseSettings = computed(() => ({
 }));
 
 const usePassword = computed(() => (settingsData.value as any)?.config?.usePasswd ?? null);
+
+const onForceLoginHandler = () => {
+  state.isAuthenticated = true;
+  state.credential = null;
+};
 
 const onUpdatePasswordHandler = async () => {
   invalidateQuery();

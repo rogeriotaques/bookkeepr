@@ -18,7 +18,7 @@ export const errorHandler = (err: any): Promise<any> => {
     // a status code that falls out of the range of 2xx
     error = {
       code: err.response.status,
-      message: err.response.data.message,
+      message: err.response.data.message ?? err.response.statusText ?? 'Unexpected error!',
     };
   } else if (err.request) {
     // The request was made but no response was received
@@ -27,8 +27,8 @@ export const errorHandler = (err: any): Promise<any> => {
     const data = err.request.responseText ? JSON.parse(err.request.responseText) : {};
 
     error = {
-      code: data.status || 0,
-      message: data.message || 'Unexpected error!',
+      code: data.status ?? 0,
+      message: data.message ?? err.request.statusText ?? 'Unexpected error!',
     };
   } else {
     // Something happened in setting up the request that triggered an Error

@@ -49,6 +49,8 @@ import AppFooter from '@/components/navigation/AppFooter.vue';
 
 import { authUser } from '@/domain/network';
 
+import { useState } from '@/composable/useState';
+
 interface Emit {
   (e: 'authenticate', value: boolean): void;
 }
@@ -58,6 +60,7 @@ const emit = defineEmits<Emit>();
 const inputRef = ref<HTMLInputElement | null>(null);
 
 const toast = useToast();
+const state = useState();
 
 const isAuthenticating = ref(false);
 const password = ref('');
@@ -75,8 +78,10 @@ const onAuthClickHandler = async () => {
       throw new Error('Invalid password');
     }
 
+    state.credential = btoa(`user:${password.value}`);
+    toast.info('Welcome back!');
+
     emit('authenticate', isAuthenticated);
-    toast.success('Welcome back!');
   } catch (error: any) {
     toast.error(error.message || 'Something went wrong');
 

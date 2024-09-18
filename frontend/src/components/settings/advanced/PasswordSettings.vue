@@ -125,6 +125,7 @@ const props = defineProps<Props>();
 
 interface Emits {
   (e: 'update'): void;
+  (e: 'force-login'): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -167,7 +168,7 @@ const onChangePasswordSaveClickHandler = async () => {
     showChangePasswordModal.value = false;
     resetInputs();
     toast.success('Password saved!');
-    emit('update');
+    emit('force-login');
   } catch (error: any) {
     toast.error(`Error: ${error.message}`);
   } finally {
@@ -214,7 +215,6 @@ watch(showChangePasswordModal, async () => {
     justify-content: center;
     margin-bottom: 16px;
   }
-
 }
 
 .input__helper {

@@ -28,7 +28,7 @@
         v-else-if="isFirstAccess"
         @update="onAuthHandler(true)"
       />
-      <RouterView v-else-if="isAuthenticated || !isUsingPasswd" />
+      <RouterView v-else-if="state.isAuthenticated || !isUsingPasswd" />
       <AuthPage
         v-else
         @authenticate="onAuthHandler"
@@ -54,9 +54,10 @@ import BaseProgress from '@/components/shared/BaseProgress.vue';
 import AuthPage from '@/pages/AuthPage.vue';
 import FirstAccessPage from '@/pages/FirstAccessPage.vue';
 
+import { useState } from '@/composable/useState';
 import useDataFetch from '@/composable/useDataFetch';
 
-const isAuthenticated = ref(false);
+const state = useState();
 const settingsUrl = ref('/settings');
 
 const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
@@ -64,20 +65,19 @@ const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
 
 const isFirstAccess = computed(() => (settingsData.value as any)?.config?.usePasswd === null);
 const isUsingPasswd = computed(() => (settingsData.value as any)?.config?.usePasswd || false);
-const showFullTemplate = computed(() => isAuthenticated.value);
+const showFullTemplate = computed(() => state.isAuthenticated);
+
+const watchImmediate = (value: any, callback: any) => watch(value, callback, { immediate: true });
 
 const onAuthHandler = (status: boolean) => {
-  isAuthenticated.value = status;
+  state.isAuthenticated = status;
+  if (!status) state.credential = null;
   invalidateQuery();
 };
 
-watch(
-  isLoadingSettings,
-  () => {
-    if (!isLoadingSettings.value && !isFirstAccess.value && !isUsingPasswd.value) isAuthenticated.value = true;
-  },
-  { immediate: true }
-);
+watchImmediate(isLoadingSettings, () => {
+  if (!isLoadingSettings.value && !isFirstAccess.value && !isUsingPasswd.value) state.isAuthenticated = true;
+});
 </script>
 
 <style lang="scss" scoped>
