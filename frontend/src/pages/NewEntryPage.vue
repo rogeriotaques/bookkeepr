@@ -201,8 +201,6 @@ const applySearchHighlight = async () => {
       const range = new Range();
       const gut = /[,.]/g.test(text.slice(index, index + searchText.length)) ? 1 : 0;
 
-      console.log('S', /[,.]/g.test(text.slice(index, index + searchText.length)));
-
       range.setStart(el, index);
       range.setEnd(el, index + searchText.length + gut);
 
