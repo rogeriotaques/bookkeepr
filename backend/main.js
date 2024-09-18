@@ -58,6 +58,7 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
 
   // Enable CORS to accept requests from any origin
   app.use(cors({ origin: '*', credentials: true }));
+
   // Enable Helmet with contentSecurityPolicy disabled
   app.use(helmet({ contentSecurityPolicy: false }));
 

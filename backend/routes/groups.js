@@ -3,9 +3,9 @@
  * Groups routes
  */
 
-const groupsController = require('@/controllers/groups.js');
-
 const router = require('express').Router();
+
+const groupsController = require('@/controllers/groups.js');
 
 router.get('/', groupsController.getGroups);
 router.post('/', groupsController.saveGroup);

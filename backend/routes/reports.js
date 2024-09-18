@@ -1,6 +1,11 @@
-const reportsController = require('@/controllers/reports');
+/**
+ * BOOKKEEPR
+ * Reports routes
+ */
 
 const router = require('express').Router();
+
+const reportsController = require('@/controllers/reports');
 
 router.get('/', reportsController.getOverviewReport);
 

@@ -3,9 +3,9 @@
  * Wallets routes
  */
 
-const walletsController = require('@/controllers/wallets.js');
-
 const router = require('express').Router();
+
+const walletsController = require('@/controllers/wallets.js');
 
 router.get('/', walletsController.getWallets);
 router.post('/', walletsController.saveWallet);

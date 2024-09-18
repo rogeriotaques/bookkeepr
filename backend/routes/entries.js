@@ -3,9 +3,9 @@
  * Entries routes
  */
 
-const entriesController = require('@/controllers/entries.js');
-
 const router = require('express').Router();
+
+const entriesController = require('@/controllers/entries.js');
 
 router.get('/', entriesController.getEntries);
 router.get('/recorded-years', entriesController.getRecordedYears);
