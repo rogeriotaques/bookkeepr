@@ -82,6 +82,7 @@ const usePassword = computed(() => (settingsData.value as any)?.config?.usePassw
 const onForceLoginHandler = () => {
   state.isAuthenticated = true;
   state.credential = null;
+  window.location.reload(); // Force reload the page
 };
 
 const onUpdatePasswordHandler = async () => {
