@@ -26,11 +26,11 @@ git push --tags
 echo "Version updated to $NEW_VERSION"
 
 # Build the new Docker image
-docker build -t abtzco/bookkeepr .
+docker build --platform linux/amd64 -t abtzco/bookkeepr .
 echo "Docker image built"
 
 # Tag the new Docker image
-docker tag abtzco/bookkeepr abtzco/bookkeepr:$NEW_VERSION
+docker image tag abtzco/bookkeepr abtzco/bookkeepr:$NEW_VERSION
 echo "Docker image tagged"
 
 # Push the new Docker image

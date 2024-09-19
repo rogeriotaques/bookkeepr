@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:22-alpine3.19
+FROM node:22-alpine3.19
 
 LABEL co.abtz.image.authors="Rogerio Taques <hello@abtz.co>"
 

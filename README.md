@@ -27,17 +27,17 @@ Once this repository is cloned, open a terminal window and go to the project fol
 #### Run the backend (api) with:
 
 ```sh
-$ cd backend
-$ yarn install
-$ yarn start
+cd backend
+yarn install
+yarn start
 ```
 
 #### Run the frontend (app) with:
 
 ```sh
-$ cd frontend
-$ yarn install
-$ yarn start
+cd frontend
+yarn install
+yarn start
 ```
 
 Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
@@ -47,13 +47,16 @@ Next, open your preferred browser and visit to `http://localhost:5173` and happy
 First, build the image:
 
 ```sh
-$ docker build -t abtzco/bookkeepr .
+docker build --platform linux/amd64 -t abtzco/bookkeepr .
 ```
+
+> [!WARNING]
+> Note: Especially if you're building on a different host platform (e.g. Mac M1), you may need to use the `--platform` flag to specify the correct `target` platform.
 
 Then, run the image:
 
 ```sh
-$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeepr/data abtzco/bookkeepr:latest
+docker run --rm --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeepr/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
@@ -68,19 +71,19 @@ For that, you need to spare a server where you can deploy and run docker contain
 Once you have SSHed into the server, run the following command to download the image:
 
 ```sh
-$ docker pull abtzco/bookkeepr:latest
+docker pull abtzco/bookkeepr:latest
 ```
 
 If you already have an old version of BookKeepr docker running, remove the existing container with the command below. If not, skip this step.
 
 ```sh
-$ docker rm -f bookkeepr
+docker rm -f bookkeepr
 ```
 
 Then, run the image:
 
 ```sh
-$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeepr/data abtzco/bookkeepr:latest
+docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeepr/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
@@ -91,7 +94,7 @@ $ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<U
 If you run into problems related to `sqlite3` and `node-gyp` while running `yarn install` or `yarn start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
 
 ```sh
-$ npm install -g node-gyp
+npm install -g node-gyp
 ```
 
 ### Tech stack
