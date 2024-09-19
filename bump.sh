@@ -18,7 +18,7 @@ sed -i '' "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/g" 
 # Push changes to git
 git add frontend/package.json backend/package.json
 git commit -m "Bump version to $NEW_VERSION"
-git push --tags
+git push
 git tag $NEW_VERSION
 git push --tags
 
