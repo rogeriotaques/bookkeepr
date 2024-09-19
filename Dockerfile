@@ -12,6 +12,7 @@ WORKDIR /bookkeepr
 COPY --chown=node:node ./frontend ./frontend
 COPY --chown=node:node ./backend/ ./backend
 RUN mkdir -p /bookkeepr/data
+RUN chown -R node:node /bookkeepr/data
 
 WORKDIR /bookkeepr/frontend
 RUN yarn install && yarn build
