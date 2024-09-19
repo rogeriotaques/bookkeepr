@@ -6,13 +6,10 @@ ENV YARN_VERSION=4.0.2
 RUN yarn policies set-version $YARN_VERSION
 RUN npm install -g pm2
 
-USER node
-
 WORKDIR /bookkeepr
-COPY --chown=node:node ./frontend ./frontend
-COPY --chown=node:node ./backend/ ./backend
+COPY ./frontend ./frontend
+COPY ./backend/ ./backend
 RUN mkdir -p /bookkeepr/data
-RUN chown -R node:node /bookkeepr/data
 
 WORKDIR /bookkeepr/frontend
 RUN yarn install && yarn build
