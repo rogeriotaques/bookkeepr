@@ -53,7 +53,7 @@ $ docker build -t abtzco/bookkeepr .
 Then, run the image:
 
 ```sh
-$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeeper/data abtzco/bookkeepr:latest
+$ docker run --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeepr/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
@@ -80,7 +80,7 @@ $ docker rm -f bookkeepr
 Then, run the image:
 
 ```sh
-$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeeper/data abtzco/bookkeepr:latest
+$ docker run -d --restart unless-stopped --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeepr/data abtzco/bookkeepr:latest
 ```
 
 > [!NOTE]
