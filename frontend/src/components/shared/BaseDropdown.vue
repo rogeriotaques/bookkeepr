@@ -182,10 +182,6 @@ const onFilterInputBlurHandler = async () => {
   }
 };
 
-const onDocumentScrollHandler = () => {
-  isOpen.value = false;
-};
-
 const navigateItems = (event: KeyboardEvent) => {
   const direction = event.key === 'ArrowDown' ? 'nextSibling' : 'previousSibling';
 
@@ -239,7 +235,6 @@ const highlightFirstItem = () => {
 watch(isOpen, async () => {
   if (isOpen.value) {
     const document = window.document;
-    document.addEventListener('scroll', onDocumentScrollHandler);
     document.addEventListener('keydown', onDocumentKeydownHandler);
 
     highlightFirstItem();
@@ -250,7 +245,6 @@ watch(isOpen, async () => {
     }
   } else {
     const document = window.document;
-    document.removeEventListener('scroll', onDocumentScrollHandler);
     document.removeEventListener('keydown', onDocumentKeydownHandler);
 
     // Reset the filter whenever the dropdown is closed
@@ -363,11 +357,12 @@ watch(isOpen, async () => {
       }
     }
   }
-}
 
-:deep(.popper) {
-  text-align: initial;
-  padding: 0 !important;
-  overflow: hidden;
+  > :deep(.popper) {
+    padding: 0 !important;
+    text-align: initial;
+    overflow: hidden;
+    z-index: 910;
+  }
 }
 </style>
