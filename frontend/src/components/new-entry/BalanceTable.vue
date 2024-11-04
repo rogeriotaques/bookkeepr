@@ -15,10 +15,7 @@
         <tr
           v-for="entry in entries"
           :key="entry.id"
-          :class="{
-            'balance-table__editing': props.editing === entry.id,
-            'balance-table__search-match': entry.hasMatch,
-          }"
+          :class="{ 'balance-table__editing': props.editing === entry.id }"
         >
           <td>{{ entry.date }}</td>
           <td>
@@ -173,6 +170,10 @@ const entries = computed(() => {
     );
   });
 
+  if (props.search) {
+    return entries.filter(({ hasMatch }) => hasMatch);
+  }
+
   return entries;
 });
 
@@ -264,31 +265,6 @@ const onDeleteConfirmHandler = async () => {
     &:hover {
       td {
         background-color: var(--c-warning);
-      }
-    }
-  }
-
-  &__search-match {
-    td {
-      background-color: var(--c-danger-background);
-
-      > div {
-        background-color: transparent;
-      }
-    }
-
-    &:hover {
-      td {
-        background-color: #f06;
-
-        &,
-        > div:first-child {
-          color: white;
-        }
-
-        svg {
-          stroke: white;
-        }
       }
     }
   }

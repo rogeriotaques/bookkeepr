@@ -10,7 +10,15 @@
           type="text"
           placeholder="Any text or amount"
         />
+        <button
+          v-if="filterByText"
+          class="input__addon input__addon--button"
+          @click="onClickClearSearchHandler"
+        >
+          <IconX :size="18" />
+        </button>
         <label
+          v-else
           class="input__addon input__addon--icon"
           for="search"
         >
@@ -38,7 +46,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { IconSearch } from '@tabler/icons-vue';
+import { IconSearch, IconX } from '@tabler/icons-vue';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 
@@ -114,6 +122,12 @@ const onSearchHotKeyHandler = (e: KeyboardEvent) => {
   e.preventDefault();
   e.stopPropagation();
 
+  searchRef.value?.focus();
+};
+
+const onClickClearSearchHandler = async () => {
+  filterByText.value = '';
+  await nextTick();
   searchRef.value?.focus();
 };
 

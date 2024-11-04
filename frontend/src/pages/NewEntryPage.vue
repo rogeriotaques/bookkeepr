@@ -34,6 +34,10 @@
     <br />
 
     <div class="container new-entry__hot-keys">
+      <small class="new-entry__pro-tip">
+        <IconBulb :size="18" />
+        <b>Pro Tip:</b>
+      </small>
       <small>
         Use
         <code>⌘+S</code>
@@ -48,6 +52,7 @@
 </template>
 
 <script setup lang="ts">
+import { IconBulb } from '@tabler/icons-vue';
 import { ref, reactive, computed, watch, onUpdated, nextTick } from 'vue';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
@@ -245,6 +250,12 @@ watch(search, () => {
 .new-entry {
   &__hot-keys {
     text-align: center;
+  }
+
+  &__pro-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
   }
 }
 </style>
