@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
@@ -197,7 +197,9 @@ const navigateItems = (event: KeyboardEvent) => {
 
   currentItem?.classList?.remove('base-dropdown__item--focused');
   sibling.classList?.add('base-dropdown__item--focused');
-  sibling.scrollIntoView({ block: 'end' });
+
+  // Scroll to the nearest block (within the viewport) without scrolling the body
+  sibling.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 };
 
 const onDocumentKeydownHandler = (event: KeyboardEvent) => {
@@ -232,6 +234,10 @@ const highlightFirstItem = () => {
   itemToFocus?.classList?.add('base-dropdown__item--focused');
 };
 
+onBeforeUnmount(() => {
+  document.querySelector('body')?.classList.remove('noscroll');
+});
+
 watch(isOpen, async () => {
   if (isOpen.value) {
     const document = window.document;
@@ -243,17 +249,25 @@ watch(isOpen, async () => {
       await await wait(100);
       filterRef.value?.focus();
     }
+
+    document.querySelector('body')?.classList.add('noscroll');
   } else {
     const document = window.document;
     document.removeEventListener('keydown', onDocumentKeydownHandler);
 
     // Reset the filter whenever the dropdown is closed
     filter.value = '';
+
+    document.querySelector('body')?.classList.remove('noscroll');
   }
 });
 </script>
 
 <style lang="scss" scoped>
+.noscroll {
+  overflow: hidden;
+}
+
 .base-dropdown {
   width: fit-content;
   margin-bottom: 12px;
