@@ -3,8 +3,8 @@
     <div class="row">
       <div class="col-8">
         <hgroup>
-          <h5>Currency</h5>
-          <p>Define the currency symbol to be used</p>
+          <h5>Locale</h5>
+          <p>Define the symbols and formats to be used for currency and dates</p>
         </hgroup>
       </div>
       <div class="col-4 has-text-right">

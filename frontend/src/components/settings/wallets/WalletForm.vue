@@ -3,18 +3,38 @@
     <div class="field">
       <label class="label">Wallet name</label>
       <div class="input">
-        <input v-model="form.name" ref="nameRef" :disabled="props.submitting" type="text" placeholder="E.g. Bank" />
+        <input
+          v-model="form.name"
+          ref="nameRef"
+          :disabled="props.submitting"
+          type="text"
+          placeholder="E.g. Bank"
+        />
       </div>
     </div>
     <div class="field">
       <label class="label">Status</label>
       <div class="wallet-form__radio-buttons">
         <div class="input input--radio">
-          <input :checked="form.active === 1" :disabled="props.submitting" type="radio" name="radio" id="radio_1" @change="form.active = 1" />
+          <input
+            :checked="form.active === 1"
+            :disabled="props.submitting"
+            type="radio"
+            name="radio"
+            id="radio_1"
+            @change="form.active = 1"
+          />
           <label for="radio_1">Active</label>
         </div>
         <div class="input input--radio">
-          <input :checked="form.active === 0" :disabled="props.submitting" type="radio" name="radio" id="radio_0" @change="form.active = 0" />
+          <input
+            :checked="form.active === 0"
+            :disabled="props.submitting"
+            type="radio"
+            name="radio"
+            id="radio_0"
+            @change="form.active = 0"
+          />
           <label for="radio_0">Inactive</label>
         </div>
       </div>
@@ -45,6 +65,11 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .wallet-form {
   &__radio-buttons {
+    margin: 4px 0;
+    padding: 8px;
+    border: 1px dashed var(--c-grey);
+    border-radius: var(--s-border-radius);
+
     display: flex;
     gap: 32px;
   }
@@ -56,6 +81,7 @@ onMounted(async () => {
   }
 
   .input--radio > * {
+    margin-bottom: 0;
     cursor: pointer;
   }
 }

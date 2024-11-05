@@ -4,7 +4,7 @@
       <div class="col-8">
         <hgroup>
           <h5>Tax</h5>
-          <p>Configure taxes for reports</p>
+          <p>Configure consumption tax estimation to be displayed in reports</p>
         </hgroup>
       </div>
       <div class="col-4 has-text-right">

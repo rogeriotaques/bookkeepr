@@ -5,7 +5,13 @@
         <div class="field">
           <label class="label">Code</label>
           <div class="input">
-            <input v-model="form.code" ref="codeRef" :disabled="props.submitting" type="text" placeholder="E.g. 10" />
+            <input
+              v-model="form.code"
+              ref="codeRef"
+              :disabled="props.submitting"
+              type="text"
+              placeholder="E.g. 10"
+            />
           </div>
         </div>
       </div>
@@ -13,7 +19,12 @@
         <div class="field">
           <label class="label">Category name</label>
           <div class="input">
-            <input v-model="form.name" :disabled="props.submitting" type="text" placeholder="E.g. Suppliers" />
+            <input
+              v-model="form.name"
+              :disabled="props.submitting"
+              type="text"
+              placeholder="E.g. Suppliers"
+            />
           </div>
         </div>
       </div>
@@ -48,7 +59,7 @@
           </div>
         </div>
       </div>
-      <div class="col-4">
+      <div class="col-8">
         <div class="field">
           <label class="label">Status</label>
           <div class="group-form__radio-buttons">
@@ -104,8 +115,13 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .group-form {
   &__radio-buttons {
+    margin: 4px 0;
+    padding: 8px;
+    border: 1px dashed var(--c-grey);
+    border-radius: var(--s-border-radius);
+
     display: flex;
-    gap: 32px;
+    gap: 16px;
   }
 
   .field {
@@ -115,6 +131,7 @@ onMounted(async () => {
   }
 
   .input--radio > * {
+    margin-bottom: 0;
     cursor: pointer;
   }
 }
