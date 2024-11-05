@@ -4,9 +4,18 @@
       <div class="table__empty-card">
         <slot>
           <div>
-            <IconReportOff :size="48" color="gray" />
+            <IconReportOff
+              :size="48"
+              color="gray"
+            />
           </div>
-          <p>No entries yet!</p>
+          <p>
+            No entries yet!
+            <br />
+            Use
+            <code>⌘+I</code>
+            to add a new one.
+          </p>
         </slot>
       </div>
     </td>
@@ -39,6 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    text-align: center;
   }
 }
 </style>

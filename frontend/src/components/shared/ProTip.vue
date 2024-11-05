@@ -21,7 +21,10 @@ interface Props {
 const props = defineProps<Props>();
 
 const TIPS: Record<string, string[]> = {
-  'new-entry': ['Use <code>⌘+S</code> to save an entry, <code>⌘+K</code> to search, and <code>⌘+I</code> to entry a new amount.'],
+  'new-entry': [
+    'Use <code>⌘+S</code> to save an entry, <code>⌘+K</code> to search, and <code>⌘+I</code> to entry a new amount.',
+    'Click on the rows to select and get their summed amounts.',
+  ],
   report: ['Use <code>⌘+P</code> to print this report.'],
 };
 
