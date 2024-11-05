@@ -19,7 +19,7 @@
         <button
           type="button"
           class="is-auto-width has-tooltip has-tooltip--bottom"
-          data-tooltip="Print report"
+          data-tooltip="Print report (⌘+P)"
           @click="onPrintClickHandler"
         >
           <IconPrinter />
@@ -44,6 +44,8 @@
       :loading="isReportLoading"
       :locale="locale"
     />
+
+    <ProTip target="report" />
   </section>
 </template>
 
@@ -56,6 +58,7 @@ import { IconPrinter } from '@tabler/icons-vue';
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
+import ProTip from '@/components/shared/ProTip.vue';
 import ReportInsights from '@/components/report/ReportInsights.vue';
 import ReportData from '@/components/report/ReportData.vue';
 

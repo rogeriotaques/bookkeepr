@@ -33,26 +33,11 @@
 
     <br />
 
-    <div class="container new-entry__hot-keys">
-      <small class="new-entry__pro-tip">
-        <IconBulb :size="18" />
-        <b>Pro Tip:</b>
-      </small>
-      <small>
-        Use
-        <code>⌘+S</code>
-        to save an entry,
-        <code>⌘+K</code>
-        to search, and
-        <code>⌘+I</code>
-        to entry a new amount.
-      </small>
-    </div>
+    <ProTip target="new-entry" />
   </section>
 </template>
 
 <script setup lang="ts">
-import { IconBulb } from '@tabler/icons-vue';
 import { ref, reactive, computed, watch, onUpdated, nextTick } from 'vue';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
@@ -60,6 +45,7 @@ import dayjs from 'dayjs';
 import EntryForm from '@/components/new-entry/EntryForm.vue';
 import BalanceTable from '@/components/new-entry/BalanceTable.vue';
 import BalanceFilterForm from '@/components/new-entry/BalanceFilterForm.vue';
+import ProTip from '@/components/shared/ProTip.vue';
 
 import { addEntry, updateEntry } from '@/domain/network';
 import { ExtendedEntry } from '@/domain/interfaces';
