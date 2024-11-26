@@ -3,6 +3,13 @@
 # Bump the version on the frontend and backend package.json files
 # and buid, tag, and push the new Docker image
 
+# Make sure docker is running
+# If not running, return an error
+if ! docker info &> /dev/null; then
+  echo "Docker is not running. Please start it and try again."
+  exit 1
+fi
+
 # Get the current version
 CURRENT_VERSION=$(cat frontend/package.json | jq -r '.version')
 
