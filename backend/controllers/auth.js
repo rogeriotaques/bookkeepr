@@ -2,6 +2,11 @@ const crypto = require('crypto');
 
 exports.authenticateUser = async (req, res) => {
   const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ success: false, message: 'Missing password' });
+  }
+
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
   const authData = await global.knex('config').where({ key: 'passwd' }).select(['value']).first();
 
@@ -10,6 +15,11 @@ exports.authenticateUser = async (req, res) => {
 
 exports.saveUserPassword = async (req, res) => {
   const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ success: false, message: 'Missing password' });
+  }
+
   const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
   await global

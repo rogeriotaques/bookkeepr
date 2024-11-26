@@ -4,6 +4,10 @@ const { ENTRY_OPERATIONS } = require('@/constants');
 exports.getOverviewReport = async (req, res) => {
   const { year } = req.query;
 
+  if (!year || !dayjs(year).isValid()) {
+    return res.status(400).json({ success: false, message: 'Invalid year' });
+  }
+
   const months = Array.from({ length: 12 }, (_, i) => i + 1).map((month) => `0${month}`.slice(-2));
   const activeGroups = await global.knex('groups').where('active', true).orderBy('code', 'asc');
 
@@ -54,7 +58,7 @@ exports.getOverviewReport = async (req, res) => {
   const thisMonth = now.month() + 1;
 
   //
-  // Do the math for the balance, tax, and insights
+  // Do the math for balance, tax, and insights
   //
 
   for (income of data.income) {

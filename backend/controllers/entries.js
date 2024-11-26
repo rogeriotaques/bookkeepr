@@ -1,3 +1,5 @@
+const dayjs = require('dayjs');
+
 exports.getEntries = async (req, res) => {
   const { year, month } = req.query;
   const entries = await global.knex
@@ -25,6 +27,28 @@ exports.saveEntry = async (req, res) => {
   const { id } = req.params;
 
   const parseAmount = (value) => parseFloat(value.replace(/[^0-9.]/g, ''));
+
+  if (!date || !dayjs(date).isValid()) {
+    return res.status(400).json({ success: false, message: 'Invalid date' });
+  }
+
+  if (isNaN(parseAmount(amount))) {
+    return res.status(400).json({ success: false, message: 'Invalid amount' });
+  }
+
+  if (!description) {
+    return res.status(400).json({ success: false, message: 'Missing description' });
+  } else if (`${description}`.length > 255) {
+    return res.status(400).json({ success: false, message: 'Description too long' });
+  }
+
+  if (!group || isNaN(group)) {
+    return res.status(400).json({ success: false, message: 'Invalid group ID' });
+  }
+
+  if (!wallet || isNaN(wallet)) {
+    return res.status(400).json({ success: false, message: 'Invalid wallet ID' });
+  }
 
   if (id) {
     await global

@@ -32,6 +32,18 @@ exports.setSettings = async (req, res) => {
     return res.json({ success: false, message: 'Invalid key' });
   }
 
+  if (!config.key) {
+    return res.status(400).json({ success: false, message: 'Missing key' });
+  } else if (`${config.key}`.length > 60) {
+    return res.status(400).json({ success: false, message: 'Key too long' });
+  }
+
+  if (!config.value) {
+    return res.status(400).json({ success: false, message: 'Missing value' });
+  } else if (`${config.value}`.length > 255) {
+    return res.status(400).json({ success: false, message: 'Value too long' });
+  }
+
   const row = await global.knex('config').select(['id']).where({ key: config.key }).first();
 
   if (row) {
