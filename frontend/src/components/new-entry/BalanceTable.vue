@@ -15,19 +15,37 @@
         <tr
           v-for="entry in entries"
           :key="entry.id"
-          :class="{ 'balance-table__editing': props.editing === entry.id }"
+          :class="{
+            'balance-table__editing': props.editing === entry.id,
+            'balance-table__selected': isSelected(entry),
+          }"
         >
-          <td>{{ entry.date }}</td>
-          <td>
+          <td @click="onEntryClickHandler(entry)">{{ entry.date }}</td>
+          <td @click="onEntryClickHandler(entry)">
             <div>{{ entry.description }}</div>
             <div>
               <span class="badge">{{ entry.groupName }}</span>
               <span class="badge">{{ entry.walletName }}</span>
             </div>
           </td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? getFormattedCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ entry.operation === ENTRY_OPERATIONS.INCOME ? getFormattedCurrency(entry.amount) : '' }}</td>
-          <td class="has-text-right">{{ getFormattedCurrency(entry.balance) }}</td>
+          <td
+            class="has-text-right"
+            @click="onEntryClickHandler(entry)"
+          >
+            {{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? getFormattedCurrency(entry.amount) : '' }}
+          </td>
+          <td
+            class="has-text-right"
+            @click="onEntryClickHandler(entry)"
+          >
+            {{ entry.operation === ENTRY_OPERATIONS.INCOME ? getFormattedCurrency(entry.amount) : '' }}
+          </td>
+          <td
+            class="has-text-right"
+            @click="onEntryClickHandler(entry)"
+          >
+            {{ getFormattedCurrency(entry.balance) }}
+          </td>
           <td class="has-text-right">
             <div class="balance-table__actions">
               <a
@@ -95,6 +113,21 @@
     </table>
   </div>
 
+  <div
+    v-if="selectedEntries.length"
+    class="balance-table__selected-entries"
+    :class="{ 'balance-table__selected-entries--negative': totalSelected < 0 }"
+  >
+    <div class="balance-table__selected-entries-data">
+      <label>Calculator:</label>
+      <h5>( {{ selectedEntries.length }} )</h5>
+      <h5>{{ getFormattedCurrency(totalSelected) }}</h5>
+    </div>
+    <div class="balance-table__selected-entries-action">
+      <a @click="selectedEntries = []"><IconTrash /></a>
+    </div>
+  </div>
+
   <BaseConfirmModal
     v-model="isDeleteModalOpen"
     :loading="isDeleting"
@@ -106,7 +139,7 @@
   >
     <p>
       Delete
-      <b>{{ selectedEntry?.description }}</b>
+      <b>{{ editingEntry?.description }}</b>
       ?
     </p>
     <p>This action cannot be undone.</p>
@@ -115,7 +148,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { IconEdit, IconTrash, IconEye, IconLoader2 } from '@tabler/icons-vue';
+import { IconEdit, IconTrash, IconEye, IconLoader2, IconClose } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
@@ -147,9 +180,10 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
-const selectedEntry = ref<ExtendedEntry | null>(null);
+const editingEntry = ref<ExtendedEntry | null>(null);
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
+const selectedEntries = ref<ExtendedEntry[]>([]);
 
 const entries = computed(() => {
   const entries = props.data.map((entry) => ({ ...entry, balance: 0 }));
@@ -181,22 +215,42 @@ const totalIncome = computed(() => entries.value.filter(isIncome).reduce((acc, e
 const totalOutcome = computed(() => entries.value.filter(isOutcome).reduce((acc, entry) => entry.amount + acc, 0));
 const finalBalance = computed(() => entries.value[entries.value.length - 1]?.balance ?? 0);
 
+const totalSelected = computed(() =>
+  selectedEntries.value.reduce((acc, entry) => {
+    if (entry.operation === ENTRY_OPERATIONS.EXPENSE) {
+      return acc - entry.amount;
+    }
+
+    return acc + entry.amount;
+  }, 0)
+);
+
 const isIncome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.INCOME;
 const isOutcome = (entry: ExtendedEntry) => entry.operation === ENTRY_OPERATIONS.EXPENSE;
+const isSelected = (entry: ExtendedEntry) => !!selectedEntries.value.find(({ id }) => id === entry.id);
 const getFormattedCurrency = (value: number) => formatCurrency(value, { currency: props.locale.currencyCode, locale: props.locale.currencyLocale });
+
+const onEntryClickHandler = (entry: ExtendedEntry) => {
+  if (selectedEntries.value.find(({ id }) => id === entry.id)) {
+    selectedEntries.value = selectedEntries.value.filter(({ id }) => id !== entry.id);
+    return;
+  }
+
+  selectedEntries.value.push(entry);
+};
 
 const onDeleteHandler = (id: number) => {
   const entry = props.data.find((entry) => entry.id === id);
 
   if (entry) {
-    selectedEntry.value = entry;
+    editingEntry.value = entry;
     isDeleteModalOpen.value = true;
   }
 };
 
 const onCancelConfirmHandler = () => {
   isDeleteModalOpen.value = false;
-  selectedEntry.value = null;
+  editingEntry.value = null;
 };
 
 const onDeleteConfirmHandler = async () => {
@@ -205,10 +259,10 @@ const onDeleteConfirmHandler = async () => {
   isDeleting.value = true;
 
   try {
-    await deleteEntry(selectedEntry.value?.id ?? 0);
+    await deleteEntry(editingEntry.value?.id ?? 0);
 
     isDeleteModalOpen.value = false;
-    selectedEntry.value = null;
+    editingEntry.value = null;
     emit('update');
 
     toast.success('Entry deleted!');
@@ -269,6 +323,18 @@ const onDeleteConfirmHandler = async () => {
     }
   }
 
+  &__selected {
+    td {
+      background-color: var(--c-info-background);
+    }
+
+    &:hover {
+      td {
+        background-color: var(--c-info);
+      }
+    }
+  }
+
   .badge {
     font-size: 0.65rem;
     padding: 2px 4px;
@@ -276,6 +342,67 @@ const onDeleteConfirmHandler = async () => {
 
     + .badge {
       margin-left: 2px;
+    }
+  }
+
+  &__selected-entries {
+    position: sticky;
+    bottom: 16px;
+
+    margin: 24px 0 0;
+    border: 1px solid var(--c-info);
+    border-radius: 8px;
+    padding: 8px 16px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--c-info-background);
+
+    z-index: 10;
+
+    h5 {
+      color: var(--c-info);
+      margin: 0;
+    }
+
+    a {
+      padding: 0;
+      margin: 4px 0 0;
+      border: 0;
+      cursor: pointer;
+
+      &::before {
+        content: none !important;
+      }
+
+      &:hover {
+        > svg {
+          stroke: var(--c-danger);
+        }
+      }
+    }
+
+    &--negative {
+      border-color: var(--c-danger);
+      background: var(--c-danger-background);
+
+      h5 {
+        color: var(--c-danger);
+      }
+    }
+
+    &-data {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    &-action {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
     }
   }
 }
