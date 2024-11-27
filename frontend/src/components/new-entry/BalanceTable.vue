@@ -124,7 +124,7 @@
       <h5>{{ getFormattedCurrency(totalSelected) }}</h5>
     </div>
     <div class="balance-table__selected-entries-action">
-      <a @click="selectedEntries = []"><IconTrash /></a>
+      <a @click="selectedEntries = []"><IconX /></a>
     </div>
   </div>
 
@@ -148,7 +148,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { IconEdit, IconTrash, IconEye, IconLoader2, IconClose } from '@tabler/icons-vue';
+import { IconEdit, IconTrash, IconEye, IconLoader2, IconX } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
