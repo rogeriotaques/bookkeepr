@@ -38,9 +38,7 @@ exports.setSettings = async (req, res) => {
     return res.status(400).json({ success: false, message: 'Key too long' });
   }
 
-  if (!config.value) {
-    return res.status(400).json({ success: false, message: 'Missing value' });
-  } else if (`${config.value}`.length > 255) {
+  if (config.value && `${config.value}`.length > 255) {
     return res.status(400).json({ success: false, message: 'Value too long' });
   }
 
