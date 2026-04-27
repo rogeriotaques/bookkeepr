@@ -1,5 +1,7 @@
 # Phase 3: UX Improvements
 
+**Status: DONE**
+
 ## Context
 
 Improve user experience by fixing auth state management, session persistence, and error visibility.

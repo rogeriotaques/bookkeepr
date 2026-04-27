@@ -1,5 +1,7 @@
 # Phase 1: Security Fixes
 
+**Status: DONE**
+
 ## Context
 
 The codebase has critical and high severity security issues that must be addressed before the app handles financial data. Single-user model is by design, SQLite is acceptable, KV store can be ignored.
