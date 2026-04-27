@@ -61,8 +61,8 @@ exports.getOverviewReport = async (req, res) => {
   // Do the math for balance, tax, and insights
   //
 
-  for (income of data.income) {
-    for (i = 1; i < income.length; i++) {
+  for (const income of data.income) {
+    for (let i = 1; i < income.length; i++) {
       if (!data.balance[i]) data.balance[i] = 0;
       if (!data.tax[i]) data.tax[i] = 0;
 
@@ -74,8 +74,8 @@ exports.getOverviewReport = async (req, res) => {
     }
   }
 
-  for (outcome of data.outcome) {
-    for (i = 1; i < outcome.length; i++) {
+  for (const outcome of data.outcome) {
+    for (let i = 1; i < outcome.length; i++) {
       data.balance[i] -= Number(outcome[i]);
       insights.thisYear.outcome += Number(outcome[i]);
       if (i === thisMonth) insights.thisMonth.outcome += Number(outcome[i]);
@@ -102,5 +102,5 @@ exports.getOverviewReport = async (req, res) => {
     .then((row) => row.amount ?? 0)
     .catch(() => 0);
 
-  res.json({ year, data, insights });
+  res.json({ success: true, year, data, insights });
 };

@@ -22,7 +22,7 @@ exports.authenticateUser = async (req, res) => {
     await global.knex('config').where({ key: 'passwd' }).update({ value: newHash });
   }
 
-  res.json({ isAuthenticated: valid });
+  res.json({ success: true, isAuthenticated: valid });
 };
 
 exports.saveUserPassword = async (req, res) => {

@@ -10,7 +10,7 @@ exports.getEntries = async (req, res) => {
     .whereRaw("strftime('%Y', entries.date) = ? AND strftime('%m', entries.date) = ?", [year, month])
     .orderBy('entries.date', 'asc');
 
-  res.json({ entries });
+  res.json({ success: true, entries });
 };
 
 exports.getRecordedYears = async (req, res) => {
@@ -19,7 +19,7 @@ exports.getRecordedYears = async (req, res) => {
     .select([global.knex.raw('distinct strftime("%Y", date) as year')])
     .orderBy('year', 'desc');
 
-  res.json({ years: years.map(({ year }) => year) });
+  res.json({ success: true, years: years.map(({ year }) => year) });
 };
 
 exports.saveEntry = async (req, res) => {
@@ -27,28 +27,6 @@ exports.saveEntry = async (req, res) => {
   const { id } = req.params;
 
   const parseAmount = (value) => parseFloat(value.replace(/[^0-9.]/g, ''));
-
-  if (!date || !dayjs(date).isValid()) {
-    return res.status(400).json({ success: false, message: 'Invalid date' });
-  }
-
-  if (isNaN(parseAmount(amount))) {
-    return res.status(400).json({ success: false, message: 'Invalid amount' });
-  }
-
-  if (!description) {
-    return res.status(400).json({ success: false, message: 'Missing description' });
-  } else if (`${description}`.length > 255) {
-    return res.status(400).json({ success: false, message: 'Description too long' });
-  }
-
-  if (!group || isNaN(group)) {
-    return res.status(400).json({ success: false, message: 'Invalid group ID' });
-  }
-
-  if (!wallet || isNaN(wallet)) {
-    return res.status(400).json({ success: false, message: 'Invalid wallet ID' });
-  }
 
   if (id) {
     await global
@@ -59,7 +37,7 @@ exports.saveEntry = async (req, res) => {
   }
 
   const entry = await global.knex('entries').insert({ date, description, amount: parseAmount(amount), group, wallet });
-  return res.json({ entry });
+  return res.json({ success: true, entry });
 };
 
 exports.deleteEntry = async (req, res) => {

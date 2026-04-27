@@ -22,7 +22,7 @@ exports.getSettings = async (req, res) => {
   const stats = fs.statSync(global.pathToDb);
   const dbFileSize = stats.size / 1024 / 1024;
 
-  res.json({ config: { ...configObj, usePasswd }, dbFileSize });
+  res.json({ success: true, config: { ...configObj, usePasswd }, dbFileSize });
 };
 
 exports.setSettings = async (req, res) => {

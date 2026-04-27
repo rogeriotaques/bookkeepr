@@ -90,8 +90,26 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
   // app.use(express.static(path.join(__dirname, 'public')));
   app.use('/', express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
+  // Request logging
+  app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    next();
+  });
+
   // Routes
   app.use('/api', require('@/routes'));
+
+  // 404 handler
+  app.use((req, res) => {
+    res.status(404).json({ success: false, message: 'Not found' });
+  });
+
+  // Error handler
+  app.use((err, req, res, next) => {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[Error]', req.method, req.path, message);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  });
 
   try {
     await createDatabase();

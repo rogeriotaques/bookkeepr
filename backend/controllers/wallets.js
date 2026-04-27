@@ -6,22 +6,12 @@ exports.getWallets = async (req, res) => {
       if (active) qb.where({ active });
     })
     .select(['*']);
-  res.json({ wallets });
+  res.json({ success: true, wallets });
 };
 
 exports.saveWallet = async (req, res) => {
   const { name, active } = req.body;
   const { id } = req.params;
-
-  if (!name) {
-    return res.status(400).json({ success: false, message: 'Missing name' });
-  } else if (`${name}`.length > 60) {
-    return res.status(400).json({ success: false, message: 'Name too long' });
-  }
-
-  if (!active || ![0, 1].includes(active)) {
-    return res.status(400).json({ success: false, message: 'Invalid active flag' });
-  }
 
   if (id) {
     await global.knex('wallets').where({ id }).update({ name, active });
@@ -29,7 +19,7 @@ exports.saveWallet = async (req, res) => {
   }
 
   const wallet = await global.knex('wallets').insert({ name, active });
-  return res.json({ wallet });
+  return res.json({ success: true, wallet });
 };
 
 exports.deleteWallet = async (req, res) => {
