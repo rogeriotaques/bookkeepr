@@ -8,7 +8,7 @@ const router = require('express').Router();
 
 const settingsController = require('@/controllers/settings.js');
 
-router.get('/', settingsController.getSettings);
+router.get('/', basicAuth, settingsController.getSettings);
 router.post('/', basicAuth, settingsController.setSettings);
 
 router.post('/vacuum', basicAuth, settingsController.runVacuum);

@@ -57,11 +57,21 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
   appVersion = version;
   appName = name;
 
-  // Enable CORS to accept requests from any origin
-  app.use(cors({ origin: true, credentials: true }));
+  // Enable CORS with configurable origins
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:8083').split(',');
+  app.use(cors({ origin: allowedOrigins, credentials: true }));
 
-  // Enable Helmet with contentSecurityPolicy disabled
-  app.use(helmet({ contentSecurityPolicy: false }));
+  // Enable Helmet with a permissive CSP for the SPA frontend
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:'],
+      },
+    },
+  }));
 
   // To support URL-encoded bodies
   app.use(
@@ -84,7 +94,7 @@ const startServer = async (version = 'devel', name = 'BookKeepr') => {
   app.use('/api', require('@/routes'));
 
   try {
-    createDatabase();
+    await createDatabase();
 
     const port = 8083;
 

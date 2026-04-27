@@ -4,7 +4,7 @@
  */
 
 const crypto = require('crypto');
-const { timingSafeEqual } = crypto;
+const { verifyPassword, hashPassword } = require('@/lib/auth');
 
 /**
  * RegExp for basic auth credentials
@@ -82,12 +82,8 @@ const parse = (string) => {
 };
 
 const safeCompare = (a, b) => {
-  const aLength = Buffer.byteLength(a);
-  const bLength = Buffer.byteLength(b);
-  const aBuffer = Buffer.alloc(aLength, 0, 'utf8');
-  const bBuffer = Buffer.alloc(bLength, 0, 'utf8');
-
-  return !!(aLength === bLength && timingSafeEqual(aBuffer, bBuffer));
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 };
 
 const basicAuth = async (req, res, next) => {
@@ -135,10 +131,14 @@ const basicAuth = async (req, res, next) => {
     .then((row) => (row ? row.value : ''))
     .catch(() => '');
 
-  const hashedPassword = crypto.createHash('sha256').update(pass).digest('hex');
-
-  if (!safeCompare(hashedPassword, expectedPassword)) {
+  if (!verifyPassword(pass, expectedPassword)) {
     return res.status(401).send('Unauthorized');
+  }
+
+  // Migrate old SHA-256 hash to PBKDF2 on successful auth
+  if (!expectedPassword.includes(':')) {
+    const newHash = hashPassword(pass);
+    await global.knex('config').where({ key: 'passwd' }).update({ value: newHash });
   }
 
   next();

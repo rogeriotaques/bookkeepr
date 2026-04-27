@@ -7,7 +7,7 @@ exports.getEntries = async (req, res) => {
     .from('entries')
     .innerJoin('groups', 'groups.code', 'entries.group')
     .innerJoin('wallets', 'wallets.id', 'entries.wallet')
-    .whereRaw(global.knex.raw(`strftime('%Y', entries.date) = '${year}' AND strftime('%m', entries.date) = '${month}'`))
+    .whereRaw("strftime('%Y', entries.date) = ? AND strftime('%m', entries.date) = ?", [year, month])
     .orderBy('entries.date', 'asc');
 
   res.json({ entries });
