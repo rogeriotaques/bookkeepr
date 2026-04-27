@@ -46,6 +46,9 @@ docker image tag abtzco/bookkeepr abtzco/bookkeepr:$NEW_VERSION
 echo "Docker image tagged"
 echo ""
 
+# Login to hub.docker.io
+docker login
+
 # Push the new Docker image
 docker push abtzco/bookkeepr
 echo "Docker image pushed"
