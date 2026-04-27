@@ -16,11 +16,15 @@ const useDataFetch = (url: Ref<string>) => {
     const { isLoading, isFetched, isError, data, error } = useQuery({
       queryKey,
       queryFn: async (): Promise<ApiResponse> => {
-        const Authorization = `Basic ${state.credential ?? btoa('user:empty-password')}`;
+        const headers: Record<string, string> = {};
+        
+        if (state.credential) {
+          headers.Authorization = `Basic ${state.credential}`;
+        }
 
         // Note: Comment/uncomment this to throttle the requests
         // await new Promise((resolve) => setTimeout(resolve, 5000));
-        return http.get(url.value, { headers: { Authorization } });
+        return http.get(url.value, { headers });
       },
     });
 

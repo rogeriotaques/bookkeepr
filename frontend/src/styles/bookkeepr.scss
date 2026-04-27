@@ -149,3 +149,16 @@ hgroup {
   }
 }
 
+.error-banner {
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #ffebee;
+  color: #a52b2b;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+
+  p {
+    margin: 0;
+  }
+}
+

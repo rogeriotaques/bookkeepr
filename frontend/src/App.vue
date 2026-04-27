@@ -24,6 +24,13 @@
           Loading ...
         </BaseProgress>
       </div>
+      <div
+        v-else-if="settingsError"
+        class="app__error"
+      >
+        <p>Unable to load settings.</p>
+        <p class="app__error-message">{{ settingsError.message }}</p>
+      </div>
       <FirstAccessPage
         v-else-if="isFirstAccess"
         @update="onAuthHandler(true)"
@@ -44,8 +51,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
-import { RouterView } from 'vue-router';
+import { ref, watch, computed, onMounted } from 'vue';
+import { RouterView, useRouter } from 'vue-router';
 
 import AppNavBar from '@/components/navigation/AppNavBar.vue';
 import AppFooter from '@/components/navigation/AppFooter.vue';
@@ -54,14 +61,16 @@ import BaseProgress from '@/components/shared/BaseProgress.vue';
 import AuthPage from '@/pages/AuthPage.vue';
 import FirstAccessPage from '@/pages/FirstAccessPage.vue';
 
-import { useState } from '@/composable/useState';
+import { useState, logout } from '@/composable/useState';
+import { authEvents } from '@/composable/useAuthEvents';
 import useDataFetch from '@/composable/useDataFetch';
 
 const state = useState();
+const router = useRouter();
 const settingsUrl = ref('/settings');
 
 const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
-const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
+const { isLoading: isLoadingSettings, data: settingsData, error: settingsError } = await fetchData();
 
 const isFirstAccess = computed(() => (settingsData.value as any)?.config?.usePasswd === null);
 const isUsingPasswd = computed(() => (settingsData.value as any)?.config?.usePasswd || false);
@@ -70,13 +79,19 @@ const showFullTemplate = computed(() => state.isAuthenticated);
 const watchImmediate = (value: any, callback: any) => watch(value, callback, { immediate: true });
 
 const onAuthHandler = (status: boolean) => {
-  state.isAuthenticated = status;
-  if (!status) state.credential = null;
+  if (!status) logout();
   invalidateQuery();
 };
 
 watchImmediate(isLoadingSettings, () => {
   if (!isLoadingSettings.value && !isFirstAccess.value && !isUsingPasswd.value) state.isAuthenticated = true;
+});
+
+onMounted(() => {
+  authEvents.on('unauthorized', () => {
+    logout();
+    router.push('/auth');
+  });
 });
 </script>
 
@@ -114,6 +129,21 @@ watchImmediate(isLoadingSettings, () => {
     align-items: center;
     justify-content: center;
     height: 100vh;
+  }
+
+  &__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #a52b2b;
+
+    &-message {
+      margin-top: 8px;
+      font-size: 0.9em;
+      opacity: 0.8;
+    }
   }
 }
 </style>

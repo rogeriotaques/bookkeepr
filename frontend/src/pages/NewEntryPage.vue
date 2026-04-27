@@ -1,5 +1,11 @@
 <template>
   <section class="new-entry">
+    <div
+      v-if="isEntriesError"
+      class="error-banner"
+    >
+      <p>Failed to load entries. {{ entriesError?.message }}</p>
+    </div>
     <div class="row">
       <div class="col-4 col-4--sticky">
         <EntryForm
@@ -67,8 +73,8 @@ const toast = useToast();
 const { fetchData: getRecordedYears, invalidateQuery: invalidateRecordedYearsQuery } = useDataFetch(recordedYearsUrl);
 const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
-const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
-const { isLoading: isEntriesLoading, isFetched: isEntriesFeched, data: entriesData } = await getEntries();
+  const { fetchData: getEntries, invalidateQuery: invalidateEntriesQuery } = useDataFetch(entriesUrl);
+  const { isLoading: isEntriesLoading, isError: isEntriesError, data: entriesData, error: entriesError } = await getEntries();
 
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
 const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();

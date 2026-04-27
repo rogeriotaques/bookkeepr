@@ -1,5 +1,11 @@
 <template>
   <section class="report-page">
+    <div
+      v-if="isReportError"
+      class="error-banner"
+    >
+      <p>Failed to load report. {{ reportError?.message }}</p>
+    </div>
     <div class="report-page__insights row">
       <div class="col-2 report-page__filter">
         <BaseDropdown
@@ -83,8 +89,8 @@ const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await get
 
 const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year: string) => ({ value: year, label: year })));
 
-const { fetchData: getReportData } = useDataFetch(reportUrl);
-const { isLoading: isReportLoading, data: reportData } = await getReportData();
+  const { fetchData: getReportData } = useDataFetch(reportUrl);
+  const { isLoading: isReportLoading, isError: isReportError, data: reportData, error: reportError } = await getReportData();
 
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
 const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();

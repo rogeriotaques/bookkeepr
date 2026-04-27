@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import { ApiResponse, SettingsPayloadData, Wallet, Group, Entry } from '@/domain/interfaces';
 import { respHandler, errorHandler } from '@/domain/network/utils';
 import { BASE_URL } from '@/domain/constants';
+import { authEvents } from '@/composable/useAuthEvents';
 
 import { useState } from '@/composable/useState';
 
@@ -17,11 +18,20 @@ const API = axios.create({
   },
 });
 
-API.interceptors.response.use(respHandler, errorHandler);
+API.interceptors.response.use(respHandler, (err) => {
+  if (err.response?.status === 401) {
+    authEvents.emit('unauthorized');
+  }
+
+  return errorHandler(err);
+});
 
 export const http = API;
 
-const headers = computed(() => ({ headers: { Authorization: `Basic ${state.credential ?? btoa('user:empty-password')}` } }));
+const headers = computed(() => {
+  if (!state.credential) return {};
+  return { headers: { Authorization: `Basic ${state.credential}` } };
+});
 
 export const setSettings = (data: SettingsPayloadData): Promise<ApiResponse> => API.post('/settings', data, headers.value);
 

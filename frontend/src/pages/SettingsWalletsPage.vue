@@ -1,5 +1,11 @@
 <template>
   <div class="settings-wallets">
+    <div
+      v-if="isError"
+      class="error-banner"
+    >
+      <p>Failed to load wallets. {{ fetchError?.message }}</p>
+    </div>
     <button
       type="submit"
       class="is-auto-width is-pulled-right has-icon has-tooltip has-tooltip--left"
@@ -57,8 +63,8 @@ const isSubmitting = ref(false);
 const walletsUrl = ref('/wallets');
 
 const toast = useToast();
-const { fetchData, invalidateQuery } = useDataFetch(walletsUrl);
-const { isLoading, data } = await fetchData();
+  const { fetchData, invalidateQuery } = useDataFetch(walletsUrl);
+  const { isLoading, isError, data, error: fetchError } = await fetchData();
 
 const form = reactive<Wallet>({
   id: undefined,

@@ -1,5 +1,11 @@
 <template>
   <div class="settings-groups">
+    <div
+      v-if="isError"
+      class="error-banner"
+    >
+      <p>Failed to load categories. {{ fetchError?.message }}</p>
+    </div>
     <button
       type="submit"
       class="is-auto-width is-pulled-right has-icon has-tooltip has-tooltip--left"
@@ -57,8 +63,8 @@ const isSubmitting = ref(false);
 const groupsUrl = ref('/groups');
 
 const toast = useToast();
-const { fetchData, invalidateQuery } = useDataFetch(groupsUrl);
-const { isLoading, data } = await fetchData();
+  const { fetchData, invalidateQuery } = useDataFetch(groupsUrl);
+  const { isLoading, isError, data, error: fetchError } = await fetchData();
 
 const form = reactive<Group>({
   id: undefined,

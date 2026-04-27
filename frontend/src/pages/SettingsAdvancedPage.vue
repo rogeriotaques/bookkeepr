@@ -1,5 +1,11 @@
 <template>
   <div class="settings-advanced">
+    <div
+      v-if="isSettingsError"
+      class="error-banner"
+    >
+      <p>Failed to load settings. {{ settingsError?.message }}</p>
+    </div>
     <hgroup>
       <h4>Advanced settings</h4>
       <p v-if="isLoadingSettings">Loading ...</p>
@@ -58,8 +64,8 @@ const settingsUrl = ref('/settings');
 const state = useState();
 
 const toast = useToast();
-const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
-const { isLoading: isLoadingSettings, data: settingsData } = await fetchData();
+  const { fetchData, invalidateQuery } = useDataFetch(settingsUrl);
+  const { isLoading: isLoadingSettings, isError: isSettingsError, data: settingsData, error: settingsError } = await fetchData();
 
 const taxPercentage = computed(() => (settingsData.value as any)?.config?.shouhizei || 0);
 
