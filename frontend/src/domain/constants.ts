@@ -1,7 +1,6 @@
 import { POSITION } from 'vue-toastification';
 
-// @ts-expect-error
-export const BASE_URL = import.meta.env.MODE === 'production' ? '/api' : 'http://localhost:8083/api';
+export const BASE_URL = '/api';
 
 export const ENTRY_OPERATIONS = {
   INCOME: 'income',
