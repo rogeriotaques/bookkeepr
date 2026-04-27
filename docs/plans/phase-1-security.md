@@ -99,11 +99,15 @@ In production Docker, set `CORS_ORIGIN=https://yourdomain.com` (single origin, n
 
 ---
 
-### 5. `backend/routes/index.js` — Settings GET Unauthenticated (Medium)
+### 5. `backend/routes/settings.js` — Settings GET Must Remain Public (Intentional)
 
-**Problem:** `GET /settings` is public.
+**Decision:** `GET /settings` is intentionally public.
 
-**Fix:** Move `basicAuth` to be applied before settings router, then protect individual routes that need it in `routes/settings.js`. Or apply to specific handlers.
+**Rationale:** The frontend uses this endpoint to read `usePasswd` (boolean) and decide whether to show the login form. Making it authenticated creates a chicken-and-egg problem — the client can't know if auth is required without already being authenticated.
+
+**Current protection:** The controller already filters out sensitive keys (`passwd` is on `KEY_BLACK_LIST`), so the password hash is never exposed. Only `usePasswd`, `dbFileSize`, and user-defined config values are returned.
+
+**Action:** Keep `GET /settings` unauthenticated. Ensure `POST /settings`, `POST /settings/vacuum`, and mutating routes remain protected.
 
 ---
 
