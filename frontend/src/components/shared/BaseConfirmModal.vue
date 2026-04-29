@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body" v-if="isOpen">
-    <div :key="JSON.stringify(props)" class="base-confirm-modal__overlay">
+    <div ref="overlayRef" class="base-confirm-modal__overlay">
       <div class="base-confirm-modal card">
         <div v-if="props.title" class="card__header">
           <h3 class="title">{{ props.title }}</h3>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, nextTick } from 'vue';
+import { watch, nextTick, ref, onBeforeUnmount } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
 
 interface Props {
@@ -47,38 +47,41 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const isOpen = defineModel();
-
-const closeWithOutsideClick = computed(() => !props.preventOutsideClick);
+const overlayRef = ref<HTMLDivElement | null>(null);
 
 const onOverlayClick = (e: MouseEvent) => {
-  const overlay: HTMLDivElement | null = document.querySelector('.base-confirm-modal__overlay');
-
   if (props.loading) return;
-  if ((e.target as HTMLElement)?.className === overlay?.className && closeWithOutsideClick.value) emit('cancel');
-};
-
-watch(isOpen, async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  const overlay: HTMLDivElement | null = document.querySelector('.base-confirm-modal__overlay');
-
-  if (isOpen.value) {
-    body?.classList.add('noscroll');
-    body?.addEventListener('keydown', onKeyDownHandler);
-    overlay?.addEventListener('click', onOverlayClick);
-  } else {
-    body?.classList.remove('noscroll');
-    body?.removeEventListener('keydown', onKeyDownHandler);
-    overlay?.removeEventListener('click', onOverlayClick);
+  if (props.preventOutsideClick) return;
+  if (e.target === overlayRef.value) {
+    emit('cancel');
   }
-});
+};
 
 const onKeyDownHandler = (e: KeyboardEvent) => {
   if (props.loading) return;
   if (e.key === 'Escape') emit('cancel');
   if (e.key === 'Enter') emit('confirm');
 };
+
+watch(isOpen, async () => {
+  await nextTick();
+
+  if (isOpen.value) {
+    document.body?.classList.add('noscroll');
+    document.addEventListener('keydown', onKeyDownHandler);
+    overlayRef.value?.addEventListener('click', onOverlayClick);
+  } else {
+    document.body?.classList.remove('noscroll');
+    document.removeEventListener('keydown', onKeyDownHandler);
+    overlayRef.value?.removeEventListener('click', onOverlayClick);
+  }
+});
+
+onBeforeUnmount(() => {
+  document.body?.classList.remove('noscroll');
+  document.removeEventListener('keydown', onKeyDownHandler);
+  overlayRef.value?.removeEventListener('click', onOverlayClick);
+});
 
 const onConfirmHandler = () => {
   if (props.loading) return;
@@ -104,6 +107,9 @@ const onConfirmHandler = () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--bk-space-md);
   }
 }
 

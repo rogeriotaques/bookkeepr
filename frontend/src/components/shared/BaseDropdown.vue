@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
@@ -183,17 +183,24 @@ const onFilterInputBlurHandler = async () => {
 };
 
 const navigateItems = (event: KeyboardEvent) => {
-  const direction = event.key === 'ArrowDown' ? 'nextSibling' : 'previousSibling';
+  const isDown = event.key === 'ArrowDown';
+  const direction = isDown ? 'nextSibling' : 'previousSibling';
+
+  const allItems = itemsRef.value?.querySelectorAll('.base-dropdown__item:not(.base-dropdown__item--empty)');
+  if (!allItems || allItems.length === 0) return;
 
   let currentItem = itemsRef.value?.querySelector('.base-dropdown__item--focused');
   let sibling = currentItem?.[direction] as HTMLButtonElement;
 
   if (!currentItem) {
-    currentItem = itemsRef.value?.querySelector('.base-dropdown__item:first-child');
+    currentItem = allItems[0];
     sibling = currentItem as HTMLButtonElement;
   }
 
-  if (!sibling || sibling instanceof HTMLButtonElement === false) return;
+  // Wrap around
+  if (!sibling || sibling instanceof HTMLButtonElement === false) {
+    sibling = (isDown ? allItems[0] : allItems[allItems.length - 1]) as HTMLButtonElement;
+  }
 
   currentItem?.classList?.remove('base-dropdown__item--focused');
   sibling.classList?.add('base-dropdown__item--focused');
@@ -205,7 +212,9 @@ const navigateItems = (event: KeyboardEvent) => {
 const onDocumentKeydownHandler = (event: KeyboardEvent) => {
   if (!['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'].includes(event.key)) return;
 
-  event.preventDefault();
+  if (event.key !== 'Tab') {
+    event.preventDefault();
+  }
 
   switch (event.key) {
     case 'Escape':
@@ -234,26 +243,33 @@ const highlightFirstItem = () => {
   itemToFocus?.classList?.add('base-dropdown__item--focused');
 };
 
+let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+
 onBeforeUnmount(() => {
+  if (keydownHandler) {
+    document.removeEventListener('keydown', keydownHandler);
+  }
   document.querySelector('body')?.classList.remove('noscroll');
 });
 
 watch(isOpen, async () => {
   if (isOpen.value) {
-    const document = window.document;
-    document.addEventListener('keydown', onDocumentKeydownHandler);
+    keydownHandler = onDocumentKeydownHandler;
+    document.addEventListener('keydown', keydownHandler);
 
     highlightFirstItem();
 
     if (props.searchable) {
-      await await wait(100);
+      await wait(100);
       filterRef.value?.focus();
     }
 
     document.querySelector('body')?.classList.add('noscroll');
   } else {
-    const document = window.document;
-    document.removeEventListener('keydown', onDocumentKeydownHandler);
+    if (keydownHandler) {
+      document.removeEventListener('keydown', keydownHandler);
+      keydownHandler = null;
+    }
 
     // Reset the filter whenever the dropdown is closed
     filter.value = '';

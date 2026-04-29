@@ -59,7 +59,25 @@
           </div>
         </div>
       </div>
-      <div class="col-8">
+      <div class="col-4">
+        <div
+          v-if="form.operation === 'outcome'"
+          class="field"
+        >
+          <label class="label">Expense Type</label>
+          <select
+            v-model="form.expense_type"
+            data-testid="expense-type"
+            class="input"
+            :disabled="props.submitting"
+          >
+            <option value="">None</option>
+            <option value="fixed">Fixed</option>
+            <option value="variable">Variable</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-4">
         <div class="field">
           <label class="label">Status</label>
           <div class="group-form__radio-buttons">

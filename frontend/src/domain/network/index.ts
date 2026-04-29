@@ -52,3 +52,19 @@ export const runVacuum = (): Promise<ApiResponse> => API.post('/settings/vacuum'
 export const authUser = (password: string): Promise<ApiResponse> => API.post('/auth', { password });
 export const saveUserPassword = (password: string): Promise<ApiResponse> => API.post('/auth/passwd', { password }, headers.value);
 export const disableUserPassword = (): Promise<ApiResponse> => API.delete('/auth/passwd', headers.value);
+
+// Budget APIs
+export const fetchBudget = (year: number, month: number): Promise<ApiResponse> =>
+  API.get(`/budgets?year=${year}&month=${month}`, headers.value);
+
+export const createBudget = (data: any): Promise<ApiResponse> =>
+  API.post('/budgets', data, headers.value);
+
+export const updateBudget = (id: number, data: any): Promise<ApiResponse> =>
+  API.put(`/budgets/${id}`, data, headers.value);
+
+export const deleteBudget = (id: number): Promise<ApiResponse> =>
+  API.delete(`/budgets/${id}`, headers.value);
+
+export const fetchMonthlyReport = (year: number, month: number): Promise<ApiResponse> =>
+  API.get(`/reports/monthly?year=${year}&month=${month}`, headers.value);

@@ -10,6 +10,7 @@
         :key="tab.name"
         :to="tab.to"
         :data-testid="'nav-tab'"
+        :aria-label="tab.label"
         class="mobile-layout__tab"
         active-class="mobile-layout__tab--active"
       >
@@ -17,6 +18,7 @@
           :is="tab.icon"
           :size="22"
           class="mobile-layout__icon"
+          aria-hidden="true"
         />
         <span class="mobile-layout__label">{{ tab.label }}</span>
       </RouterLink>

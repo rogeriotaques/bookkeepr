@@ -48,9 +48,9 @@ import { ref, reactive, computed, watch, onUpdated, nextTick } from 'vue';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
 
-import EntryForm from '@/components/new-entry/EntryForm.vue';
-import BalanceTable from '@/components/new-entry/BalanceTable.vue';
-import BalanceFilterForm from '@/components/new-entry/BalanceFilterForm.vue';
+import EntryForm from '@/components/transactions/EntryForm.vue';
+import BalanceTable from '@/components/transactions/BalanceTable.vue';
+import BalanceFilterForm from '@/components/transactions/BalanceFilterForm.vue';
 import ProTip from '@/components/shared/ProTip.vue';
 
 import { addEntry, updateEntry } from '@/domain/network';

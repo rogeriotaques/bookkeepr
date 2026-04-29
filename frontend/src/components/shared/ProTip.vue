@@ -6,12 +6,13 @@
     </label>
     <span
       class="pro-tip__content"
-      v-html="currentTip()"
+      v-html="currentTip"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { IconBulb } from '@tabler/icons-vue';
 
 interface Props {
@@ -28,10 +29,12 @@ const TIPS: Record<string, string[]> = {
   report: ['Use <code>⌘+P</code> to print this report.'],
 };
 
-const currentTip = () => {
-  const tip = TIPS[props.target][Math.floor(Math.random() * TIPS[props.target].length)];
+const currentTip = computed(() => {
+  const tips = TIPS[props.target] ?? [];
+  if (tips.length === 0) return '';
+  const tip = tips[Math.floor(Math.random() * tips.length)];
   return tip;
-};
+});
 </script>
 
 <style lang="scss" scoped>

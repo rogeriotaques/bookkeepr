@@ -72,6 +72,7 @@ const form = reactive<Group>({
   name: '',
   operation: 'income',
   active: 1,
+  expense_type: null,
 });
 
 const groups = computed(() => data.value?.groups ?? []);
@@ -87,6 +88,7 @@ const onCancelModalHandler = () => {
   form.name = '';
   form.operation = 'income';
   form.active = 1;
+  form.expense_type = null;
 };
 
 const onEditClickHandler = (group: Group) => {
@@ -95,6 +97,7 @@ const onEditClickHandler = (group: Group) => {
   form.name = group.name;
   form.operation = group.operation;
   form.active = group.active;
+  form.expense_type = group.expense_type ?? null;
 
   isModalOpen.value = true;
 };
