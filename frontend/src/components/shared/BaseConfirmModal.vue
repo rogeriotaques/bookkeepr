@@ -87,6 +87,8 @@ const onConfirmHandler = () => {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:color";
+
 .base-confirm-modal {
   position: relative;
   z-index: 1100;
@@ -141,15 +143,15 @@ const onConfirmHandler = () => {
     &--disabled,
     &:hover {
       &#{$class}--success {
-        background-color: darken(#37ac28, 10%);
+        background-color: color.adjust(#37ac28, $lightness: -10%);
       }
 
       &#{$class}--warning {
-        background-color: darken(#d4b228, 10%);
+        background-color: color.adjust(#d4b228, $lightness: -10%);
       }
 
       &#{$class}--danger {
-        background-color: darken(#a52b2b, 10%);
+        background-color: color.adjust(#a52b2b, $lightness: -10%);
       }
     }
 

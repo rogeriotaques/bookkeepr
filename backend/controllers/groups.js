@@ -1,31 +1,34 @@
-const { ENTRY_OPERATIONS } = require('@/constants');
+const groupsService = require('@/services/groups');
+const groupsSerializer = require('@/serializers/groups');
 
 exports.getGroups = async (req, res) => {
   const { active } = req.query;
-  const groups = await global
-    .knex('groups')
-    .modify((qb) => {
-      if (active) qb.where({ active });
-    })
-    .select(['*']);
-  res.json({ success: true, groups });
+  const groups = await groupsService.getGroups(global.knex, { active });
+  res.json({ success: true, groups: groupsSerializer.serializeGroups(groups) });
 };
 
 exports.saveGroup = async (req, res) => {
-  const { code, name, operation, active } = req.body;
+  const { code, name, operation, active, expense_type } = req.body;
   const { id } = req.params;
 
-  if (id) {
-    await global.knex('groups').where({ id }).update({ code, name, operation, active });
-    return res.json({ success: true });
-  }
+  const result = await groupsService.saveGroup(global.knex, {
+    id,
+    code,
+    name,
+    operation,
+    active,
+    expense_type,
+  });
 
-  const group = await global.knex('groups').insert({ code, name, operation, active });
-  return res.json({ success: true, group });
+  if (id) {
+    res.json({ success: true });
+  } else {
+    res.json({ success: true, group: result });
+  }
 };
 
 exports.deleteGroup = async (req, res) => {
   const { id } = req.params;
-  await global.knex('groups').where({ id }).del();
+  await groupsService.deleteGroup(global.knex, { id });
   res.json({ success: true });
 };

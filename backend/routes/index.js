@@ -17,5 +17,6 @@ router.use('/wallets', basicAuth, require('@/routes/wallets'));
 router.use('/groups', basicAuth, require('@/routes/groups'));
 router.use('/entries', basicAuth, require('@/routes/entries'));
 router.use('/reports', basicAuth, require('@/routes/reports'));
+router.use('/budgets', basicAuth, require('@/routes/budgets'));
 
 module.exports = router;

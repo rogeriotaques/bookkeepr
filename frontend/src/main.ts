@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp, h, Suspense } from 'vue';
 import { VueQueryPlugin } from '@tanstack/vue-query';
 import Toast from 'vue-toastification';
 import VMoney from 'v-money';
@@ -12,8 +12,9 @@ import router from '@/domain/router';
 import App from '@/App.vue';
 
 const Wrapper = {
-  template: `<Suspense><App /></Suspense>`,
-  components: { App },
+  render() {
+    return h(Suspense, null, { default: () => h(App) });
+  },
 };
 
 const app = createApp(Wrapper);

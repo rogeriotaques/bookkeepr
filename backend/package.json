@@ -4,7 +4,9 @@
   "description": "The API layer from Bookkeepr",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon main.js"
+    "start": "nodemon main.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "",
   "license": "MIT",
@@ -28,5 +30,9 @@
   "volta": {
     "node": "20.17.0",
     "yarn": "4.4.1-git.20240825.hash-b2f315f6"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.5"
   }
 }
