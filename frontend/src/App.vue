@@ -1,61 +1,51 @@
 <template>
-  <header
-    v-if="showFullTemplate"
-    class="app__header"
-  >
-    <AppNavBar
-      :is-using-password="isUsingPasswd"
-      @sign-out="onAuthHandler(false)"
-    />
-  </header>
-  <main
-    :class="{ 'app__body--headless': !showFullTemplate }"
-    class="app__body"
-  >
-    <Suspense>
-      <div
-        v-if="isLoadingSettings"
-        class="app__loader"
-      >
-        <BaseProgress
-          width="300px"
-          height="24px"
+  <div class="app">
+    <!-- Loading / Error / Auth states (no layout) -->
+    <template v-if="isLoadingSettings || settingsError || isFirstAccess || (!state.isAuthenticated && isUsingPasswd)">
+      <main class="app__body app__body--headless">
+        <div
+          v-if="isLoadingSettings"
+          class="app__loader"
         >
-          Loading ...
-        </BaseProgress>
-      </div>
-      <div
-        v-else-if="settingsError"
-        class="app__error"
-      >
-        <p>Unable to load settings.</p>
-        <p class="app__error-message">{{ settingsError.message }}</p>
-      </div>
-      <FirstAccessPage
-        v-else-if="isFirstAccess"
-        @update="onAuthHandler(true)"
-      />
-      <RouterView v-else-if="state.isAuthenticated || !isUsingPasswd" />
-      <AuthPage
-        v-else
-        @authenticate="onAuthHandler"
-      />
-    </Suspense>
-  </main>
-  <footer
-    v-if="showFullTemplate"
-    class="app__footer"
-  >
-    <AppFooter />
-  </footer>
+          <BaseProgress
+            width="300px"
+            height="24px"
+          >
+            Loading ...
+          </BaseProgress>
+        </div>
+        <div
+          v-else-if="settingsError"
+          class="app__error"
+        >
+          <p>Unable to load settings.</p>
+          <p class="app__error-message">{{ settingsError.message }}</p>
+        </div>
+        <FirstAccessPage
+          v-else-if="isFirstAccess"
+          @update="onAuthHandler(true)"
+        />
+        <AuthPage
+          v-else
+          @authenticate="onAuthHandler"
+        />
+      </main>
+    </template>
+
+    <!-- Authenticated: MobileLayout with bottom nav -->
+    <MobileLayout v-else>
+      <Suspense>
+        <RouterView />
+      </Suspense>
+    </MobileLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 
-import AppNavBar from '@/components/navigation/AppNavBar.vue';
-import AppFooter from '@/components/navigation/AppFooter.vue';
+import MobileLayout from '@/components/layout/MobileLayout.vue';
 import BaseProgress from '@/components/shared/BaseProgress.vue';
 
 import AuthPage from '@/pages/AuthPage.vue';
@@ -74,7 +64,6 @@ const { isLoading: isLoadingSettings, data: settingsData, error: settingsError }
 
 const isFirstAccess = computed(() => (settingsData.value as any)?.config?.usePasswd === null);
 const isUsingPasswd = computed(() => (settingsData.value as any)?.config?.usePasswd || false);
-const showFullTemplate = computed(() => state.isAuthenticated);
 
 const watchImmediate = (value: any, callback: any) => watch(value, callback, { immediate: true });
 
@@ -97,30 +86,15 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .app {
-  &__header {
-    background-color: var(--c-background);
-    padding: 16px 0 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 999;
-  }
-
   &__body {
-    margin: 60px 0 0;
-    min-height: calc(100vh - 174px);
+    min-height: 100vh;
 
     &--headless {
-      margin: 0;
-      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-  }
-
-  &__footer {
-    background-color: #e2e2e2;
-    margin: 16px 0 0;
-    padding: 24px;
-    text-align: center;
   }
 
   &__loader {
@@ -137,11 +111,11 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    color: #a52b2b;
+    color: var(--bk-danger);
 
     &-message {
-      margin-top: 8px;
-      font-size: 0.9em;
+      margin-top: var(--bk-space-sm);
+      font-size: var(--bk-text-sm);
       opacity: 0.8;
     }
   }

@@ -3,6 +3,7 @@ import { VueQueryPlugin } from '@tanstack/vue-query';
 import Toast from 'vue-toastification';
 import VMoney from 'v-money';
 
+import '@/styles/tokens.scss';
 import '@/styles/bookkeepr.scss';
 import '@/styles/popper.scss';
 import 'vue-toastification/dist/index.css';

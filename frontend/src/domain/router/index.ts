@@ -1,20 +1,35 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-import NewEntryPage from '@/pages/NewEntryPage.vue';
-import ReportPage from '@/pages/ReportPage.vue';
+import DashboardPage from '@/pages/DashboardPage.vue';
+import TransactionEntryPage from '@/pages/TransactionEntryPage.vue';
+import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
+import PlanningPage from '@/pages/PlanningPage.vue';
 import SettingsPage from '@/pages/SettingsPage.vue';
 
-const routes = [
+export const routes = [
   {
     path: '/',
-    component: NewEntryPage,
+    name: 'Dashboard',
+    component: DashboardPage,
   },
   {
-    path: '/report',
-    component: ReportPage,
+    path: '/entry',
+    name: 'Entry',
+    component: TransactionEntryPage,
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: TransactionHistoryPage,
+  },
+  {
+    path: '/planning',
+    name: 'Planning',
+    component: PlanningPage,
   },
   {
     path: '/settings',
+    name: 'Settings',
     component: SettingsPage,
     children: [
       {
@@ -23,21 +38,24 @@ const routes = [
       },
       {
         path: 'groups',
+        name: 'SettingsGroups',
         component: () => import('@/pages/SettingsGroupsPage.vue'),
       },
       {
         path: 'wallets',
+        name: 'SettingsWallets',
         component: () => import('@/pages/SettingsWalletsPage.vue'),
       },
       {
         path: 'advanced',
+        name: 'SettingsAdvanced',
         component: () => import('@/pages/SettingsAdvancedPage.vue'),
       },
     ],
   },
 ];
 
-const router = new createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior() {
