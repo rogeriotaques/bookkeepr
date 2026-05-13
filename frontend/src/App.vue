@@ -32,12 +32,12 @@
       </main>
     </template>
 
-    <!-- Authenticated: MobileLayout with bottom nav -->
-    <MobileLayout v-else>
+    <!-- Authenticated: Dashboard layout with bottom nav -->
+    <Dashboard v-else>
       <Suspense>
         <RouterView />
       </Suspense>
-    </MobileLayout>
+    </Dashboard>
   </div>
 </template>
 
@@ -45,7 +45,7 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 
-import MobileLayout from '@/components/layout/MobileLayout.vue';
+import Dashboard from '@/components/layout/Dashboard.vue';
 import BaseProgress from '@/components/shared/BaseProgress.vue';
 
 import AuthPage from '@/pages/AuthPage.vue';

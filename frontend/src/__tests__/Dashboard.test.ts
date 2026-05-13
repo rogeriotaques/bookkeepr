@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { mount, RouterLinkStub } from '@vue/test-utils';
-import MobileLayout from '@/components/layout/MobileLayout.vue';
+import Dashboard from '@/components/layout/Dashboard.vue';
 
-describe('MobileLayout', () => {
+describe('Dashboard', () => {
   const mountLayout = () =>
-    mount(MobileLayout, {
+    mount(Dashboard, {
       global: {
         stubs: {
           RouterView: true,

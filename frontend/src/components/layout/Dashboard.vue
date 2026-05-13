@@ -1,26 +1,26 @@
 <template>
-  <div class="mobile-layout">
-    <main class="mobile-layout__content">
+  <div class="dashboard">
+    <main class="dashboard__content">
       <RouterView />
     </main>
 
-    <nav class="mobile-layout__nav" role="navigation" aria-label="Main navigation">
+    <nav class="dashboard__nav" role="navigation" aria-label="Main navigation">
       <RouterLink
         v-for="tab in tabs"
         :key="tab.name"
         :to="tab.to"
         :data-testid="'nav-tab'"
         :aria-label="tab.label"
-        class="mobile-layout__tab"
-        active-class="mobile-layout__tab--active"
+        class="dashboard__tab"
+        active-class="dashboard__tab--active"
       >
         <component
           :is="tab.icon"
           :size="22"
-          class="mobile-layout__icon"
+          class="dashboard__icon"
           aria-hidden="true"
         />
-        <span class="mobile-layout__label">{{ tab.label }}</span>
+        <span class="dashboard__label">{{ tab.label }}</span>
       </RouterLink>
     </nav>
   </div>
@@ -45,7 +45,7 @@ const tabs = [
 </script>
 
 <style lang="scss" scoped>
-.mobile-layout {
+.dashboard {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -102,7 +102,7 @@ const tabs = [
 
 // Desktop: center the bottom nav or use top nav
 @media (min-width: 768px) {
-  .mobile-layout__nav {
+  .dashboard__nav {
     justify-content: center;
     gap: var(--bk-space-xl);
   }

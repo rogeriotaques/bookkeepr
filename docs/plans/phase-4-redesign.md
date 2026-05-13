@@ -95,7 +95,7 @@ Create two new tables to store monthly plans.
 - **Bottom Tab Navigation** for primary screens on mobile:
   - Dashboard | Entry | History | Planning | Settings
 - **Top Navigation Bar** for desktop (or keep bottom tabs centered)
-- Create `MobileLayout.vue` with safe-area-inset padding for notched devices
+- Create `Dashboard.vue` layout with safe-area-inset padding for notched devices
 - Implement page transitions (slide-left for drill-down, slide-right for back)
 
 ### 4.3.3 Design System
