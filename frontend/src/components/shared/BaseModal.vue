@@ -9,7 +9,7 @@
           <slot />
         </div>
         <div class="box__footer">
-          <a class="box__link" @click="!props.loading && emit('cancel')">Cancel</a>
+          <button type="button" :disabled="props.loading" @click="!props.loading && emit('cancel')">Cancel</button>
           <button :type="buttonType" :disabled="props.confirmDisabled || props.loading" @click="onConfirmHandler">
             <IconLoader2 v-if="props.loading" class="is-spinning" width="16" height="16" />
             <template v-else>{{ props.confirmText }}</template>
@@ -129,16 +129,17 @@ onBeforeUnmount(() => {
 .box {
   padding: 32px;
 
-  &__link {
-    cursor: pointer;
-  }
-
   &__footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
     padding: 16px 0 0;
+
+    button {
+      flex: 1 1 0;
+      min-width: 0;
+      margin: 0;
+    }
   }
 }
 </style>

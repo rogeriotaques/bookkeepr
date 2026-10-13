@@ -65,16 +65,17 @@
           class="field"
         >
           <label class="label">Expense Type</label>
-          <select
-            v-model="form.expense_type"
-            data-testid="expense-type"
-            class="input"
-            :disabled="props.submitting"
-          >
-            <option value="">None</option>
-            <option value="fixed">Fixed</option>
-            <option value="variable">Variable</option>
-          </select>
+          <div class="input">
+            <select
+              v-model="form.expense_type"
+              data-testid="expense-type"
+              :disabled="props.submitting"
+            >
+              <option value="">None</option>
+              <option value="fixed">Fixed</option>
+              <option value="variable">Variable</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="col-4">

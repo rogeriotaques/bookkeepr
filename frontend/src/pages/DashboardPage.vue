@@ -18,27 +18,27 @@
         </RouterLink>
       </div>
 
-      <!-- Summary cards -->
-      <section v-else class="dashboard-page__summary">
-        <div class="dashboard-page__cards">
-          <div class="dashboard-page__card">
-            <span class="dashboard-page__card-label">Budget</span>
-            <span class="dashboard-page__card-value">{{ formatCurrency(expenseBudgetTotal) }}</span>
+      <template v-else>
+        <!-- Summary -->
+        <div class="box dashboard-page__summary">
+          <div class="dashboard-page__summary-item">
+            <span class="dashboard-page__summary-label">Budget</span>
+            <span class="dashboard-page__summary-value">{{ formatCurrency(expenseBudgetTotal) }}</span>
           </div>
-          <div class="dashboard-page__card">
-            <span class="dashboard-page__card-label">Actual</span>
-            <span class="dashboard-page__card-value">{{ formatCurrency(actualTotal) }}</span>
+          <div class="dashboard-page__summary-item">
+            <span class="dashboard-page__summary-label">Actual</span>
+            <span class="dashboard-page__summary-value">{{ formatCurrency(actualTotal) }}</span>
           </div>
-          <div class="dashboard-page__card">
-            <span class="dashboard-page__card-label">Balance</span>
-            <span class="dashboard-page__card-value" :class="balanceClass">
+          <div class="dashboard-page__summary-item">
+            <span class="dashboard-page__summary-label">Balance</span>
+            <span class="dashboard-page__summary-value" :class="balanceClass">
               {{ formatCurrency(balance) }}
             </span>
           </div>
         </div>
 
         <!-- Progress bar -->
-        <div class="dashboard-page__progress" data-testid="progress-bar">
+        <div class="box dashboard-page__progress" data-testid="progress-bar">
           <div class="dashboard-page__progress-header">
             <span>Spending Progress</span>
             <span>{{ progressPercent }}%</span>
@@ -46,10 +46,10 @@
           <BaseProgress
             :value="progressPercent"
             :max="100"
-            height="12px"
+            class="dashboard-page__progress-bar"
           />
         </div>
-      </section>
+      </template>
 
       <!-- Empty state: no transactions -->
       <div v-if="budget && actualTotal === 0" class="dashboard-page__empty">
@@ -58,18 +58,28 @@
 
       <!-- Quick Actions -->
       <section class="dashboard-page__actions">
-        <RouterLink to="/entry" class="dashboard-page__action">
+        <RouterLink
+          to="/entry"
+          class="button is-full-width dashboard-page__action dashboard-page__action--primary"
+        >
           Record new expense
         </RouterLink>
-        <RouterLink to="/history" class="dashboard-page__action">
+        <RouterLink to="/history" class="button is-full-width dashboard-page__action">
           Transaction History
         </RouterLink>
-        <RouterLink to="/planning" class="dashboard-page__action">
+        <RouterLink to="/planning" class="button is-full-width dashboard-page__action">
           Planning
         </RouterLink>
-        <RouterLink to="/settings" class="dashboard-page__action">
+        <RouterLink to="/settings" class="button is-full-width dashboard-page__action">
           Settings
         </RouterLink>
+        <button
+          type="button"
+          class="is-full-width dashboard-page__action dashboard-page__action--danger"
+          @click="onLogout"
+        >
+          Logout
+        </button>
       </section>
     </template>
   </div>
@@ -83,6 +93,7 @@ import BaseProgress from '@/components/shared/BaseProgress.vue';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import { useBudget } from '@/composable/useBudget';
 import { useMonthlyReport } from '@/composable/useMonthlyReport';
+import { logout } from '@/composable/useState';
 
 const now = dayjs();
 const year = now.year();
@@ -101,10 +112,12 @@ const progressPercent = computed(() => {
 });
 
 const balanceClass = computed(() => ({
-  'dashboard-page__card-value--negative': balance.value < 0,
+  'dashboard-page__summary-value--negative': balance.value < 0,
 }));
 
 const monthLabel = computed(() => now.format('MMMM'));
+
+const onLogout = () => logout();
 
 function formatCurrency(value: number | undefined): string {
   const num = Number(value ?? 0);
@@ -161,19 +174,15 @@ function formatCurrency(value: number | undefined): string {
     font-size: var(--bk-text-sm);
   }
 
-  &__cards {
+  &__summary {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--bk-space-sm);
-    margin-bottom: var(--bk-space-xl);
-  }
+    margin-bottom: var(--bk-space-lg);
 
-  &__card {
-    background: var(--bk-surface);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-lg);
-    padding: var(--bk-space-md);
-    text-align: center;
+    &-item {
+      text-align: center;
+    }
 
     &-label {
       display: block;
@@ -195,11 +204,7 @@ function formatCurrency(value: number | undefined): string {
   }
 
   &__progress {
-    margin-bottom: var(--bk-space-xl);
-    padding: var(--bk-space-md);
-    background: var(--bk-surface);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-lg);
+    margin-bottom: var(--bk-space-lg);
 
     &-header {
       display: flex;
@@ -207,6 +212,21 @@ function formatCurrency(value: number | undefined): string {
       font-size: var(--bk-text-sm);
       color: var(--bk-text-secondary);
       margin-bottom: var(--bk-space-sm);
+    }
+
+    // Match the Transaction History progress: full width, budget track (light
+    // blue) and actual spending fill (red).
+    &-bar {
+      width: 100%;
+      max-width: 100%;
+
+      :deep(.progress) {
+        background-color: var(--c-info-background);
+      }
+
+      :deep(.progress::before) {
+        background-color: var(--c-danger);
+      }
     }
   }
 
@@ -217,22 +237,26 @@ function formatCurrency(value: number | undefined): string {
   }
 
   &__action {
-    display: block;
-    padding: var(--bk-space-md);
-    background: var(--bk-surface);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-md);
-    text-align: center;
-    color: var(--bk-text-primary);
-    text-decoration: none;
-    font-size: var(--bk-text-base);
-    min-height: var(--bk-touch-min);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0;
 
-    &:hover {
-      background: var(--bk-background);
+    // Separate the trailing Logout from the nav group by the same gap used
+    // between the progress box and the first action (8px flex gap + 16px).
+    &:last-child {
+      margin-top: var(--bk-space-md);
+    }
+
+    // Mirror Boring's `button[type=submit]` (primary) and `button[type=reset]`
+    // (danger) colours, since these are nav links / plain buttons.
+    &--primary {
+      background-color: var(--c-success-background);
+      border-color: var(--c-success);
+      color: var(--c-black);
+    }
+
+    &--danger {
+      background-color: var(--c-danger-background);
+      border-color: var(--c-danger);
+      color: var(--c-black);
     }
   }
 }

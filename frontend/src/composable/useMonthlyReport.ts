@@ -10,7 +10,7 @@ export function useMonthlyReport(year: number, month: number) {
     queryKey: [REPORT_KEY, year, month],
     queryFn: async () => {
       const res = await fetchMonthlyReport(year, month);
-      return res.data as MonthlyReport;
+      return res as unknown as MonthlyReport;
     },
   });
 

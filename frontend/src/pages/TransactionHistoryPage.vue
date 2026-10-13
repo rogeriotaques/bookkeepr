@@ -2,13 +2,10 @@
   <div class="history-page">
     <header class="history-page__header">
       <h1>Transactions History</h1>
-      <RouterLink to="/entry" class="history-page__link">
-        ← Record new expense
-      </RouterLink>
     </header>
 
     <!-- Budget Summary Bar -->
-    <div v-if="!isLoading" class="history-page__summary">
+    <div v-if="!isLoading" class="box history-page__summary">
       <div class="history-page__summary-item">
         <span class="history-page__summary-label">Budget</span>
         <span class="history-page__summary-value">{{ formatCurrency(expenseBudgetTotal) }}</span>
@@ -24,7 +21,6 @@
       <BaseProgress
         :value="progressPercent"
         :max="100"
-        height="8px"
         class="history-page__summary-progress"
       />
     </div>
@@ -48,8 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { RouterLink } from 'vue-router';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 
 import BalanceTable from '@/components/transactions/BalanceTable.vue';
@@ -61,9 +57,23 @@ import useDataFetch from '@/composable/useDataFetch';
 import { useBudget } from '@/composable/useBudget';
 import { useMonthlyReport } from '@/composable/useMonthlyReport';
 
+const router = useRouter();
+
 const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
+
+const onCmdInputHandler = (e: KeyboardEvent) => {
+  if (!e.metaKey || e.key !== 'i') return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  router.push('/entry');
+};
+
+onMounted(() => document.addEventListener('keydown', onCmdInputHandler));
+onBeforeUnmount(() => document.removeEventListener('keydown', onCmdInputHandler));
 
 const settingsUrl = ref('/settings');
 const recordedYearsUrl = ref('/entries/recorded-years');
@@ -125,17 +135,7 @@ function formatCurrency(value: number): string {
     h1 {
       font-size: var(--bk-text-2xl);
       color: var(--bk-text-primary);
-      margin: 0 0 var(--bk-space-sm);
-    }
-  }
-
-  &__link {
-    color: var(--bk-primary);
-    text-decoration: none;
-    font-size: var(--bk-text-sm);
-
-    &:hover {
-      text-decoration: underline;
+      margin: 0;
     }
   }
 
@@ -143,20 +143,22 @@ function formatCurrency(value: number): string {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--bk-space-sm);
-    padding: var(--bk-space-md);
     margin-bottom: var(--bk-space-lg);
-    background: var(--bk-surface);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-lg);
-    position: relative;
 
     &-progress {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      border-radius: 0 0 var(--bk-radius-lg) var(--bk-radius-lg);
-      overflow: hidden;
+      grid-column: 1 / -1;
+      width: 100%;
+      max-width: 100%;
+      margin: var(--bk-space-sm) 0 0;
+
+      // Track = budget (light blue); fill = actual spending (red).
+      :deep(.progress) {
+        background-color: var(--c-info-background);
+      }
+
+      :deep(.progress::before) {
+        background-color: var(--c-danger);
+      }
     }
 
     &-item {

@@ -53,20 +53,6 @@ describe('TransactionEntryPage', () => {
     expect(wrapper.text()).toContain('Transaction');
   });
 
-  it('has link to history page', async () => {
-    const wrapper = mountWithSuspense(TransactionEntryPage, {
-      global: {
-        stubs: {
-          EntryForm: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
-    await flushPromises();
-    const links = wrapper.findAllComponents(RouterLinkStub);
-    expect(links.some((l) => l.props('to') === '/history')).toBe(true);
-  });
-
   it('renders EntryForm component', async () => {
     const wrapper = mountWithSuspense(TransactionEntryPage, {
       global: {

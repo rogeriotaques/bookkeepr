@@ -10,7 +10,10 @@ export function useBudget(year: number, month: number) {
     queryKey: [BUDGET_KEY, year, month],
     queryFn: async () => {
       const res = await fetchBudget(year, month);
-      return res.data as { budget: Budget | null; items: BudgetItem[] };
+      return {
+        budget: (res.budget as Budget | null) ?? null,
+        items: (res.items as BudgetItem[]) ?? [],
+      };
     },
   });
 
@@ -53,19 +56,17 @@ export function useSaveBudget() {
       isSaving.value = true;
       try {
         if (payload.id) {
-          const res = await updateBudget(payload.id, {
+          return updateBudget(payload.id, {
             goal: payload.goal,
             items: payload.items,
           });
-          return res.data;
         } else {
-          const res = await createBudget({
+          return createBudget({
             year: payload.year,
             month: payload.month,
             goal: payload.goal,
             items: payload.items,
           });
-          return res.data;
         }
       } finally {
         isSaving.value = false;

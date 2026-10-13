@@ -1,8 +1,8 @@
 <template>
   <div class="base-progress">
     <div
+      :class="progressClasses"
       :style="progressStyle"
-      class="progress progress--infinite"
     ></div>
     <slot />
   </div>
@@ -20,10 +20,18 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   width: '100%',
-  height: '4px',
-  value: 0,
   max: 100,
 });
+
+const percent = computed(() => {
+  if (props.value === undefined || props.max <= 0) return 0;
+
+  return Math.min(100, Math.max(0, Math.round((props.value / props.max) * 100)));
+});
+
+const progressClasses = computed(() =>
+  props.value === undefined ? ['progress', 'progress--infinite'] : ['progress', `progress--${percent.value}`]
+);
 
 const progressStyle = computed(() => ({
   width: props.width,

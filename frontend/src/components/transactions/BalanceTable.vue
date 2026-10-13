@@ -1,6 +1,6 @@
 <template>
   <div class="balance-table">
-    <table>
+    <table class="table-scroll">
       <thead>
         <tr>
           <th>Day</th>
@@ -21,7 +21,10 @@
           }"
         >
           <td @click="onEntryClickHandler(entry)">{{ entry.date }}</td>
-          <td @click="onEntryClickHandler(entry)">
+          <td
+            class="balance-table__description"
+            @click="onEntryClickHandler(entry)"
+          >
             <div>{{ entry.description }}</div>
             <div>
               <span class="badge">{{ entry.groupName }}</span>
@@ -93,7 +96,10 @@
           </tr>
         </template>
 
-        <TableEmptyCard v-else-if="entries.length === 0" />
+        <TableEmptyCard
+          v-else-if="entries.length === 0"
+          :colspan="6"
+        />
       </tbody>
       <tfoot v-if="!props.loading">
         <tr>
@@ -287,6 +293,14 @@ const onDeleteConfirmHandler = async () => {
     td {
       padding: 8px 16px;
       font-size: 18px;
+      white-space: nowrap;
+    }
+
+    // The description is the only cell allowed to wrap, and it keeps a minimum
+    // width so short text does not collapse the column.
+    td.balance-table__description {
+      white-space: normal;
+      min-width: 200px;
     }
   }
 

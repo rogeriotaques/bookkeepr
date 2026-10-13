@@ -1,0 +1,1569 @@
+/**
+* The Boring CSS
+* A CSS boilerplate for NeoBrutalism styled pages.
+*
+* @author: Rogerio Taques
+* @license: MIT
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Source+Code+Pro:wght@500;800&display=swap");
+:root {
+  color-scheme: light dark;
+  /* Font families */
+  --font-family-base: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-heading: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-family-mono: "Source Code Pro", ui-monospace, "SFMono-Regular", monospace;
+  /* Natural colors */
+  --c-background: #f6f6f6;
+  --c-background-active: #e9e9e9;
+  --c-background-disabled: #eee;
+  --c-border: #ccc;
+  --c-black: #222;
+  --c-black-pure: #000;
+  --c-grey-dark: #333;
+  --c-grey: #666;
+  --c-grey-light: #999;
+  --c-placeholder: #aaa;
+  --c-smoke: #f5f5f5;
+  --c-white: #fff;
+  /* Synthetic colors */
+  --c-success: #37ac28;
+  --c-success-background: #dbfed6;
+  --c-warning: #d4b228;
+  --c-warning-background: #faf1cb;
+  --c-danger: #a52b2b;
+  --c-danger-background: #fed8d8;
+  --c-info: #2b6ca5;
+  --c-info-background: #d8e9fe;
+  /* Sizes */
+  --s-border-width: 2px;
+  --s-border-width-thin: 1px;
+  --s-border-width-thick: 3px;
+  --s-border-radius: 8px;
+  --s-grid-gutter: var(--s-space-3);
+  /* Spacing */
+  --s-space-1: 4px;
+  --s-space-2: 8px;
+  --s-space-3: 12px;
+  --s-space-4: 16px;
+  --s-space-5: 24px;
+  --s-space-6: 32px;
+  --s-box-shadow: 4px 4px 0;
+  --s-box-shadow-hover: 2px 2px 0;
+  --s-box-shadow-click: 0 0 0;
+  --s-transform-hover: translate(2px, 2px);
+  --s-transform-click: translate(4px, 4px);
+}
+
+* {
+  color: var(--c-black-pure);
+  font-family: var(--font-family-base);
+  font-size: 100%;
+  line-height: 1.4;
+}
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-nbsp-mode: space;
+  box-sizing: border-box;
+  text-rendering: optimizeLegibility;
+  backface-visibility: visible;
+  transition: background-color 0.2s ease;
+  background-color: var(--c-background);
+}
+html[data-mode=dark], html[data-mode=dark] body {
+  background-color: var(--c-black);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-heading);
+  font-weight: 700;
+  font-size: 150%;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+hr {
+  border: 0;
+  border-top: var(--s-border-width) solid var(--c-border);
+  margin: var(--s-space-4) var(--s-space-2);
+  height: 0;
+  width: 100%;
+}
+
+ul,
+ol {
+  margin: 0 0 var(--s-space-4) var(--s-space-2);
+  padding: 0;
+}
+ul li,
+ol li {
+  margin: 0 0 0 var(--s-space-5);
+  padding: 0;
+}
+
+blockquote {
+  margin: 0;
+  padding: 0;
+}
+
+/* Utilities */
+/* Used by boring.js to swap the dark and light mode icons. It must live in the
+   library, not in the demo stylesheet, or consumers lose the icons. */
+.is-hidden {
+  display: none !important;
+}
+
+/* Replaces the `outline: none` that components set on buttons and fields. The
+   element selectors keep this winning over a single class, whatever the
+   stylesheet order is. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: var(--s-border-width) solid var(--c-info);
+  outline-offset: var(--s-space-1);
+}
+
+figure {
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+figure > table th,
+figure > table td {
+  white-space: nowrap;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+}
+table th,
+table td {
+  text-align: left;
+  padding: var(--s-space-1) var(--s-space-3);
+}
+table th {
+  border-bottom: var(--s-border-width) solid var(--c-border);
+  font-weight: 700;
+}
+table td {
+  border-bottom: calc(var(--s-border-width) / 2) solid var(--c-border);
+}
+table tbody > tr:hover {
+  background-color: var(--c-background-active);
+}
+
+[data-mode=dark] * {
+  color: var(--c-smoke);
+}
+[data-mode=dark] hr {
+  border-top-color: var(--c-smoke);
+}
+[data-mode=dark] table td {
+  color: var(--c-white);
+  border-bottom-color: var(--c-grey);
+}
+[data-mode=dark] table tbody > tr:hover {
+  background-color: var(--c-grey-dark);
+}
+
+a:not(.button):not(.card__link) {
+  border: 0;
+  border-bottom: var(--s-border-width-thin) solid var(--c-grey-dark);
+  color: var(--c-grey-dark);
+  font-size: initial;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 2px 0;
+  position: relative;
+  z-index: 1;
+  transition: color 0.15s ease, border 0.15s ease;
+}
+a:not(.button):not(.card__link)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0;
+  background-color: var(--c-success-background);
+  z-index: -1;
+  transition: height 0.2s ease-in-out;
+}
+a:not(.button):not(.card__link):hover {
+  border-bottom-color: var(--c-success-background);
+}
+a:not(.button):not(.card__link):hover::before {
+  height: 13px;
+}
+
+[data-mode=dark] a:not(.button):not(.card__link) {
+  color: var(--c-smoke);
+  border-bottom-color: var(--c-smoke);
+}
+[data-mode=dark] a:not(.button):not(.card__link)::before {
+  background-color: var(--c-success);
+  opacity: 0.8;
+}
+[data-mode=dark] a:not(.button):not(.card__link):hover {
+  border-bottom-color: var(--c-success);
+}
+
+img:not(.icon) {
+  max-width: 100%;
+  display: inline-block;
+  background-color: var(--c-white);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  margin: var(--s-space-2);
+  vertical-align: middle;
+}
+img:not(.icon).avatar {
+  border-radius: 50%;
+  /* Grouped avatars must overlap. The offset has to exceed the base 8px
+     margin to cancel it, so it is fixed rather than a percentage of the
+     container, which would widen the overlap on larger screens. */
+}
+img:not(.icon).avatar + .avatar {
+  margin-left: calc(var(--s-space-6) * -1);
+}
+
+[data-mode=dark] img:not(.icon) {
+  background-color: var(--c-grey-dark);
+  border-color: var(--c-white);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+
+.badge {
+  display: inline-block;
+  color: var(--c-grey-dark);
+  background-color: var(--c-white);
+  border: var(--s-border-width-thin) solid var(--c-grey);
+  border-radius: var(--s-border-radius);
+  padding: var(--s-space-1) var(--s-space-2);
+  margin: 0 var(--s-space-1) var(--s-space-2) 0;
+  min-width: 65px;
+  text-align: center;
+  cursor: default;
+  font-size: 14px;
+  font-weight: 400;
+}
+.badge--success {
+  color: var(--c-black);
+  background-color: var(--c-success);
+  border-color: var(--c-success);
+}
+.badge--warning {
+  color: var(--c-black);
+  background-color: var(--c-warning);
+  border-color: var(--c-warning);
+}
+.badge--danger {
+  color: var(--c-white);
+  background-color: var(--c-danger);
+  border-color: var(--c-danger);
+}
+.badge--dark {
+  color: var(--c-white);
+  background-color: var(--c-grey);
+  border-color: var(--c-grey);
+}
+
+[data-mode=dark] .badge {
+  color: var(--c-smoke);
+  background-color: var(--c-black);
+  border: var(--s-border-width-thin) solid var(--c-white);
+}
+[data-mode=dark] .badge--success {
+  color: var(--c-black);
+  background-color: var(--c-success-background);
+  border-color: var(--c-success);
+}
+[data-mode=dark] .badge--warning {
+  color: var(--c-black);
+  background-color: var(--c-warning-background);
+  border-color: var(--c-warning);
+}
+[data-mode=dark] .badge--danger {
+  color: var(--c-danger);
+  background-color: var(--c-danger-background);
+  border-color: var(--c-danger);
+}
+[data-mode=dark] .badge--dark {
+  color: var(--c-black);
+  background-color: var(--c-smoke);
+  border-color: var(--c-white);
+}
+
+.box {
+  display: block;
+  background-color: var(--c-white);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  padding: var(--s-space-4);
+  margin: 0 0 var(--s-space-2);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  width: calc(100% - 4px);
+}
+
+[data-mode=dark] .box {
+  background-color: var(--c-grey-dark);
+  border-color: var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+
+button,
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-space-2);
+  background-color: var(--c-white);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  color: var(--c-grey-dark);
+  padding: var(--s-space-2) var(--s-space-4);
+  margin: 0 var(--s-space-1) var(--s-space-2) 0;
+  font-weight: 600;
+  min-width: 145px;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 0.1s ease, transform 0.1s ease, background-color 0.1s ease;
+}
+button:not(:disabled):not(.button--disabled):hover, button:not(:disabled):not(.button--disabled):focus,
+.button:not(:disabled):not(.button--disabled):hover,
+.button:not(:disabled):not(.button--disabled):focus {
+  color: var(--c-grey-dark);
+  box-shadow: var(--s-box-shadow-hover) var(--c-grey-dark);
+  transform: var(--s-transform-hover);
+}
+button:not(:disabled):not(.button--disabled):active,
+.button:not(:disabled):not(.button--disabled):active {
+  transform: var(--s-transform-click);
+  box-shadow: var(--s-box-shadow-click) var(--c-grey-dark);
+}
+button:disabled, button.button--disabled,
+.button:disabled,
+.button.button--disabled {
+  color: var(--c-placeholder);
+  background-color: var(--c-background-disabled);
+  border-color: var(--c-border);
+  box-shadow: var(--s-box-shadow-click) var(--c-border);
+  text-shadow: 1px 1px 3px var(--c-white);
+  text-decoration: none;
+  cursor: not-allowed;
+}
+button[type=submit]:not(:disabled),
+.button[type=submit]:not(:disabled) {
+  color: var(--c-black);
+  background-color: var(--c-success-background);
+  border-color: var(--c-success);
+}
+button[type=reset]:not(:disabled),
+.button[type=reset]:not(:disabled) {
+  color: var(--c-black);
+  background-color: var(--c-danger-background);
+  border-color: var(--c-danger);
+}
+button--auto-width,
+.button--auto-width {
+  min-width: auto;
+}
+button > .icon,
+.button > .icon {
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
+[data-mode=dark] button,
+[data-mode=dark] .button {
+  color: var(--c-smoke);
+  background-color: var(--c-grey-dark);
+  border-color: var(--s-border-width) solid var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+[data-mode=dark] button:not(:disabled):not(.button--disabled):hover, [data-mode=dark] button:not(:disabled):not(.button--disabled):focus,
+[data-mode=dark] .button:not(:disabled):not(.button--disabled):hover,
+[data-mode=dark] .button:not(:disabled):not(.button--disabled):focus {
+  color: var(--c-smoke);
+  box-shadow: var(--s-box-shadow-hover) 0 var(--c-white);
+}
+[data-mode=dark] button:not(:disabled):not(.button--disabled):active,
+[data-mode=dark] .button:not(:disabled):not(.button--disabled):active {
+  box-shadow: var(--s-box-shadow-click) var(--c-grey);
+}
+[data-mode=dark] button:disabled, [data-mode=dark] button.button--disabled,
+[data-mode=dark] .button:disabled,
+[data-mode=dark] .button.button--disabled {
+  color: var(--c-placeholder);
+  background-color: var(--c-grey);
+  border-color: var(--c-smoke);
+  box-shadow: var(--s-box-shadow-click) var(--c-grey-light);
+  text-shadow: none;
+}
+[data-mode=dark] button[type=submit]:not(:disabled):hover, [data-mode=dark] button[type=submit]:not(:disabled):focus, [data-mode=dark] button[type=submit]:not(:disabled):active, [data-mode=dark] button[type=reset]:not(:disabled):hover, [data-mode=dark] button[type=reset]:not(:disabled):focus, [data-mode=dark] button[type=reset]:not(:disabled):active,
+[data-mode=dark] .button[type=submit]:not(:disabled):hover,
+[data-mode=dark] .button[type=submit]:not(:disabled):focus,
+[data-mode=dark] .button[type=submit]:not(:disabled):active,
+[data-mode=dark] .button[type=reset]:not(:disabled):hover,
+[data-mode=dark] .button[type=reset]:not(:disabled):focus,
+[data-mode=dark] .button[type=reset]:not(:disabled):active {
+  color: var(--c-black);
+}
+
+/* Breakpoints */
+.card {
+  display: block;
+  background-color: var(--c-white);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  margin: 0 0 var(--s-space-2);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  width: calc(100% - 4px);
+  overflow: hidden;
+  transition: box-shadow 0.1s ease, transform 0.1s ease, background-color 0.1s ease;
+}
+.card:hover {
+  box-shadow: var(--s-box-shadow-hover) var(--c-grey-dark);
+  transform: var(--s-transform-hover);
+}
+.card:active {
+  box-shadow: var(--s-box-shadow-click) var(--c-grey-dark);
+  transform: var(--s-transform-click);
+}
+@media screen and (min-width: 480px) {
+  .card {
+    max-width: 375px;
+  }
+}
+.card__header {
+  background-color: var(--c-background-disabled);
+  margin-bottom: 0;
+  width: 100%;
+}
+.card__header > h1,
+.card__header > h2,
+.card__header > h3,
+.card__header > h4,
+.card__header > h5,
+.card__header > h6 {
+  font-size: 28px;
+  line-height: 1.5;
+}
+.card__header > img {
+  height: auto;
+  display: block;
+}
+.card__header > *:not(img) {
+  display: block;
+  padding: var(--s-space-4);
+  margin: 0;
+}
+.card__body {
+  padding: var(--s-space-4);
+}
+.card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-top: var(--s-border-width) solid var(--c-black-pure);
+}
+.card__link {
+  flex: 1 1 auto;
+  color: var(--c-black-pure);
+  display: inline-block;
+  padding: var(--s-space-2) var(--s-space-4);
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.card__link + .card__link {
+  border-left: var(--s-border-width) solid var(--c-black-pure);
+}
+.card__link:hover {
+  color: var(--c-grey-dark);
+  background-color: var(--c-background-disabled);
+}
+
+[data-mode=dark] .card {
+  background-color: var(--c-black);
+  border-color: var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+[data-mode=dark] .card:hover {
+  box-shadow: var(--s-box-shadow-hover) var(--c-white);
+}
+[data-mode=dark] .card:active {
+  box-shadow: var(--s-box-shadow-click) var(--c-white);
+}
+[data-mode=dark] .card__header {
+  background-color: var(--c-grey-dark);
+}
+[data-mode=dark] .card__footer {
+  border-top-color: var(--c-white);
+}
+[data-mode=dark] .card__link {
+  color: var(--c-white);
+}
+[data-mode=dark] .card__link + .card__link {
+  border-left: var(--s-border-width) solid var(--c-white);
+}
+[data-mode=dark] .card__link:hover {
+  color: var(--c-grey-dark);
+  background-color: var(--c-white);
+}
+
+.input {
+  margin-bottom: var(--s-space-3);
+  /* The group carries the shadow and the children carry none. Overlapping the
+     children with a negative margin made every member's 4px shadow land on its
+     neighbour, and only the outer corners are rounded now, so nothing has to
+     overlap at all. */
+  /* Outer corners only. This block comes last so it also wins the tie against
+     the `.input__addon` radius above, which would otherwise round the corner
+     that meets the field and leave a notch. */
+}
+.input > [type=number] {
+  -moz-appearance: textfield;
+}
+.input > [type=number]::-webkit-outer-spin-button, .input > [type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+.input > input,
+.input > textarea,
+.input > select {
+  display: block;
+  background-color: var(--c-white);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  padding: var(--s-space-2) var(--s-space-4);
+  margin: 0 0 var(--s-space-2);
+  width: calc(100% - 4px);
+  outline: none;
+}
+.input > input::placeholder,
+.input > textarea::placeholder,
+.input > select::placeholder {
+  color: var(--c-placeholder);
+}
+.input > textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+.input > select {
+  background: url("data:image/svg+xml,<svg height='10px' width='10px' viewBox='0 0 16 16' fill='%23000000' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat;
+  background-position: calc(100% - var(--s-space-3)) center !important;
+  -moz-appearance: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  padding-right: var(--s-space-6) !important;
+}
+.input--success > input,
+.input--success > textarea {
+  border: var(--s-border-width) solid var(--c-success);
+  box-shadow: var(--s-box-shadow) var(--c-success);
+}
+.input--warning > input,
+.input--warning > textarea {
+  border: var(--s-border-width) solid var(--c-warning);
+  box-shadow: var(--s-box-shadow) var(--c-warning);
+}
+.input--error > input,
+.input--error > textarea {
+  border: var(--s-border-width) solid var(--c-danger);
+  box-shadow: var(--s-box-shadow) var(--c-danger);
+}
+.input--with-helpers > .input__helper {
+  display: block;
+  font-size: 16px;
+  color: var(--c-grey);
+  font-family: var(--font-family-heading);
+  padding: var(--s-space-1);
+  margin: 0;
+}
+.input--with-helpers > label {
+  display: block;
+  color: var(--c-grey);
+  margin-bottom: var(--s-space-1);
+}
+.input--with-addons, .input--grouped {
+  display: flex;
+  align-items: stretch;
+  /* The group draws the shadow, so it needs the radius too or the shadow is a
+     square box that pokes past the rounded outer corners of the fields. */
+  border-radius: var(--s-border-radius);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+}
+.input--with-addons > input,
+.input--with-addons > textarea,
+.input--with-addons > select,
+.input--with-addons > .input__addon, .input--grouped > input,
+.input--grouped > textarea,
+.input--grouped > select,
+.input--grouped > .input__addon {
+  flex: 0 1 auto;
+  /* Flex items default to min-width: auto, which refuses to shrink below the
+     content and pushes the row wider than its container. The full `margin`
+     reset also clears the `<p>` default `1em 0` on the addon. */
+  min-width: 0;
+  margin: 0;
+  box-shadow: none;
+}
+.input--with-addons > input,
+.input--with-addons > textarea,
+.input--with-addons > select {
+  flex: 1 1 auto;
+}
+.input--with-addons > .input__addon {
+  flex: 0 0 auto;
+  display: block;
+  background-color: var(--c-background-disabled);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  text-shadow: 1px 1px 3px var(--c-white);
+  color: var(--c-grey);
+  font-weight: 400;
+  text-align: center;
+  padding: var(--s-space-2) var(--s-space-4);
+  width: fit-content;
+}
+.input--grouped > input {
+  /* Basis 0, so the fields share the row evenly instead of each asking for
+     the full `width` they inherit from the base rule. */
+  flex: 1 1 0;
+}
+.input--with-addons > :not(:first-child), .input--grouped > :not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.input--with-addons > :not(:last-child), .input--grouped > :not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.input--checkbox, .input--radio {
+  display: flex;
+  align-items: center;
+  gap: var(--s-space-4);
+  margin-bottom: var(--s-space-2);
+  line-height: 1.5;
+}
+.input--checkbox > input, .input--radio > input {
+  width: auto;
+  transform: scale(1.5);
+  box-shadow: none;
+  margin: 0;
+}
+
+[data-mode=dark] .input > input,
+[data-mode=dark] .input > textarea,
+[data-mode=dark] .input > select {
+  background-color: var(--c-grey-dark);
+  border-color: var(--s-border-width) solid var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+[data-mode=dark] .input > select {
+  background: url("data:image/svg+xml,<svg height='10px' width='10px' viewBox='0 0 16 16' fill='%23F5F5F5' xmlns='http://www.w3.org/2000/svg'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>") no-repeat, var(--c-grey-dark);
+}
+[data-mode=dark] .input--success > input,
+[data-mode=dark] .input--success > textarea {
+  border-color: var(--c-success);
+  box-shadow: var(--s-box-shadow) var(--c-success);
+}
+[data-mode=dark] .input--warning > input,
+[data-mode=dark] .input--warning > textarea {
+  border-color: var(--c-warning);
+  box-shadow: var(--s-box-shadow) var(--c-warning);
+}
+[data-mode=dark] .input--error > input,
+[data-mode=dark] .input--error > textarea {
+  border-color: var(--c-danger);
+  box-shadow: var(--s-box-shadow) var(--c-danger);
+}
+[data-mode=dark] .input--with-helpers > .input__helper {
+  color: var(--c-grey-light);
+}
+[data-mode=dark] .input--with-helpers > label {
+  color: var(--c-grey-light);
+}
+[data-mode=dark] .input--with-addons, [data-mode=dark] .input--grouped {
+  box-shadow: var(--s-box-shadow) var(--c-white);
+}
+[data-mode=dark] .input--with-addons > input,
+[data-mode=dark] .input--with-addons > textarea,
+[data-mode=dark] .input--with-addons > select,
+[data-mode=dark] .input--with-addons > .input__addon, [data-mode=dark] .input--grouped > input,
+[data-mode=dark] .input--grouped > textarea,
+[data-mode=dark] .input--grouped > select,
+[data-mode=dark] .input--grouped > .input__addon {
+  box-shadow: none;
+}
+[data-mode=dark] .input--with-addons > .input__addon {
+  color: var(--c-grey-light);
+  background-color: var(--c-black);
+  text-shadow: 1px 1px 3px var(--c-black-pure);
+  border: var(--s-border-width) solid var(--c-smoke);
+}
+[data-mode=dark] .input--checkbox > input, [data-mode=dark] .input--radio > input {
+  box-shadow: none;
+}
+
+.notification {
+  display: block;
+  color: var(--c-smoke);
+  background-color: var(--c-grey-dark);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  padding: var(--s-space-2) var(--s-space-4);
+  margin: 0 0 var(--s-space-2);
+  width: calc(100% - 4px);
+}
+.notification--success {
+  color: var(--c-black);
+  background-color: var(--c-success);
+  border-color: var(--c-success);
+}
+.notification--warning {
+  color: var(--c-black);
+  background-color: var(--c-warning);
+  border-color: var(--c-warning);
+}
+.notification--error {
+  color: var(--c-white);
+  background-color: var(--c-danger);
+  border-color: var(--c-danger);
+}
+.notification--info {
+  color: var(--c-white);
+  background-color: var(--c-info);
+  border-color: var(--c-info);
+}
+
+[data-mode=dark] .notification {
+  color: var(--c-black);
+  background-color: var(--c-smoke);
+  border-color: var(--c-smoke);
+}
+[data-mode=dark] .notification--success {
+  color: var(--c-black);
+  background-color: var(--c-success-background);
+  border-color: var(--c-success);
+}
+[data-mode=dark] .notification--warning {
+  color: var(--c-black);
+  background-color: var(--c-warning-background);
+  border-color: var(--c-warning);
+}
+[data-mode=dark] .notification--error {
+  color: var(--c-black);
+  background-color: var(--c-danger-background);
+  border-color: var(--c-danger);
+}
+[data-mode=dark] .notification--info {
+  color: var(--c-black);
+  background-color: var(--c-info-background);
+  border-color: var(--c-info);
+}
+
+@keyframes infinite-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.progress {
+  position: relative;
+  display: block;
+  background-color: transparent;
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  line-height: 28px;
+  width: calc(100% - 4px);
+  height: 36px;
+  padding: var(--s-border-width) var(--s-space-2);
+  margin: 0 0 var(--s-space-2);
+  overflow: hidden;
+  font-weight: 700;
+  /* Only enough to give ::before a stacking context of its own, so the fill
+     sits behind the label without lifting the bar above other components. */
+  z-index: 0;
+}
+.progress::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  font-size: 0;
+  background-color: var(--c-success);
+  z-index: -1;
+}
+.progress--infinite::before {
+  animation: infinite-progress 1.2s linear infinite;
+}
+.progress--0::before {
+  width: 0%;
+}
+.progress--1::before {
+  width: 1%;
+}
+.progress--2::before {
+  width: 2%;
+}
+.progress--3::before {
+  width: 3%;
+}
+.progress--4::before {
+  width: 4%;
+}
+.progress--5::before {
+  width: 5%;
+}
+.progress--6::before {
+  width: 6%;
+}
+.progress--7::before {
+  width: 7%;
+}
+.progress--8::before {
+  width: 8%;
+}
+.progress--9::before {
+  width: 9%;
+}
+.progress--10::before {
+  width: 10%;
+}
+.progress--11::before {
+  width: 11%;
+}
+.progress--12::before {
+  width: 12%;
+}
+.progress--13::before {
+  width: 13%;
+}
+.progress--14::before {
+  width: 14%;
+}
+.progress--15::before {
+  width: 15%;
+}
+.progress--16::before {
+  width: 16%;
+}
+.progress--17::before {
+  width: 17%;
+}
+.progress--18::before {
+  width: 18%;
+}
+.progress--19::before {
+  width: 19%;
+}
+.progress--20::before {
+  width: 20%;
+}
+.progress--21::before {
+  width: 21%;
+}
+.progress--22::before {
+  width: 22%;
+}
+.progress--23::before {
+  width: 23%;
+}
+.progress--24::before {
+  width: 24%;
+}
+.progress--25::before {
+  width: 25%;
+}
+.progress--26::before {
+  width: 26%;
+}
+.progress--27::before {
+  width: 27%;
+}
+.progress--28::before {
+  width: 28%;
+}
+.progress--29::before {
+  width: 29%;
+}
+.progress--30::before {
+  width: 30%;
+}
+.progress--31::before {
+  width: 31%;
+}
+.progress--32::before {
+  width: 32%;
+}
+.progress--33::before {
+  width: 33%;
+}
+.progress--34::before {
+  width: 34%;
+}
+.progress--35::before {
+  width: 35%;
+}
+.progress--36::before {
+  width: 36%;
+}
+.progress--37::before {
+  width: 37%;
+}
+.progress--38::before {
+  width: 38%;
+}
+.progress--39::before {
+  width: 39%;
+}
+.progress--40::before {
+  width: 40%;
+}
+.progress--41::before {
+  width: 41%;
+}
+.progress--42::before {
+  width: 42%;
+}
+.progress--43::before {
+  width: 43%;
+}
+.progress--44::before {
+  width: 44%;
+}
+.progress--45::before {
+  width: 45%;
+}
+.progress--46::before {
+  width: 46%;
+}
+.progress--47::before {
+  width: 47%;
+}
+.progress--48::before {
+  width: 48%;
+}
+.progress--49::before {
+  width: 49%;
+}
+.progress--50::before {
+  width: 50%;
+}
+.progress--51::before {
+  width: 51%;
+}
+.progress--52::before {
+  width: 52%;
+}
+.progress--53::before {
+  width: 53%;
+}
+.progress--54::before {
+  width: 54%;
+}
+.progress--55::before {
+  width: 55%;
+}
+.progress--56::before {
+  width: 56%;
+}
+.progress--57::before {
+  width: 57%;
+}
+.progress--58::before {
+  width: 58%;
+}
+.progress--59::before {
+  width: 59%;
+}
+.progress--60::before {
+  width: 60%;
+}
+.progress--61::before {
+  width: 61%;
+}
+.progress--62::before {
+  width: 62%;
+}
+.progress--63::before {
+  width: 63%;
+}
+.progress--64::before {
+  width: 64%;
+}
+.progress--65::before {
+  width: 65%;
+}
+.progress--66::before {
+  width: 66%;
+}
+.progress--67::before {
+  width: 67%;
+}
+.progress--68::before {
+  width: 68%;
+}
+.progress--69::before {
+  width: 69%;
+}
+.progress--70::before {
+  width: 70%;
+}
+.progress--71::before {
+  width: 71%;
+}
+.progress--72::before {
+  width: 72%;
+}
+.progress--73::before {
+  width: 73%;
+}
+.progress--74::before {
+  width: 74%;
+}
+.progress--75::before {
+  width: 75%;
+}
+.progress--76::before {
+  width: 76%;
+}
+.progress--77::before {
+  width: 77%;
+}
+.progress--78::before {
+  width: 78%;
+}
+.progress--79::before {
+  width: 79%;
+}
+.progress--80::before {
+  width: 80%;
+}
+.progress--81::before {
+  width: 81%;
+}
+.progress--82::before {
+  width: 82%;
+}
+.progress--83::before {
+  width: 83%;
+}
+.progress--84::before {
+  width: 84%;
+}
+.progress--85::before {
+  width: 85%;
+}
+.progress--86::before {
+  width: 86%;
+}
+.progress--87::before {
+  width: 87%;
+}
+.progress--88::before {
+  width: 88%;
+}
+.progress--89::before {
+  width: 89%;
+}
+.progress--90::before {
+  width: 90%;
+}
+.progress--91::before {
+  width: 91%;
+}
+.progress--92::before {
+  width: 92%;
+}
+.progress--93::before {
+  width: 93%;
+}
+.progress--94::before {
+  width: 94%;
+}
+.progress--95::before {
+  width: 95%;
+}
+.progress--96::before {
+  width: 96%;
+}
+.progress--97::before {
+  width: 97%;
+}
+.progress--98::before {
+  width: 98%;
+}
+.progress--99::before {
+  width: 99%;
+}
+.progress--100::before {
+  width: 100%;
+}
+.progress--dark::before {
+  background-color: var(--c-grey);
+}
+.progress--warning::before {
+  background-color: var(--c-warning);
+}
+.progress--danger::before {
+  background-color: var(--c-danger);
+}
+.progress--info::before {
+  background-color: var(--c-info);
+}
+
+[data-mode=dark] .progress {
+  border-color: var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+  text-shadow: none;
+}
+[data-mode=dark] .progress::before {
+  opacity: 0.9;
+}
+
+code,
+pre {
+  border-radius: var(--s-border-radius);
+  font-family: var(--font-family-mono);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0 0 var(--s-space-2);
+}
+
+code {
+  display: inline-block;
+  padding: var(--s-border-width) calc(var(--s-border-width) * 2);
+  background-color: var(--c-background-disabled);
+  color: var(--c-danger);
+}
+
+p > code {
+  margin-bottom: 0;
+}
+
+pre {
+  position: relative;
+  background-color: var(--c-grey);
+  border: var(--s-border-width) solid var(--c-grey-dark);
+  box-shadow: var(--s-box-shadow) var(--c-grey-dark);
+  color: var(--c-white);
+  display: block;
+  overflow: hidden;
+  padding: calc(var(--s-space-6) * 1.5) var(--s-space-3) var(--s-space-2);
+  width: calc(100% - 4px);
+  white-space: pre-wrap;
+}
+pre::before {
+  content: "ooo";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 var(--s-space-1);
+  width: 100%;
+  background-color: var(--c-background-disabled);
+  border-bottom: var(--s-border-width) solid var(--c-grey-dark);
+  color: var(--c-grey-dark);
+  font-family: var(--font-family-mono);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: var(--s-border-width);
+}
+
+/* Prism wraps the code in a `<code class="language-*">`. Reset the inline `code`
+   look so it adds no box of its own, then color the tokens. The code box is dark
+   in both modes, so the token colors use the light tints of the palette, which
+   stay readable on both --c-grey and --c-grey-dark. */
+pre > code {
+  display: block;
+  padding: 0;
+  margin: 0;
+  background-color: transparent;
+  color: inherit;
+}
+
+pre .token.comment,
+pre .token.prolog,
+pre .token.doctype,
+pre .token.cdata {
+  color: var(--c-grey-light);
+}
+pre .token.punctuation {
+  color: var(--c-smoke);
+}
+pre .token.tag,
+pre .token.keyword,
+pre .token.selector,
+pre .token.atrule,
+pre .token.rule,
+pre .token.boolean,
+pre .token.important {
+  color: var(--c-info-background);
+}
+pre .token.attr-name,
+pre .token.property,
+pre .token.function,
+pre .token.class-name,
+pre .token.operator,
+pre .token.number,
+pre .token.unit {
+  color: var(--c-warning-background);
+}
+pre .token.attr-value,
+pre .token.string,
+pre .token.char,
+pre .token.regex,
+pre .token.url,
+pre .token.entity {
+  color: var(--c-success-background);
+}
+
+[data-mode=dark] code {
+  background-color: var(--c-grey-dark);
+}
+[data-mode=dark] pre {
+  background-color: var(--c-grey-dark);
+  border: var(--s-border-width) solid var(--c-smoke);
+  box-shadow: var(--s-box-shadow) var(--c-white);
+  color: var(--c-white);
+}
+
+.has-tooltip {
+  position: relative;
+  cursor: inherit;
+}
+.has-tooltip:hover::before, .has-tooltip:hover::after {
+  opacity: 1 !important;
+}
+.has-tooltip::before, .has-tooltip::after {
+  cursor: default;
+  position: absolute;
+  transition: opacity 0.15s ease-in-out;
+  pointer-events: none;
+}
+.has-tooltip::before {
+  opacity: 0;
+  content: "";
+  top: calc(var(--s-space-2) * -1);
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: var(--s-space-2) var(--s-space-2) 0 var(--s-space-2);
+  border-style: solid;
+  border-color: var(--c-grey-dark) transparent transparent transparent;
+  z-index: 200;
+}
+.has-tooltip::after {
+  opacity: 0;
+  content: attr(data-tooltip);
+  top: calc(var(--s-space-2) * -1);
+  left: 50%;
+  background-color: var(--c-smoke);
+  text-align: center;
+  color: var(--c-grey-dark);
+  padding: var(--s-space-2) var(--s-space-4);
+  width: max-content;
+  min-width: 120px;
+  max-width: 240px;
+  border: var(--s-border-width-thick) solid var(--c-grey-dark);
+  border-radius: var(--s-border-radius);
+  transform: translateX(-50%) translateY(-100%);
+  z-index: 300;
+}
+.has-tooltip--right::before {
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%) rotate(90deg);
+}
+.has-tooltip--right::after {
+  top: 50%;
+  left: 100%;
+  margin-left: var(--s-space-3);
+  transform: translateX(0%) translateY(-50%);
+}
+.has-tooltip--bottom::before {
+  top: 100%;
+  margin-top: var(--s-space-2);
+  transform: translateX(-50%) translateY(-100%) rotate(-180deg);
+}
+.has-tooltip--bottom::after {
+  top: 100%;
+  margin-top: var(--s-space-2);
+  transform: translateX(-50%) translateY(0%);
+}
+.has-tooltip--left::before {
+  top: 50%;
+  left: 0%;
+  margin-left: calc(var(--s-space-4) * -1);
+  transform: translateY(-50%) rotate(-90deg);
+}
+.has-tooltip--left::after {
+  top: 50%;
+  left: 0%;
+  margin-left: calc(var(--s-space-3) * -1);
+  transform: translateX(-100%) translateY(-50%);
+}
+
+[data-mode=dark] .has-tooltip::before {
+  border-color: var(--c-smoke) transparent transparent transparent;
+}
+[data-mode=dark] .has-tooltip::after {
+  background-color: var(--c-grey-dark);
+  border-color: var(--c-smoke);
+  color: var(--c-smoke);
+}
+
+/* A 12 column grid on CSS Grid, not floats and not percentage widths.
+   `minmax(0, 1fr)` is what stops a long word or a wide child from pushing a
+   column past its share, which is what made the old grid overflow on resize. */
+.container {
+  width: 90%;
+  margin-inline: auto;
+}
+@media screen and (min-width: 480px) {
+  .container {
+    width: 80%;
+  }
+}
+@media screen and (min-width: 1024px) {
+  .container {
+    width: 75%;
+    max-width: 60rem;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--s-grid-gutter);
+}
+
+/* Direct children only, so a stray `col-` class nested deeper cannot be pulled
+   into the grid by accident. Attribute selector so any class order works,
+   unlike the `^=` selector this replaces. */
+.row > [class*=col-] {
+  grid-column: span 12;
+}
+
+/* Mobile first: every column is full width until the tablet breakpoint.
+   Same specificity as the stacked default, and always emitted after it, so
+   source order decides and no `!important` is needed. */
+@media screen and (min-width: 768px) {
+  .row > .col-1 {
+    grid-column: span 1;
+  }
+  .row > .col-2 {
+    grid-column: span 2;
+  }
+  .row > .col-3 {
+    grid-column: span 3;
+  }
+  .row > .col-4 {
+    grid-column: span 4;
+  }
+  .row > .col-5 {
+    grid-column: span 5;
+  }
+  .row > .col-6 {
+    grid-column: span 6;
+  }
+  .row > .col-7 {
+    grid-column: span 7;
+  }
+  .row > .col-8 {
+    grid-column: span 8;
+  }
+  .row > .col-9 {
+    grid-column: span 9;
+  }
+  .row > .col-10 {
+    grid-column: span 10;
+  }
+  .row > .col-11 {
+    grid-column: span 11;
+  }
+  .row > .col-12 {
+    grid-column: span 12;
+  }
+}
+/* Always this width, at every breakpoint. */
+.row > .col-1-sm {
+  grid-column: span 1;
+}
+
+.row > .col-2-sm {
+  grid-column: span 2;
+}
+
+.row > .col-3-sm {
+  grid-column: span 3;
+}
+
+.row > .col-4-sm {
+  grid-column: span 4;
+}
+
+.row > .col-5-sm {
+  grid-column: span 5;
+}
+
+.row > .col-6-sm {
+  grid-column: span 6;
+}
+
+.row > .col-7-sm {
+  grid-column: span 7;
+}
+
+.row > .col-8-sm {
+  grid-column: span 8;
+}
+
+.row > .col-9-sm {
+  grid-column: span 9;
+}
+
+.row > .col-10-sm {
+  grid-column: span 10;
+}
+
+.row > .col-11-sm {
+  grid-column: span 11;
+}
+
+.row > .col-12-sm {
+  grid-column: span 12;
+}
+
+@media screen and (min-width: 1024px) {
+  .row > .col-1-md {
+    grid-column: span 1;
+  }
+  .row > .col-2-md {
+    grid-column: span 2;
+  }
+  .row > .col-3-md {
+    grid-column: span 3;
+  }
+  .row > .col-4-md {
+    grid-column: span 4;
+  }
+  .row > .col-5-md {
+    grid-column: span 5;
+  }
+  .row > .col-6-md {
+    grid-column: span 6;
+  }
+  .row > .col-7-md {
+    grid-column: span 7;
+  }
+  .row > .col-8-md {
+    grid-column: span 8;
+  }
+  .row > .col-9-md {
+    grid-column: span 9;
+  }
+  .row > .col-10-md {
+    grid-column: span 10;
+  }
+  .row > .col-11-md {
+    grid-column: span 11;
+  }
+  .row > .col-12-md {
+    grid-column: span 12;
+  }
+}
+@media screen and (min-width: 1280px) {
+  .row > .col-1-lg {
+    grid-column: span 1;
+  }
+  .row > .col-2-lg {
+    grid-column: span 2;
+  }
+  .row > .col-3-lg {
+    grid-column: span 3;
+  }
+  .row > .col-4-lg {
+    grid-column: span 4;
+  }
+  .row > .col-5-lg {
+    grid-column: span 5;
+  }
+  .row > .col-6-lg {
+    grid-column: span 6;
+  }
+  .row > .col-7-lg {
+    grid-column: span 7;
+  }
+  .row > .col-8-lg {
+    grid-column: span 8;
+  }
+  .row > .col-9-lg {
+    grid-column: span 9;
+  }
+  .row > .col-10-lg {
+    grid-column: span 10;
+  }
+  .row > .col-11-lg {
+    grid-column: span 11;
+  }
+  .row > .col-12-lg {
+    grid-column: span 12;
+  }
+}
+/* Visibility utilities.
+   `revert` hands the display back to the browser default instead of forcing
+   `block`, so putting one of these on a button or a flex child keeps its own
+   display value. The old `display: block` broke every component it touched. */
+.hide-mobile,
+.hide-tablet,
+.hide-desktop {
+  display: none !important;
+}
+
+@media screen and (min-width: 768px) {
+  .hide-mobile {
+    display: revert !important;
+  }
+  .hide-tablet {
+    display: revert !important;
+  }
+}
+@media screen and (min-width: 1024px) {
+  .hide-tablet {
+    display: none !important;
+  }
+  .hide-desktop {
+    display: revert !important;
+  }
+}
+/*# sourceMappingURL=boring.css.map */

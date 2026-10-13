@@ -39,7 +39,7 @@ describe('PlanningPage', () => {
     });
 
     const wrapper = mountPlanning();
-    expect(wrapper.text()).toContain('Planning for');
+    expect(wrapper.find('select').exists()).toBe(true);
   });
 
   it('should show goal textarea', () => {

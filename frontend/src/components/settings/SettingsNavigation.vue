@@ -47,4 +47,35 @@
   top: 85px;
   z-index: 1;
 }
+
+@media (max-width: 767px) {
+  .settings-navigation__menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--bk-space-md);
+    width: 100%;
+    padding: 0 0 var(--bk-space-sm);
+    margin-bottom: var(--bk-space-md);
+    background-color: transparent;
+    border: none;
+    border-bottom: var(--s-border-width) solid var(--c-grey-dark);
+    border-radius: 0;
+
+    &-item {
+      margin-bottom: 0;
+    }
+
+    a {
+      border-bottom: none !important;
+
+      &::before {
+        content: none !important;
+      }
+    }
+  }
+
+  .col-3--sticky {
+    position: static;
+  }
+}
 </style>

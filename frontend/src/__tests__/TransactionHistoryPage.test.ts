@@ -3,6 +3,12 @@ import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense } from 'vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
+
+vi.mock('vue-router', () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
 vi.mock('@/composable/useDataFetch', () => ({
   default: vi.fn(() => ({
     fetchData: vi.fn(() => ({
@@ -71,8 +77,9 @@ describe('TransactionHistoryPage', () => {
     expect(wrapper.text()).toContain('Transactions History');
   });
 
-  it('has link to entry page', async () => {
-    const wrapper = mountWithSuspense(TransactionHistoryPage, {
+  it('navigates to entry page on Cmd+I', async () => {
+    pushMock.mockClear();
+    mountWithSuspense(TransactionHistoryPage, {
       global: {
         stubs: {
           BalanceTable: true,
@@ -83,8 +90,8 @@ describe('TransactionHistoryPage', () => {
       },
     });
     await flushPromises();
-    const links = wrapper.findAllComponents(RouterLinkStub);
-    expect(links.some((l) => l.props('to') === '/entry')).toBe(true);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', metaKey: true }));
+    expect(pushMock).toHaveBeenCalledWith('/entry');
   });
 
   it('shows budget summary bar', async () => {

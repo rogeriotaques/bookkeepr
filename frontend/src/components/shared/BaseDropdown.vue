@@ -355,9 +355,9 @@ watch(isOpen, async () => {
       border-top: 1px solid var(--c-border);
     }
 
-    &:hover,
-    &:focus,
-    &:active,
+    &:not(:disabled):hover,
+    &:not(:disabled):focus,
+    &:not(:disabled):active,
     &--focused {
       background-color: var(--c-smoke);
       box-shadow: none;

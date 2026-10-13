@@ -2,9 +2,6 @@
   <div class="entry-page">
     <header class="entry-page__header">
       <h1>Transaction</h1>
-      <RouterLink to="/history" class="entry-page__link">
-        View transaction history →
-      </RouterLink>
     </header>
 
     <EntryForm
@@ -20,7 +17,6 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
-import { RouterLink } from 'vue-router';
 import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
 
@@ -88,17 +84,7 @@ const onSubmitHandler = async () => {
     h1 {
       font-size: var(--bk-text-2xl);
       color: var(--bk-text-primary);
-      margin: 0 0 var(--bk-space-sm);
-    }
-  }
-
-  &__link {
-    color: var(--bk-primary);
-    text-decoration: none;
-    font-size: var(--bk-text-sm);
-
-    &:hover {
-      text-decoration: underline;
+      margin: 0;
     }
   }
 }

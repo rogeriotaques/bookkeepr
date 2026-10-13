@@ -1,5 +1,5 @@
 <template>
-  <table class="table group-table">
+  <table class="table group-table table-scroll">
     <thead>
       <tr>
         <th width="10%">Code</th>

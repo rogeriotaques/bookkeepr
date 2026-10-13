@@ -12,8 +12,14 @@ vi.mock('@/composable/useMonthlyReport', () => ({
   useMonthlyReport: vi.fn(),
 }));
 
+vi.mock('@/composable/useState', () => ({
+  useState: () => ({}),
+  logout: vi.fn(),
+}));
+
 import { useBudget } from '@/composable/useBudget';
 import { useMonthlyReport } from '@/composable/useMonthlyReport';
+import { logout } from '@/composable/useState';
 
 const mountDashboard = () =>
   mount(DashboardPage, {
@@ -118,6 +124,25 @@ describe('DashboardPage', () => {
     expect(wrapper.text()).toContain('Transaction History');
     expect(wrapper.text()).toContain('Planning');
     expect(wrapper.text()).toContain('Settings');
+  });
+
+  it('should log out when Logout is clicked', async () => {
+    (useBudget as any).mockReturnValue({
+      budget: ref(null),
+      items: ref([]),
+      isLoading: ref(false),
+    });
+    (useMonthlyReport as any).mockReturnValue({
+      report: ref(null),
+      isLoading: ref(false),
+    });
+
+    const wrapper = mountDashboard();
+    const logoutButton = wrapper.findAll('button').find((b) => /logout/i.test(b.text()));
+    expect(logoutButton).toBeDefined();
+
+    await logoutButton?.trigger('click');
+    expect(logout).toHaveBeenCalled();
   });
 
   it('should show loading state', () => {

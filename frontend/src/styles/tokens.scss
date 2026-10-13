@@ -51,13 +51,3 @@
   --bk-safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-// Dark mode support (placeholder for future phases)
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bk-surface: #1a1a1a;
-    --bk-background: #0d0d0d;
-    --bk-text-primary: #f5f5f5;
-    --bk-text-secondary: #b3b3b3;
-    --bk-border: #333333;
-  }
-}

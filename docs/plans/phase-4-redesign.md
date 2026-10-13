@@ -8,7 +8,7 @@ Transform BookKeepr from a desktop-oriented transaction logger into a **mobile-f
 - Dynamic greeting copy on Dashboard ("You're doing great!" will be static for now). Dynamic copy based on spending status and thresholds is planned for Phase 5.
 - Magic link authentication. Password-based auth stays as-is.
 
-**CSS Framework:** The app uses [boring-css](https://github.com/rogeriotaques/boring-css) (v1.0.0) which is already vendored in `frontend/src/styles/`. All new components must continue to use boring-css utility classes and CSS variables. Mobile-specific overrides should live in `bookkeepr.scss` or component-scoped styles.
+**CSS Framework:** The app uses [boring-css](https://github.com/rogeriotaques/boring-css) (v2.0.0) which is already vendored in `frontend/src/styles/`. All new components must continue to use boring-css utility classes and CSS variables. Mobile-specific overrides should live in `bookkeepr.scss` or component-scoped styles.
 
 ---
 

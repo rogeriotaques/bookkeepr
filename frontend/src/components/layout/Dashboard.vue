@@ -55,6 +55,7 @@ const tabs = [
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding-top: var(--bk-space-xl);
   }
 
   &__nav {

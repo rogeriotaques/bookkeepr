@@ -28,7 +28,7 @@
     </div>
     <div class="balance-filter-form__filter-by-date">
       <label for="input">Filter by</label>
-      <div>
+      <div class="balance-filter-form__dropdowns">
         <BaseDropdown
           v-model="filterByYear"
           :options="yearOptions"
@@ -146,13 +146,40 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .balance-filter-form {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 8px;
   padding: 16px 0;
-}
 
-.base-dropdown + .base-dropdown {
-  margin-left: 8px;
+  &__filter-by-string {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__filter-by-date {
+    flex: 0 0 auto;
+  }
+
+  &__dropdowns {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  // Mobile: search and filters on separate rows.
+  @media (max-width: 767px) {
+    flex-direction: column;
+    align-items: stretch;
+
+    &__filter-by-string,
+    &__filter-by-date {
+      flex: 0 0 auto;
+    }
+
+    &__dropdowns :deep(.base-dropdown) {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
 }
 </style>

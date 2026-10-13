@@ -2,9 +2,8 @@
   <div class="planning-page">
     <header class="planning-page__header">
       <h1>Planning</h1>
-      <div class="planning-page__month">
-        <span>Planning for</span>
-        <select v-model="selectedMonth" class="planning-page__month-select">
+      <div class="input planning-page__month-input">
+        <select v-model="selectedMonth">
           <option v-for="m in 12" :key="m" :value="m">
             {{ monthName(m) }}
           </option>
@@ -19,22 +18,23 @@
     <template v-else>
       <!-- Goal -->
       <section class="planning-page__section">
-        <label class="planning-page__label">Goal for this month</label>
-        <textarea
-          v-model="goal"
-          class="planning-page__textarea"
-          rows="3"
-          placeholder="What do you want to achieve this month?"
-        />
+        <label class="label">Goal for this month</label>
+        <div class="input">
+          <textarea
+            v-model="goal"
+            rows="3"
+            placeholder="What do you want to achieve this month?"
+          />
+        </div>
       </section>
 
       <!-- Income -->
-      <section class="planning-page__section">
+      <section class="box planning-page__section">
         <div class="planning-page__row">
-          <label class="planning-page__label">Expected Total Income</label>
+          <label class="label">Expected Total Income</label>
           <button
             data-testid="add-income"
-            class="planning-page__add-btn"
+            class="is-auto-width"
             @click="showIncomeCalc = true"
           >
             +
@@ -44,12 +44,12 @@
       </section>
 
       <!-- Expenses -->
-      <section class="planning-page__section">
+      <section class="box planning-page__section">
         <div class="planning-page__row">
-          <label class="planning-page__label">Expected Total Expenses</label>
+          <label class="label">Expected Total Expenses</label>
           <button
             data-testid="add-expense"
-            class="planning-page__add-btn"
+            class="is-auto-width"
             @click="showExpenseCalc = true"
           >
             +
@@ -62,14 +62,13 @@
       <div class="planning-page__actions">
         <button
           data-testid="cancel-btn"
-          class="planning-page__btn planning-page__btn--secondary"
           @click="onCancel"
         >
           Cancel
         </button>
         <button
           data-testid="done-btn"
-          class="planning-page__btn planning-page__btn--primary"
+          type="submit"
           :disabled="isSaving"
           @click="onSave"
         >
@@ -193,86 +192,34 @@ function onSave() {
   margin: 0 auto;
 
   &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--bk-space-sm);
     margin-bottom: var(--bk-space-lg);
 
     h1 {
       font-size: var(--bk-text-2xl);
-      color: var(--bk-text-primary);
-      margin: 0 0 var(--bk-space-sm);
+      margin: 0;
     }
   }
 
-  &__month {
-    display: flex;
-    align-items: center;
-    gap: var(--bk-space-sm);
-    font-size: var(--bk-text-base);
-    color: var(--bk-text-secondary);
-
-    &-select {
-      padding: var(--bk-space-xs) var(--bk-space-sm);
-      border: 1px solid var(--bk-border);
-      border-radius: var(--bk-radius-md);
-      background: var(--bk-surface);
-      font-size: var(--bk-text-base);
-      color: var(--bk-text-primary);
-    }
+  &__month-input {
+    display: inline-block;
+    width: auto;
+    margin: 0;
   }
 
   &__section {
     margin-bottom: var(--bk-space-lg);
-    padding: var(--bk-space-md);
-    background: var(--bk-surface);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-lg);
-  }
-
-  &__label {
-    display: block;
-    font-size: var(--bk-text-sm);
-    color: var(--bk-text-secondary);
-    margin-bottom: var(--bk-space-sm);
-  }
-
-  &__textarea {
-    width: 100%;
-    padding: var(--bk-space-sm);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-md);
-    font-size: var(--bk-text-base);
-    resize: vertical;
-
-    &:focus {
-      outline: none;
-      border-color: var(--bk-primary);
-    }
   }
 
   &__row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  &__add-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--bk-radius-full);
-    border: 1px solid var(--bk-primary);
-    background: var(--bk-surface);
-    color: var(--bk-primary);
-    font-size: var(--bk-text-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    min-width: var(--bk-touch-min);
-    min-height: var(--bk-touch-min);
-
-    &:hover {
-      background: var(--bk-primary);
-      color: white;
-    }
+    gap: var(--bk-space-sm);
   }
 
   &__total {
@@ -286,32 +233,10 @@ function onSave() {
     display: flex;
     gap: var(--bk-space-md);
     margin-top: var(--bk-space-xl);
-  }
 
-  &__btn {
-    flex: 1;
-    padding: var(--bk-space-md);
-    border-radius: var(--bk-radius-md);
-    font-size: var(--bk-text-base);
-    font-weight: 500;
-    cursor: pointer;
-    min-height: var(--bk-touch-min);
-    border: none;
-
-    &--primary {
-      background: var(--bk-primary);
-      color: white;
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
-
-    &--secondary {
-      background: var(--bk-surface);
-      color: var(--bk-text-primary);
-      border: 1px solid var(--bk-border);
+    button {
+      flex: 1;
+      margin: 0;
     }
   }
 
