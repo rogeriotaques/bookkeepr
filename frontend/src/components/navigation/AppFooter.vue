@@ -7,7 +7,7 @@
         <code>{{ version }}</code>
       </span>
     </p>
-    <p>
+    <p class="app_footer__help">
       Need help?
       <a href="mailto:hello@abtz.co">hello@abtz.co</a>
     </p>
@@ -31,6 +31,10 @@ const version = __VERSION__;
     code {
       margin-left: 8px;
     }
+  }
+
+  p.app_footer__help {
+    margin-top: var(--bk-space-md);
   }
 }
 </style>
