@@ -7,7 +7,7 @@
 - Auth: password-based (PBKDF2), `config.passwd`; no magic link.
 - CSS: vendored `frontend/src/styles/boring_2.0.0.css` (boring-css v2.0.0), imported by `bookkeepr.scss`. Simple Grid is gone (v2 has built-in CSS Grid).
 - Design tokens: `frontend/src/styles/tokens.scss` (`--bk-*`).
-- Test runners: Vitest. Frontend `npm test` (50 tests), backend `npm test` (36 tests).
+- Test runners: Vitest. Frontend `npm test` (57 tests), backend `npm test` (36 tests).
 
 ## Session 2026-10-10 — Boring CSS v2 upgrade
 
@@ -42,6 +42,14 @@
 - `BaseModal` footer Cancel is now a real Boring `<button>` (was an underlined link); footer buttons share the row (`flex: 1 1 0`). NOTE: `BaseConfirmModal` still uses `card__link` anchors for Cancel/Confirm.
 - `GroupForm` Expense Type was a bare `<select class="input">` (no Boring field styling); wrapped it in `<div class="input">` like the other fields / `PlanningPage` month select.
 - Gotcha: the Electron terminal-browser runs Chromium 150, where `appearance: none` on `<select>` computes to `base-select` (ignored), so Boring selects show an extra native indicator there. It affects the existing Planning select equally; not a code issue.
+
+## Session 2026-10-14 — Planning: reactive month + auto-save
+
+- `useBudget(year, month)` takes `MaybeRefOrGetter<number>`, keys the query with `computed(() => [BUDGET_KEY, toValue(year), toValue(month)])`, and returns `{year, month, budget, items}` as `queryData`. Before, `PlanningPage` passed `selectedMonth.value` (captured once), so changing month never changed the query key. Existing callers pass plain numbers and still work.
+- `PlanningPage` no longer has `Cancel`/`Done`; it auto-saves. Goal debounces 600 ms (flush on blur/month-change/unmount); calculator `update` saves immediately. Saves are serialized (one in flight, latest snapshot queued); first save creates the budget, later saves update. Only errors toast.
+- Locals sync when data for the selected month arrives, guarded by a `dirty` flag (unsaved local edits). `useSaveBudget` writes saved data back with `setQueryData` (no refetch) so the cache is never stale.
+- Bug found in the browser: returning to a month showed an empty goal and the next save 400'd ("Budget already exists"). Cause: Vue Query served the **stale cached** value (e.g. `null` from before the create); the watcher applied it, then the fresh refetch for the **same key** was skipped by a key-only guard, leaving `budgetId` null. Fix: `setQueryData` on save + re-apply same-key data when not dirty. Covered by `PlanningPage.integration.test.ts`.
+- Tests: `useBudget.test.ts` (reactive refetch) + `PlanningPage.test.ts` (9 unit cases) + `PlanningPage.integration.test.ts` (return-to-month, edited goal → update not create). 57/57 frontend. Plan: `docs/plans/2026-10-14-planning-autosave.md`.
 
 ## Phase 4 status (WIP)
 

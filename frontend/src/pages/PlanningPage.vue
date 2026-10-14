@@ -24,6 +24,7 @@
             v-model="goal"
             rows="3"
             placeholder="What do you want to achieve this month?"
+            @blur="flushGoalSave"
           />
         </div>
       </section>
@@ -57,24 +58,6 @@
         </div>
         <div class="planning-page__total">{{ formatCurrency(expenseTotal) }}</div>
       </section>
-
-      <!-- Actions -->
-      <div class="planning-page__actions">
-        <button
-          data-testid="cancel-btn"
-          @click="onCancel"
-        >
-          Cancel
-        </button>
-        <button
-          data-testid="done-btn"
-          type="submit"
-          :disabled="isSaving"
-          @click="onSave"
-        >
-          {{ isSaving ? 'Saving...' : 'Done' }}
-        </button>
-      </div>
     </template>
 
     <!-- Income Calculator Modal -->
@@ -96,50 +79,150 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import dayjs from 'dayjs';
+import { useToast } from 'vue-toastification';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import IncomeCalculator from '@/components/planning/IncomeCalculator.vue';
 import ExpensesCalculator from '@/components/planning/ExpensesCalculator.vue';
 import { useBudget, useSaveBudget } from '@/composable/useBudget';
 import { BudgetItem } from '@/domain/interfaces.budget';
 
-const router = useRouter();
 const now = dayjs();
+const toast = useToast();
 
 const selectedMonth = ref(now.month() + 1);
 const selectedYear = now.year();
 
-const { budget, items, isLoading } = useBudget(selectedYear, selectedMonth.value);
-const { saveBudget, isSaving } = useSaveBudget();
+const { budget, queryData, isLoading } = useBudget(selectedYear, selectedMonth);
+const { saveBudget } = useSaveBudget();
 
 // Local state
 const goal = ref('');
+const budgetId = ref<number | null>(null);
 const incomeItems = ref<BudgetItem[]>([]);
 const expenseItems = ref<BudgetItem[]>([]);
 const showIncomeCalc = ref(false);
 const showExpenseCalc = ref(false);
 
-// Sync with fetched budget
+// Sync local state when data for the selected month arrives. While there are
+// unsaved local edits, skip re-syncing the same month so background refetches
+// (e.g. window focus) never clobber in-progress edits.
+let loadedKey = '';
+let dirty = false;
 watch(
-  () => budget.value,
-  (b) => {
-    if (b) {
-      goal.value = b.goal;
-    }
+  queryData,
+  (d) => {
+    if (!d || d.year !== selectedYear || d.month !== selectedMonth.value) return;
+    const key = `${d.year}-${d.month}`;
+    if (key === loadedKey && dirty) return;
+    loadedKey = key;
+    budgetId.value = d.budget?.id ?? null;
+    goal.value = d.budget?.goal ?? '';
+    incomeItems.value = d.items.filter((i) => i.type === 'income');
+    expenseItems.value = d.items.filter((i) => i.type === 'expense');
+    dirty = false;
   },
   { immediate: true }
 );
 
-watch(
-  () => items.value,
-  (list) => {
-    incomeItems.value = list.filter((i) => i.type === 'income');
-    expenseItems.value = list.filter((i) => i.type === 'expense');
-  },
-  { immediate: true }
-);
+// Auto-save: debounce the goal, save calculator changes immediately.
+const DEBOUNCE_MS = 600;
+let goalTimer: ReturnType<typeof setTimeout> | null = null;
+let inFlight: Promise<void> | null = null;
+let queued: SaveSnapshot | null = null;
+
+interface SaveSnapshot {
+  month: number;
+  goal: string;
+  items: BudgetItem[];
+}
+
+watch(goal, (value) => {
+  if (value === (budget.value?.goal ?? '')) return;
+  dirty = true;
+  scheduleGoalSave();
+});
+
+function snapshot(month: number): SaveSnapshot {
+  return { month, goal: goal.value, items: [...incomeItems.value, ...expenseItems.value] };
+}
+
+function scheduleGoalSave() {
+  if (goalTimer) clearTimeout(goalTimer);
+  goalTimer = setTimeout(() => {
+    goalTimer = null;
+    saveNow();
+  }, DEBOUNCE_MS);
+}
+
+function flushGoalSave() {
+  if (!goalTimer) return;
+  clearTimeout(goalTimer);
+  goalTimer = null;
+  saveNow();
+}
+
+function saveNow(monthOverride?: number) {
+  const snap = snapshot(monthOverride ?? selectedMonth.value);
+  if (inFlight) {
+    queued = snap;
+    return;
+  }
+  inFlight = runSave(snap);
+}
+
+async function runSave(snap: SaveSnapshot) {
+  try {
+    await doSave(snap);
+  } finally {
+    inFlight = null;
+    if (queued) {
+      const next = queued;
+      queued = null;
+      inFlight = runSave(next);
+    }
+  }
+}
+
+async function doSave(snap: SaveSnapshot) {
+  try {
+    const res: any = await saveBudget({
+      id: budgetId.value ?? undefined,
+      year: selectedYear,
+      month: snap.month,
+      goal: snap.goal,
+      items: snap.items,
+    });
+    if (!budgetId.value && res?.budget?.id) budgetId.value = res.budget.id;
+    if (isCurrent(snap)) dirty = false;
+  } catch (error: any) {
+    toast.error(`Error saving plan: ${error?.message ?? error}`);
+  }
+}
+
+function isCurrent(snap: SaveSnapshot): boolean {
+  if (snap.month !== selectedMonth.value) return false;
+  if (snap.goal !== goal.value) return false;
+  const current = [...incomeItems.value, ...expenseItems.value];
+  return JSON.stringify(snap.items) === JSON.stringify(current);
+}
+
+// Flush a pending goal edit for the month we are leaving.
+watch(selectedMonth, (_value, previous) => {
+  if (goalTimer) {
+    clearTimeout(goalTimer);
+    goalTimer = null;
+    saveNow(previous);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (!goalTimer) return;
+  clearTimeout(goalTimer);
+  goalTimer = null;
+  saveNow();
+});
 
 const incomeTotal = computed(() =>
   incomeItems.value.reduce((sum, item) => sum + (item.amount || 0), 0)
@@ -157,31 +240,18 @@ function formatCurrency(value: number): string {
   return '¥ ' + (value || 0).toLocaleString();
 }
 
-function onIncomeUpdate(items: BudgetItem[]) {
-  incomeItems.value = items;
+function onIncomeUpdate(newItems: BudgetItem[]) {
+  incomeItems.value = newItems;
   showIncomeCalc.value = false;
+  dirty = true;
+  saveNow();
 }
 
-function onExpenseUpdate(items: BudgetItem[]) {
-  expenseItems.value = items;
+function onExpenseUpdate(newItems: BudgetItem[]) {
+  expenseItems.value = newItems;
   showExpenseCalc.value = false;
-}
-
-function onCancel() {
-  router.push('/');
-}
-
-function onSave() {
-  const payload = {
-    id: budget.value?.id,
-    year: selectedYear,
-    month: selectedMonth.value,
-    goal: goal.value,
-    items: [...incomeItems.value, ...expenseItems.value],
-  };
-  saveBudget(payload, {
-    onSuccess: () => router.push('/'),
-  });
+  dirty = true;
+  saveNow();
 }
 </script>
 
@@ -227,17 +297,6 @@ function onSave() {
     font-weight: 600;
     color: var(--bk-text-primary);
     margin-top: var(--bk-space-sm);
-  }
-
-  &__actions {
-    display: flex;
-    gap: var(--bk-space-md);
-    margin-top: var(--bk-space-xl);
-
-    button {
-      flex: 1;
-      margin: 0;
-    }
   }
 
   &__loading {

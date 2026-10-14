@@ -1,16 +1,27 @@
-import { computed, ref } from 'vue';
+import { computed, ref, toValue, type MaybeRefOrGetter } from 'vue';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { fetchBudget, createBudget, updateBudget } from '@/domain/network';
 import { Budget, BudgetItem } from '@/domain/interfaces.budget';
 
 const BUDGET_KEY = 'budget';
 
-export function useBudget(year: number, month: number) {
+export interface BudgetCache {
+  year: number;
+  month: number;
+  budget: Budget | null;
+  items: BudgetItem[];
+}
+
+export function useBudget(year: MaybeRefOrGetter<number>, month: MaybeRefOrGetter<number>) {
   const { isLoading, data } = useQuery({
-    queryKey: [BUDGET_KEY, year, month],
+    queryKey: computed(() => [BUDGET_KEY, toValue(year), toValue(month)]),
     queryFn: async () => {
-      const res = await fetchBudget(year, month);
+      const y = toValue(year);
+      const m = toValue(month);
+      const res = await fetchBudget(y, m);
       return {
+        year: y,
+        month: m,
         budget: (res.budget as Budget | null) ?? null,
         items: (res.items as BudgetItem[]) ?? [],
       };
@@ -35,6 +46,7 @@ export function useBudget(year: number, month: number) {
   return {
     budget,
     items,
+    queryData: data,
     expenseBudgetTotal,
     incomeBudgetTotal,
     isLoading,
@@ -45,7 +57,7 @@ export function useSaveBudget() {
   const queryClient = useQueryClient();
   const isSaving = ref(false);
 
-  const { mutate: saveBudget } = useMutation({
+  const { mutateAsync: saveBudget } = useMutation({
     mutationFn: async (payload: {
       id?: number;
       year: number;
@@ -72,9 +84,19 @@ export function useSaveBudget() {
         isSaving.value = false;
       }
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [BUDGET_KEY, variables.year, variables.month],
+    onSuccess: (data, variables) => {
+      const key = [BUDGET_KEY, variables.year, variables.month];
+      const cached = queryClient.getQueryData(key) as BudgetCache | undefined;
+      const created = (data as { budget?: Budget } | undefined)?.budget;
+      const budget =
+        created ??
+        (cached?.budget ? { ...cached.budget, goal: variables.goal } : null);
+
+      queryClient.setQueryData(key, {
+        year: variables.year,
+        month: variables.month,
+        budget,
+        items: variables.items,
       });
     },
   });
