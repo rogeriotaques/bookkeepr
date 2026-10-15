@@ -36,4 +36,12 @@ export interface MonthlyReport {
     actual: number;
     expense_type: string | null;
   }[];
+  planned: {
+    income: number;
+    expense: number;
+  };
+  realized: {
+    income: number;
+    expense: number;
+  };
 }

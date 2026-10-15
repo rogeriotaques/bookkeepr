@@ -73,6 +73,18 @@ describe('Reports API (Phase 4)', () => {
       expect(res.body.budgetTotal).toBe(0);
       expect(res.body.actualTotal).toBe(0);
       expect(res.body.breakdown).toHaveLength(0);
+      expect(res.body.planned).toEqual({ income: 0, expense: 0 });
+      expect(res.body.realized).toEqual({ income: 0, expense: 0 });
+    });
+
+    it('should summarize planned vs realized for income and expenses', async () => {
+      const res = await request.get('/api/reports/monthly?year=2025&month=1');
+      expect(res.status).toBe(200);
+
+      // Planned: the month's budget items, split by operation.
+      expect(res.body.planned).toEqual({ income: 5500, expense: 2200 });
+      // Realized: the month's entries, split by operation.
+      expect(res.body.realized).toEqual({ income: 5000, expense: 1900 });
     });
   });
 
@@ -88,6 +100,23 @@ describe('Reports API (Phase 4)', () => {
       expect(january).toBeDefined();
       expect(january.budget).toBe(2200);
       expect(january.actual).toBe(1900);
+    });
+
+    it('should summarize planned vs realized for income and expenses', async () => {
+      const res = await request.get('/api/reports?year=2025');
+      expect(res.status).toBe(200);
+
+      // Planned: budget items for the year, split by operation.
+      expect(res.body.planned).toEqual({ income: 5500, expense: 2200 });
+      // Realized: entries recorded in the year, split by operation.
+      expect(res.body.realized).toEqual({ income: 5000, expense: 1900 });
+    });
+
+    it('should report zeros when the year has no budget', async () => {
+      const res = await request.get('/api/reports?year=2024');
+
+      expect(res.body.planned).toEqual({ income: 0, expense: 0 });
+      expect(res.body.realized).toEqual({ income: 0, expense: 0 });
     });
   });
 });

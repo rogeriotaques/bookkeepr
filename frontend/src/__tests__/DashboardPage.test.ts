@@ -41,12 +41,21 @@ const mockLoading = () => ({
 const annualReport = {
   year: YEAR,
   data: { income: [], outcome: [], balance: [], tax: [] },
-  insights: { thisYear: { income: 0, outcome: 1500 } },
+  insights: { thisYear: { income: 5000, outcome: 1900 } },
+  planned: { income: 5500, expense: 2200 },
+  realized: { income: 5000, expense: 1900 },
   budgets: [
     { month: 1, budget: 1000, actual: 500 },
     { month: 2, budget: 2000, actual: 1000 },
     { month: 3, budget: 0, actual: 0 },
   ],
+};
+
+const noBudgetReport = {
+  ...annualReport,
+  planned: { income: 0, expense: 0 },
+  realized: { income: 0, expense: 0 },
+  budgets: [],
 };
 
 const mountWithSuspense = (options: any = {}) =>
@@ -81,37 +90,53 @@ describe('DashboardPage', () => {
   });
 
   it('should show empty state when the year has no budget', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport({ ...annualReport, budgets: [] }));
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
     expect(wrapper.text()).toContain('Set up your budget');
   });
 
-  it('should total the monthly budgets into an annual summary', async () => {
+  it('should show planned vs realized for income and expenses', async () => {
     (useDataFetch as any).mockReturnValue(mockReport(annualReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
 
-    expect(wrapper.text()).toContain('Budget');
-    expect(wrapper.text()).toContain('Actual');
+    expect(wrapper.text()).toContain('Planned');
+    expect(wrapper.text()).toContain('Realized');
+    expect(wrapper.text()).toContain('Income');
+    expect(wrapper.text()).toContain('Expenses');
     expect(wrapper.text()).toContain('Balance');
 
-    // 1000 + 2000 + 0 = 3000 budget, 1500 spent, 1500 left.
-    expect(wrapper.text()).toContain('¥ 3,000');
-    expect(wrapper.text()).toContain('¥ 1,500');
+    // Planned income / expense and realized income / expense.
+    expect(wrapper.text()).toContain('¥ 5,500');
+    expect(wrapper.text()).toContain('¥ 2,200');
+    expect(wrapper.text()).toContain('¥ 5,000');
+    expect(wrapper.text()).toContain('¥ 1,900');
   });
 
-  it('should show the annual spending progress', async () => {
+  it('should show the planned and realized balance', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    // 5500 - 2200 planned, and 5000 - 1900 realized.
+    expect(wrapper.text()).toContain('¥ 3,300');
+    expect(wrapper.text()).toContain('¥ 3,100');
+  });
+
+  it('should show planned vs realized progress for income and expenses', async () => {
     (useDataFetch as any).mockReturnValue(mockReport(annualReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
 
     expect(wrapper.find('[data-testid="progress-bar"]').exists()).toBe(true);
-    // 1500 / 3000
-    expect(wrapper.text()).toContain('50%');
+    // 5000 / 5500 income, 1900 / 2200 expenses.
+    expect(wrapper.text()).toContain('91%');
+    expect(wrapper.text()).toContain('86%');
   });
 
   it('should label the summary as annual', async () => {
@@ -123,7 +148,7 @@ describe('DashboardPage', () => {
   });
 
   it('should not render a quick-action list or a record button', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport({ ...annualReport, budgets: [] }));
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -134,7 +159,7 @@ describe('DashboardPage', () => {
   });
 
   it('should render the annual chart and recent transactions in a grid', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport({ ...annualReport, budgets: [] }));
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -144,7 +169,7 @@ describe('DashboardPage', () => {
   });
 
   it('should log out when Logout is clicked', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport({ ...annualReport, budgets: [] }));
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();

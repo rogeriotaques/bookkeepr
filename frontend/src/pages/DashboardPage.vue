@@ -29,7 +29,7 @@
 
         <template v-else>
           <!-- Empty state: no budget anywhere in the year -->
-          <div v-if="annualBudgetTotal === 0" class="dashboard-page__empty">
+          <div v-if="!hasBudget" class="dashboard-page__empty">
             <p>No budget set for {{ year }}.</p>
             <RouterLink to="/planning" class="dashboard-page__cta">
               Set up your budget
@@ -37,40 +37,15 @@
           </div>
 
           <template v-else>
-            <!-- Summary -->
-            <div class="box dashboard-page__summary">
-              <h2 class="dashboard-page__summary-heading">Annual budget {{ year }}</h2>
-              <div class="dashboard-page__summary-item">
-                <span class="dashboard-page__summary-label">Budget</span>
-                <span class="dashboard-page__summary-value">{{ formatCurrency(annualBudgetTotal) }}</span>
-              </div>
-              <div class="dashboard-page__summary-item">
-                <span class="dashboard-page__summary-label">Actual</span>
-                <span class="dashboard-page__summary-value">{{ formatCurrency(annualActualTotal) }}</span>
-              </div>
-              <div class="dashboard-page__summary-item">
-                <span class="dashboard-page__summary-label">Balance</span>
-                <span class="dashboard-page__summary-value" :class="balanceClass">
-                  {{ formatCurrency(balance) }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Progress bar -->
-            <div class="box dashboard-page__progress" data-testid="progress-bar">
-              <div class="dashboard-page__progress-header">
-                <span>Annual spending progress</span>
-                <span>{{ progressPercent }}%</span>
-              </div>
-              <BaseProgress
-                :value="progressPercent"
-                :max="100"
-                class="dashboard-page__progress-bar"
-              />
-            </div>
+            <!-- Summary (planned vs realized) and progress -->
+            <PlannedRealizedSummary
+              :planned="planned"
+              :realized="realized"
+              :title="`Annual budget ${year}`"
+            />
 
             <!-- Empty state: no transactions -->
-            <div v-if="annualActualTotal === 0" class="dashboard-page__empty">
+            <div v-if="realized.income === 0 && realized.expense === 0" class="dashboard-page__empty">
               <p>No transactions recorded this year.</p>
             </div>
           </template>
@@ -86,9 +61,9 @@
 import { computed, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import dayjs from 'dayjs';
-import BaseProgress from '@/components/shared/BaseProgress.vue';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import AnnualChart from '@/components/report/AnnualChart.vue';
+import PlannedRealizedSummary from '@/components/report/PlannedRealizedSummary.vue';
 import RecentTransactions from '@/components/transactions/RecentTransactions.vue';
 import useDataFetch from '@/composable/useDataFetch';
 import { logout } from '@/composable/useState';
@@ -100,33 +75,22 @@ const reportUrl = ref(`/reports?year=${year}`);
 const { fetchData: getAnnualReport } = useDataFetch(reportUrl);
 const { isLoading, data: reportData } = await getAnnualReport();
 
-// The year's budget is the sum of every month that has one, and the year's
-// spending is the report's own expense total.
-const annualBudgetTotal = computed(() =>
-  ((reportData.value?.budgets ?? []) as { budget: number }[]).reduce(
-    (sum, month) => sum + Number(month.budget ?? 0),
-    0
-  )
-);
-
-const annualActualTotal = computed(() => Number(reportData.value?.insights?.thisYear?.outcome ?? 0));
-
-const balance = computed(() => annualBudgetTotal.value - annualActualTotal.value);
-const progressPercent = computed(() => {
-  if (annualBudgetTotal.value === 0) return 0;
-  return Math.round((annualActualTotal.value / annualBudgetTotal.value) * 100);
-});
-
-const balanceClass = computed(() => ({
-  'dashboard-page__summary-value--negative': balance.value < 0,
+// Planned: what the year's budget items add up to, split by operation.
+// Realized: what the report recorded, same split. Both fall back to zero so
+// the template never touches an undefined field.
+const planned = computed(() => ({
+  income: Number(reportData.value?.planned?.income ?? 0),
+  expense: Number(reportData.value?.planned?.expense ?? 0),
 }));
 
-const onLogout = () => logout();
+const realized = computed(() => ({
+  income: Number(reportData.value?.realized?.income ?? 0),
+  expense: Number(reportData.value?.realized?.expense ?? 0),
+}));
 
-function formatCurrency(value: number | undefined): string {
-  const num = Number(value ?? 0);
-  return '¥ ' + num.toLocaleString();
-}
+const hasBudget = computed(() => planned.value.income > 0 || planned.value.expense > 0);
+
+const onLogout = () => logout();
 </script>
 
 <style lang="scss" scoped>
@@ -203,69 +167,6 @@ function formatCurrency(value: number | undefined): string {
     border-radius: var(--bk-radius-md);
     text-decoration: none;
     font-size: var(--bk-text-sm);
-  }
-
-  &__summary {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--bk-space-sm);
-    margin-bottom: var(--bk-space-lg);
-
-    &-heading {
-      grid-column: 1 / -1;
-      font-size: var(--bk-text-lg);
-      color: var(--bk-text-primary);
-      margin: 0 0 var(--bk-space-sm);
-    }
-
-    &-item {
-      text-align: center;
-    }
-
-    &-label {
-      display: block;
-      font-size: var(--bk-text-xs);
-      color: var(--bk-text-secondary);
-      margin-bottom: var(--bk-space-xs);
-    }
-
-    &-value {
-      display: block;
-      font-size: var(--bk-text-base);
-      font-weight: 600;
-      color: var(--bk-text-primary);
-
-      &--negative {
-        color: var(--bk-danger);
-      }
-    }
-  }
-
-  &__progress {
-    margin-bottom: var(--bk-space-lg);
-
-    &-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: var(--bk-text-sm);
-      color: var(--bk-text-secondary);
-      margin-bottom: var(--bk-space-sm);
-    }
-
-    // Match the Transaction History progress: full width, budget track (light
-    // blue) and actual spending fill (red).
-    &-bar {
-      width: 100%;
-      max-width: 100%;
-
-      :deep(.progress) {
-        background-color: var(--c-info-background);
-      }
-
-      :deep(.progress::before) {
-        background-color: var(--bk-danger-light);
-      }
-    }
   }
 }
 

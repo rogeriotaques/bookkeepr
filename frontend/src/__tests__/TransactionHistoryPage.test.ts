@@ -3,8 +3,7 @@ import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense, toValue } from 'vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 
-const { useBudgetMock, useMonthlyReportMock } = vi.hoisted(() => ({
-  useBudgetMock: vi.fn(),
+const { useMonthlyReportMock } = vi.hoisted(() => ({
   useMonthlyReportMock: vi.fn(),
 }));
 
@@ -18,10 +17,6 @@ vi.mock('@/composable/useDataFetch', () => ({
     })),
     invalidateQuery: vi.fn(),
   })),
-}));
-
-vi.mock('@/composable/useBudget', () => ({
-  useBudget: useBudgetMock,
 }));
 
 vi.mock('@/composable/useMonthlyReport', () => ({
@@ -50,12 +45,13 @@ describe('TransactionHistoryPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useBudgetMock.mockReturnValue({
-      expenseBudgetTotal: ref(2000),
-      isLoading: ref(false),
-    });
     useMonthlyReportMock.mockReturnValue({
-      report: ref({ actualTotal: 1200, progress: 60 }),
+      report: ref({
+        actualTotal: 1900,
+        progress: 86,
+        planned: { income: 5500, expense: 2200 },
+        realized: { income: 5000, expense: 1900 },
+      }),
       isLoading: ref(false),
     });
   });
@@ -66,12 +62,29 @@ describe('TransactionHistoryPage', () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('shows budget summary bar', async () => {
+  it('shows a planned vs realized summary for income and expenses', async () => {
     const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
     await flushPromises();
-    expect(wrapper.text()).toContain('Budget');
-    expect(wrapper.text()).toContain('Actual');
-    expect(wrapper.text()).toContain('Progress');
+    expect(wrapper.text()).toContain('Planned');
+    expect(wrapper.text()).toContain('Realized');
+    expect(wrapper.text()).toContain('Income');
+    expect(wrapper.text()).toContain('Expenses');
+    expect(wrapper.text()).toContain('Balance');
+
+    expect(wrapper.text()).toContain('¥ 5,500');
+    expect(wrapper.text()).toContain('¥ 2,200');
+    expect(wrapper.text()).toContain('¥ 5,000');
+    expect(wrapper.text()).toContain('¥ 1,900');
+  });
+
+  it('shows planned vs realized progress for income and expenses', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
+    await flushPromises();
+
+    expect(wrapper.find('[data-testid="progress-bar"]').exists()).toBe(true);
+    // 5000 / 5500 income, 1900 / 2200 expenses.
+    expect(wrapper.text()).toContain('91%');
+    expect(wrapper.text()).toContain('86%');
   });
 
   it('renders BalanceTable and BalanceFilterForm', async () => {
@@ -84,13 +97,17 @@ describe('TransactionHistoryPage', () => {
   it('keeps the summary in step with the selected year and month', async () => {
     const calls: Record<string, any[]> = {};
 
-    useBudgetMock.mockImplementation((year: any, month: any) => {
-      calls.budget = [year, month];
-      return { expenseBudgetTotal: ref(2000), isLoading: ref(false) };
-    });
     useMonthlyReportMock.mockImplementation((year: any, month: any) => {
       calls.report = [year, month];
-      return { report: ref({ actualTotal: 1200, progress: 60 }), isLoading: ref(false) };
+      return {
+        report: ref({
+          actualTotal: 1900,
+          progress: 86,
+          planned: { income: 5500, expense: 2200 },
+          realized: { income: 5000, expense: 1900 },
+        }),
+        isLoading: ref(false),
+      };
     });
 
     const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
@@ -102,9 +119,8 @@ describe('TransactionHistoryPage', () => {
     await flushPromises();
 
     // The summary must track the filter, not the month the page mounted on.
-    for (const args of [calls.budget, calls.report]) {
-      expect(toValue(args[0])).toBe(2025);
-      expect(toValue(args[1])).toBe(7);
-    }
+    const args = calls.report;
+    expect(toValue(args[0])).toBe(2025);
+    expect(toValue(args[1])).toBe(7);
   });
 });

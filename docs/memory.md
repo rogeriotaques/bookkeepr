@@ -128,4 +128,22 @@
 - Verified by driving the real dropdown in headless Chrome (`trigger.click()` then the `.base-dropdown__item` with the wanted label — plain DOM `.click()`, no mouse events needed). October ¥1,700/¥1,000/59% → May ¥0/¥0/0%, with a fresh `month=5` request.
 - Tests 72 → 74 (19 files). Build OK.
 
+## Session 2026-10-16 — Dashboard: planned vs realized
+
+- Backend annual report now carries **`planned`** and **`realized`**, each `{ income, expense }`. `planned` is a single grouped query over `budget_items` joined to the year's `monthly_budgets`; `realized` is copied from `insights.thisYear` (income/outcome). The per-month `budgets[]` array (expense-only `budget`/`actual`) is untouched for back-compat.
+- `DashboardPage` card is now a **table** (rows Income / Expenses / Balance × columns Planned / Realized) and the progress `box` holds **two bars** (Income green `--bk-primary`, Expenses red `--bk-danger-light`), each `realized / planned`.
+- Removed the derived `annualBudgetTotal`/`annualActualTotal`/`balance`/`progressPercent`; the empty-budget state keys off `planned`, and the no-transactions state off `realized`.
+- CSS specificity note: the numeric cells carry a base `dashboard-page__summary-value` class; the `--negative` modifier (0,1,0) is declared **after** the base rule so it wins. A bare `.dashboard-page__summary-table td` rule (0,1,1) would have beaten it.
+- Tests: backend 36 → 38, frontend 74 → 75. Build OK (SCSS compiles).
+
+## Session 2026-10-16 — Transactions summary + stale cache fix
+
+- **Bug**: saving an entry did not refresh the list or the report. `TransactionEntryPage.onSubmitHandler` called `addEntry` but never invalidated the vue-query cache. Fix: `useQueryClient()` + a predicate `invalidateQueries` that matches `monthly-report` and any `fetch` key whose url starts with `/entries` or `/reports` (skips settings/groups/wallets).
+- **Gotcha (important)**: `useDataFetch`'s own `invalidateQuery` (`{ queryKey: ['fetch', ref] }`) is a **latent no-op** — vue-query `cloneDeepUnref`s the stored key to `['fetch', '<string>']`, so matching against a key that still holds the `Ref` object fails `partialDeepEqual`. Predicate/string keys are the reliable way to invalidate. Existing callers still "work" only because their URL is a computed that changes the key.
+- Extracted `components/report/PlannedRealizedSummary.vue` (props `planned`/`realized` + optional `title`): the planned-vs-realized table + the two progress bars, now shared by `DashboardPage` and `TransactionHistoryPage`. The old per-page `__summary`/`__progress` SCSS is gone.
+- Monthly report now carries `planned`/`realized` (`{ income, expense }`) like the annual one; `TransactionHistoryPage` dropped `useBudget` entirely (one request less) and derives both from `useMonthlyReport`.
+- Layout: the shared component is a `grid` with `repeat(auto-fit, minmax(min(300px, 100%), 1fr))` — summary and progress sit side by side when the column is wide (Transactions ≈744px → 2 cols) and stack when narrow (Dashboard side ≈375px → 1 col). No media query needed; the grid is container-aware.
+- Height alignment (follow-up): `align-items: stretch` plus a slimmer bar — `:deep(.progress){height:28px;margin-bottom:0}`, header `margin-bottom: 4px`, `justify-content: center` — brings the progress panel down to the summary panel's height (was ~35px taller: Boring bars are 36px + an 8px bottom margin each).
+- Tests: backend 38 → 39, frontend 75 → 77 (`TransactionEntryPage` invalidation test + rewritten `TransactionHistoryPage` summary/progress tests). Build OK.
+
 

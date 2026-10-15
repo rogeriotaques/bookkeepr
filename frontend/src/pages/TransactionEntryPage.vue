@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed } from 'vue';
 import { useToast } from 'vue-toastification';
+import { useQueryClient } from '@tanstack/vue-query';
 import dayjs from 'dayjs';
 
 import EntryForm from '@/components/transactions/EntryForm.vue';
@@ -35,6 +36,7 @@ import useDataFetch from '@/composable/useDataFetch';
 
 const isSubmitting = ref(false);
 const toast = useToast();
+const queryClient = useQueryClient();
 
 const settingsUrl = ref('/settings');
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
@@ -72,6 +74,7 @@ const onSubmitHandler = async () => {
   try {
     await addEntry(form);
     resetForm();
+    await invalidateAfterSave();
     toast.success('Entry saved!');
   } catch (error: any) {
     toast.error(`Error: ${error.message}`);
@@ -79,6 +82,21 @@ const onSubmitHandler = async () => {
     isSubmitting.value = false;
   }
 };
+
+// A new entry changes the month's list, its report (summary + progress) and the
+// year's reports (the Dashboard chart). Refetch those, but leave settings,
+// groups and wallets alone.
+const invalidateAfterSave = () =>
+  queryClient.invalidateQueries({
+    predicate: (query) => {
+      const [root, url] = query.queryKey;
+      if (root === 'monthly-report') return true;
+      if (root !== 'fetch') return false;
+
+      const target = String(url);
+      return target.startsWith('/entries') || target.startsWith('/reports');
+    },
+  });
 </script>
 
 <style lang="scss" scoped>

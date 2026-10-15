@@ -122,7 +122,27 @@ exports.getOverviewReport = async (knex, { year }) => {
     });
   }
 
-  return { year, data, insights, budgets };
+  // Annual planned totals per operation, across every month that has a budget.
+  const plannedTotals = await knex('budget_items')
+    .innerJoin('monthly_budgets', 'budget_items.budget_id', 'monthly_budgets.id')
+    .where('monthly_budgets.year', Number(year))
+    .groupBy('budget_items.type')
+    .select('budget_items.type AS type')
+    .sum('budget_items.amount AS total');
+
+  const planned = { income: 0, expense: 0 };
+  for (const row of plannedTotals) {
+    if (row.type === 'income' || row.type === 'expense') {
+      planned[row.type] = Number(row.total ?? 0);
+    }
+  }
+
+  const realized = {
+    income: Number(insights.thisYear.income),
+    expense: Number(insights.thisYear.outcome),
+  };
+
+  return { year, data, insights, budgets, planned, realized };
 };
 
 exports.getMonthlyReport = async (knex, { year, month }) => {
@@ -137,12 +157,25 @@ exports.getMonthlyReport = async (knex, { year, month }) => {
     ? await knex('budget_items').where({ budget_id: budget.id, type: 'expense' }).select('*')
     : [];
 
+  const incomeItems = budget
+    ? await knex('budget_items').where({ budget_id: budget.id, type: 'income' }).select('*')
+    : [];
+
+  const monthKey = `${year}-${String(monthNum).padStart(2, '0')}`;
+
   const actuals = await knex('entries')
     .innerJoin('groups', 'entries.group', 'groups.code')
     .where('groups.operation', ENTRY_OPERATIONS.EXPENSE)
-    .whereRaw("strftime('%Y-%m', date) = ?", [`${year}-${String(monthNum).padStart(2, '0')}`])
+    .whereRaw("strftime('%Y-%m', date) = ?", [monthKey])
     .select('entries.group AS group_code', knex.raw('SUM(entries.amount) AS total'))
     .groupBy('entries.group');
+
+  const incomeActual = await knex('entries')
+    .innerJoin('groups', 'entries.group', 'groups.code')
+    .where('groups.operation', ENTRY_OPERATIONS.INCOME)
+    .whereRaw("strftime('%Y-%m', date) = ?", [monthKey])
+    .sum('entries.amount AS total')
+    .first();
 
   const actualMap = new Map(actuals.map((a) => [a.group_code, a.total]));
 
@@ -172,7 +205,17 @@ exports.getMonthlyReport = async (knex, { year, month }) => {
   const actualTotal = actuals.reduce((sum, a) => sum + a.total, 0);
   const progress = budgetTotal > 0 ? (actualTotal / budgetTotal) * 100 : 0;
 
-  return { year: yearNum, month: monthNum, budgetTotal, actualTotal, progress, breakdown };
+  const planned = {
+    income: incomeItems.reduce((sum, item) => sum + item.amount, 0),
+    expense: budgetTotal,
+  };
+
+  const realized = {
+    income: Number(incomeActual?.total ?? 0),
+    expense: actualTotal,
+  };
+
+  return { year: yearNum, month: monthNum, budgetTotal, actualTotal, progress, breakdown, planned, realized };
 };
 
 exports.validateYear = (year) => isValidYear(year);
