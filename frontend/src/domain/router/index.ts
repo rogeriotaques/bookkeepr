@@ -2,10 +2,8 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 
 import DashboardPage from '@/pages/DashboardPage.vue';
 import TransactionEntryPage from '@/pages/TransactionEntryPage.vue';
-import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 import PlanningPage from '@/pages/PlanningPage.vue';
 import SettingsPage from '@/pages/SettingsPage.vue';
-
 export const routes = [
   {
     path: '/',
@@ -13,19 +11,29 @@ export const routes = [
     component: DashboardPage,
   },
   {
-    path: '/entry',
-    name: 'Entry',
+    path: '/transactions',
+    name: 'Transactions',
     component: TransactionEntryPage,
+  },
+  // Entry and History are one page now. Keep the old paths alive for bookmarked
+  // hash URLs.
+  {
+    path: '/entry',
+    redirect: '/transactions',
   },
   {
     path: '/history',
-    name: 'History',
-    component: TransactionHistoryPage,
+    redirect: '/transactions',
   },
   {
     path: '/planning',
     name: 'Planning',
     component: PlanningPage,
+  },
+  {
+    path: '/report',
+    name: 'Report',
+    component: () => import('@/pages/ReportPage.vue'),
   },
   {
     path: '/settings',

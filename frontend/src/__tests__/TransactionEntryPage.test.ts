@@ -26,43 +26,41 @@ const mountWithSuspense = (component: any, options: any = {}) => {
   );
 };
 
+const stubs = {
+  EntryForm: true,
+  TransactionHistoryPage: true,
+  RouterLink: RouterLinkStub,
+};
+
 describe('TransactionEntryPage', () => {
   it('renders without error', async () => {
-    const wrapper = mountWithSuspense(TransactionEntryPage, {
-      global: {
-        stubs: {
-          EntryForm: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
     await flushPromises();
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('shows "Transaction" heading', async () => {
-    const wrapper = mountWithSuspense(TransactionEntryPage, {
-      global: {
-        stubs: {
-          EntryForm: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
+  it('shows "Transactions" heading', async () => {
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
     await flushPromises();
-    expect(wrapper.text()).toContain('Transaction');
+    expect(wrapper.find('h1').text()).toBe('Transactions');
   });
 
-  it('renders EntryForm component', async () => {
-    const wrapper = mountWithSuspense(TransactionEntryPage, {
-      global: {
-        stubs: {
-          EntryForm: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
+  it('puts EntryForm and TransactionHistoryPage side by side', async () => {
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
     await flushPromises();
-    expect(wrapper.findComponent({ name: 'EntryForm' }).exists()).toBe(true);
+
+    const grid = wrapper.find('[data-testid="transactions-grid"]');
+    expect(grid.exists()).toBe(true);
+
+    const form = grid.findComponent({ name: 'EntryForm' });
+    const history = grid.findComponent({ name: 'TransactionHistoryPage' });
+
+    expect(form.exists()).toBe(true);
+    expect(history.exists()).toBe(true);
+
+    // EntryForm is the first column, the history the second.
+    expect(form.element.compareDocumentPosition(history.element)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 });

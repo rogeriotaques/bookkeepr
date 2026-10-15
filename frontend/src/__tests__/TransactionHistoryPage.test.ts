@@ -1,12 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
-import { ref, h, Suspense } from 'vue';
+import { ref, h, Suspense, toValue } from 'vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 
-const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
-
-vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: pushMock }),
+const { useBudgetMock, useMonthlyReportMock } = vi.hoisted(() => ({
+  useBudgetMock: vi.fn(),
+  useMonthlyReportMock: vi.fn(),
 }));
 
 vi.mock('@/composable/useDataFetch', () => ({
@@ -22,17 +21,11 @@ vi.mock('@/composable/useDataFetch', () => ({
 }));
 
 vi.mock('@/composable/useBudget', () => ({
-  useBudget: vi.fn(() => ({
-    expenseBudgetTotal: ref(2000),
-    isLoading: ref(false),
-  })),
+  useBudget: useBudgetMock,
 }));
 
 vi.mock('@/composable/useMonthlyReport', () => ({
-  useMonthlyReport: vi.fn(() => ({
-    report: ref({ actualTotal: 1200, progress: 60 }),
-    isLoading: ref(false),
-  })),
+  useMonthlyReport: useMonthlyReportMock,
 }));
 
 const mountWithSuspense = (component: any, options: any = {}) => {
@@ -46,65 +39,35 @@ const mountWithSuspense = (component: any, options: any = {}) => {
   );
 };
 
+const stubs = {
+  BalanceTable: true,
+  BalanceFilterForm: true,
+  BaseProgress: true,
+  RouterLink: RouterLinkStub,
+};
+
 describe('TransactionHistoryPage', () => {
-  it('renders without error', async () => {
-    const wrapper = mountWithSuspense(TransactionHistoryPage, {
-      global: {
-        stubs: {
-          BalanceTable: true,
-          BalanceFilterForm: true,
-          BaseProgress: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    useBudgetMock.mockReturnValue({
+      expenseBudgetTotal: ref(2000),
+      isLoading: ref(false),
     });
+    useMonthlyReportMock.mockReturnValue({
+      report: ref({ actualTotal: 1200, progress: 60 }),
+      isLoading: ref(false),
+    });
+  });
+
+  it('renders without error', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
     await flushPromises();
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('shows "Transactions History" heading', async () => {
-    const wrapper = mountWithSuspense(TransactionHistoryPage, {
-      global: {
-        stubs: {
-          BalanceTable: true,
-          BalanceFilterForm: true,
-          BaseProgress: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
-    await flushPromises();
-    expect(wrapper.text()).toContain('Transactions History');
-  });
-
-  it('navigates to entry page on Cmd+I', async () => {
-    pushMock.mockClear();
-    mountWithSuspense(TransactionHistoryPage, {
-      global: {
-        stubs: {
-          BalanceTable: true,
-          BalanceFilterForm: true,
-          BaseProgress: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
-    await flushPromises();
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'i', metaKey: true }));
-    expect(pushMock).toHaveBeenCalledWith('/entry');
-  });
-
   it('shows budget summary bar', async () => {
-    const wrapper = mountWithSuspense(TransactionHistoryPage, {
-      global: {
-        stubs: {
-          BalanceTable: true,
-          BalanceFilterForm: true,
-          BaseProgress: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
     await flushPromises();
     expect(wrapper.text()).toContain('Budget');
     expect(wrapper.text()).toContain('Actual');
@@ -112,18 +75,36 @@ describe('TransactionHistoryPage', () => {
   });
 
   it('renders BalanceTable and BalanceFilterForm', async () => {
-    const wrapper = mountWithSuspense(TransactionHistoryPage, {
-      global: {
-        stubs: {
-          BalanceTable: true,
-          BalanceFilterForm: true,
-          BaseProgress: true,
-          RouterLink: RouterLinkStub,
-        },
-      },
-    });
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
     await flushPromises();
     expect(wrapper.findComponent({ name: 'BalanceTable' }).exists()).toBe(true);
     expect(wrapper.findComponent({ name: 'BalanceFilterForm' }).exists()).toBe(true);
+  });
+
+  it('keeps the summary in step with the selected year and month', async () => {
+    const calls: Record<string, any[]> = {};
+
+    useBudgetMock.mockImplementation((year: any, month: any) => {
+      calls.budget = [year, month];
+      return { expenseBudgetTotal: ref(2000), isLoading: ref(false) };
+    });
+    useMonthlyReportMock.mockImplementation((year: any, month: any) => {
+      calls.report = [year, month];
+      return { report: ref({ actualTotal: 1200, progress: 60 }), isLoading: ref(false) };
+    });
+
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
+    await flushPromises();
+
+    const filter = wrapper.findComponent({ name: 'BalanceFilterForm' });
+    filter.vm.$emit('update:year', '2025');
+    filter.vm.$emit('update:month', '07');
+    await flushPromises();
+
+    // The summary must track the filter, not the month the page mounted on.
+    for (const args of [calls.budget, calls.report]) {
+      expect(toValue(args[0])).toBe(2025);
+      expect(toValue(args[1])).toBe(7);
+    }
   });
 });

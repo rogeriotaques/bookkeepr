@@ -42,6 +42,7 @@ export const deleteWallet = (id: number): Promise<ApiResponse> => API.delete(`/w
 export const addGroup = (data: Group): Promise<ApiResponse> => API.post('/groups', data, headers.value);
 export const updateGroup = (id: number, data: Group): Promise<ApiResponse> => API.patch(`/groups/${id}`, data, headers.value);
 export const deleteGroup = (id: number): Promise<ApiResponse> => API.delete(`/groups/${id}`, headers.value);
+export const fetchGroups = (): Promise<ApiResponse> => API.get('/groups?active=1', headers.value);
 
 export const addEntry = (data: Entry): Promise<ApiResponse> => API.post('/entries', data, headers.value);
 export const updateEntry = (id: number, data: Entry): Promise<ApiResponse> => API.patch(`/entries/${id}`, data, headers.value);

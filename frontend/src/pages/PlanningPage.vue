@@ -15,50 +15,54 @@
       <BaseSkeleton />
     </div>
 
-    <template v-else>
-      <!-- Goal -->
-      <section class="planning-page__section">
-        <label class="label">Goal for this month</label>
-        <div class="input">
-          <textarea
-            v-model="goal"
-            rows="3"
-            placeholder="What do you want to achieve this month?"
-            @blur="flushGoalSave"
-          />
-        </div>
-      </section>
+    <div v-else class="planning-page__grid">
+      <div class="planning-page__main">
+        <!-- Goal -->
+        <section class="planning-page__section">
+          <label class="label">Goal for this month</label>
+          <div class="input">
+            <textarea
+              v-model="goal"
+              rows="3"
+              placeholder="What do you want to achieve this month?"
+              @blur="flushGoalSave"
+            />
+          </div>
+        </section>
+      </div>
 
-      <!-- Income -->
-      <section class="box planning-page__section">
-        <div class="planning-page__row">
-          <label class="label">Expected Total Income</label>
-          <button
-            data-testid="add-income"
-            class="is-auto-width"
-            @click="showIncomeCalc = true"
-          >
-            +
-          </button>
-        </div>
-        <div class="planning-page__total">{{ formatCurrency(incomeTotal) }}</div>
-      </section>
+      <div class="planning-page__side">
+        <!-- Income -->
+        <section class="box planning-page__section">
+          <div class="planning-page__row">
+            <label class="label">Expected Total Income</label>
+            <button
+              data-testid="add-income"
+              class="is-auto-width"
+              @click="showIncomeCalc = true"
+            >
+              +
+            </button>
+          </div>
+          <div class="planning-page__total">{{ formatCurrency(incomeTotal) }}</div>
+        </section>
 
-      <!-- Expenses -->
-      <section class="box planning-page__section">
-        <div class="planning-page__row">
-          <label class="label">Expected Total Expenses</label>
-          <button
-            data-testid="add-expense"
-            class="is-auto-width"
-            @click="showExpenseCalc = true"
-          >
-            +
-          </button>
-        </div>
-        <div class="planning-page__total">{{ formatCurrency(expenseTotal) }}</div>
-      </section>
-    </template>
+        <!-- Expenses -->
+        <section class="box planning-page__section">
+          <div class="planning-page__row">
+            <label class="label">Expected Total Expenses</label>
+            <button
+              data-testid="add-expense"
+              class="is-auto-width"
+              @click="showExpenseCalc = true"
+            >
+              +
+            </button>
+          </div>
+          <div class="planning-page__total">{{ formatCurrency(expenseTotal) }}</div>
+        </section>
+      </div>
+    </div>
 
     <!-- Income Calculator Modal -->
     <IncomeCalculator
@@ -258,7 +262,7 @@ function onExpenseUpdate(newItems: BudgetItem[]) {
 <style lang="scss" scoped>
 .planning-page {
   padding: var(--bk-space-md);
-  max-width: var(--bk-max-width);
+  max-width: var(--bk-max-width-wide);
   margin: 0 auto;
 
   &__header {
@@ -279,6 +283,19 @@ function onExpenseUpdate(newItems: BudgetItem[]) {
     display: inline-block;
     width: auto;
     margin: 0;
+  }
+
+  &__grid {
+    display: block;
+  }
+
+  &__main,
+  &__side {
+    min-width: 0;
+  }
+
+  &__side {
+    margin-top: var(--bk-space-lg);
   }
 
   &__section {
@@ -303,6 +320,26 @@ function onExpenseUpdate(newItems: BudgetItem[]) {
     display: flex;
     justify-content: center;
     padding: var(--bk-space-xl);
+  }
+}
+
+// Desktop: goal on the left, the two totals on the right.
+@media (min-width: 1024px) {
+  .planning-page {
+    &__header h1 {
+      font-size: var(--bk-text-3xl);
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--bk-space-lg);
+      align-items: start;
+    }
+
+    &__side {
+      margin-top: 0;
+    }
   }
 }
 </style>

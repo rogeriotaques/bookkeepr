@@ -9,6 +9,13 @@ export const formatCurrency = (value: number, options: FormatCurrencyOptions = {
   return value.toLocaleString(locale, { style, currency });
 };
 
+export const parseAmount = (value: number | string): number => {
+  const num = parseFloat(String(value).replace(/[^0-9.]/g, ''));
+  return Number.isFinite(num) ? num : 0;
+};
+
+export const formatAmount = (value: number): string => (value ? value.toLocaleString('en-US') : '');
+
 export const getCurrencySymbol = (currencyCode: string) => {
   const currencies: Record<string, string> = {
     AED: 'د.إ',

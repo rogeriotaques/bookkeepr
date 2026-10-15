@@ -1,5 +1,9 @@
 <template>
   <section class="report-page">
+    <header class="report-page__header">
+      <h1>Annual Report</h1>
+    </header>
+
     <div
       v-if="isReportError"
       class="error-banner"
@@ -106,17 +110,20 @@ const locale = computed(() => {
 
 const datasets = computed(() => {
   const _ds: any = [];
+  const data = reportData.value?.data;
+
+  if (!data) return _ds;
 
   _ds.push({
     type: 'line',
     label: 'Net worth',
-    data: reportData.value?.data.balance.slice(1),
+    data: data.balance.slice(1),
   });
 
-  Object.keys(reportData.value?.data ?? {}).forEach((table) => {
+  Object.keys(data).forEach((table) => {
     if (['balance', 'tax'].includes(table)) return;
 
-    reportData.value?.data[table].forEach((group: any) => {
+    data[table].forEach((group: any) => {
       _ds.push({
         type: 'bar',
         label: group[0] ?? 'N/A',
@@ -137,6 +144,7 @@ const chartData = computed(() => ({
 
 const chartOptions: any = {
   responsive: true,
+  maintainAspectRatio: false,
   elements: {
     line: {
       fill: true,
@@ -153,14 +161,20 @@ const chartOptions: any = {
   plugins: {
     legend: {
       position: 'right',
+      labels: {
+        boxWidth: 12,
+        boxHeight: 12,
+        font: { size: 11, family: 'Archivo, sans-serif' },
+        padding: 6,
+      },
     },
   },
 };
 
 const chartStyles: any = {
   position: 'relative',
-  margin: '8px auto',
-  width: '850px',
+  width: '100%',
+  height: '100%',
 };
 
 const onPrintClickHandler = () => {
@@ -170,7 +184,23 @@ const onPrintClickHandler = () => {
 
 <style lang="scss" scoped>
 .report-page {
+  padding: var(--bk-space-md);
+  max-width: var(--bk-max-width-wide);
+  margin: 0 auto;
+
+  &__header {
+    margin-bottom: var(--bk-space-lg);
+
+    h1 {
+      font-size: var(--bk-text-2xl);
+      color: var(--bk-text-primary);
+      margin: 0;
+    }
+  }
+
   &__chart {
+    position: relative;
+    height: 420px;
     padding: 16px 0;
     background-color: var(--c-background-disabled);
     box-shadow: rgba(0, 0, 0, 0.15) 0 0 12px inset;
@@ -182,9 +212,11 @@ const onPrintClickHandler = () => {
     justify-content: center;
     align-items: center;
   }
+}
 
-  &__insights {
-    display: flex;
+@media (min-width: 1024px) {
+  .report-page__header h1 {
+    font-size: var(--bk-text-3xl);
   }
 }
 

@@ -1,9 +1,5 @@
 <template>
   <div class="history-page">
-    <header class="history-page__header">
-      <h1>Transactions History</h1>
-    </header>
-
     <!-- Budget Summary Bar -->
     <div v-if="!isLoading" class="box history-page__summary">
       <div class="history-page__summary-item">
@@ -44,8 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, watch } from 'vue';
 import dayjs from 'dayjs';
 
 import BalanceTable from '@/components/transactions/BalanceTable.vue';
@@ -57,23 +52,14 @@ import useDataFetch from '@/composable/useDataFetch';
 import { useBudget } from '@/composable/useBudget';
 import { useMonthlyReport } from '@/composable/useMonthlyReport';
 
-const router = useRouter();
-
 const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
 
-const onCmdInputHandler = (e: KeyboardEvent) => {
-  if (!e.metaKey || e.key !== 'i') return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  router.push('/entry');
-};
-
-onMounted(() => document.addEventListener('keydown', onCmdInputHandler));
-onBeforeUnmount(() => document.removeEventListener('keydown', onCmdInputHandler));
+// The summary and the progress bar follow the year/month filter, so the
+// composables get reactive sources rather than a snapshot of the mount month.
+const selectedYear = computed(() => Number(year.value));
+const selectedMonth = computed(() => Number(month.value));
 
 const settingsUrl = ref('/settings');
 const recordedYearsUrl = ref('/entries/recorded-years');
@@ -88,8 +74,8 @@ const { isLoading: isEntriesLoading, data: entriesData } = await getEntries();
 const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
 const { isLoading: isSettingsLoading, data: settingsData } = await getSettingsData();
 
-const { expenseBudgetTotal, isLoading: isBudgetLoading } = useBudget(Number(year.value), Number(month.value));
-const { report, isLoading: isReportLoading } = useMonthlyReport(Number(year.value), Number(month.value));
+const { expenseBudgetTotal, isLoading: isBudgetLoading } = useBudget(selectedYear, selectedMonth);
+const { report, isLoading: isReportLoading } = useMonthlyReport(selectedYear, selectedMonth);
 
 const isLoading = computed(() =>
   isEntriesLoading.value || isSettingsLoading.value || isBudgetLoading.value || isReportLoading.value
@@ -125,19 +111,8 @@ function formatCurrency(value: number): string {
 
 <style lang="scss" scoped>
 .history-page {
-  padding: var(--bk-space-md);
-  max-width: var(--bk-max-width);
-  margin: 0 auto;
-
-  &__header {
-    margin-bottom: var(--bk-space-lg);
-
-    h1 {
-      font-size: var(--bk-text-2xl);
-      color: var(--bk-text-primary);
-      margin: 0;
-    }
-  }
+  // No page chrome: this is the right-hand column of the Transactions page,
+  // which owns the width and the gutter.
 
   &__summary {
     display: grid;
@@ -157,7 +132,7 @@ function formatCurrency(value: number): string {
       }
 
       :deep(.progress::before) {
-        background-color: var(--c-danger);
+        background-color: var(--bk-danger-light);
       }
     }
 

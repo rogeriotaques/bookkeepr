@@ -8,16 +8,15 @@ describe('Router', () => {
     expect(route.name).toBe('Dashboard');
   });
 
-  it('should have an Entry route at /entry', () => {
-    const route = routes.find((r) => r.path === '/entry');
+  it('should have a Transactions route at /transactions', () => {
+    const route = routes.find((r) => r.path === '/transactions');
     expect(route).toBeDefined();
-    expect(route.name).toBe('Entry');
+    expect(route.name).toBe('Transactions');
   });
 
-  it('should have a History route at /history', () => {
-    const route = routes.find((r) => r.path === '/history');
-    expect(route).toBeDefined();
-    expect(route.name).toBe('History');
+  it('should redirect the retired /entry and /history routes', () => {
+    expect(routes.find((r) => r.path === '/entry')?.redirect).toBe('/transactions');
+    expect(routes.find((r) => r.path === '/history')?.redirect).toBe('/transactions');
   });
 
   it('should have a Planning route at /planning', () => {
@@ -33,8 +32,9 @@ describe('Router', () => {
     expect(route.children.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('should not have /report route anymore', () => {
+  it('should have a Report route at /report', () => {
     const route = routes.find((r) => r.path === '/report');
-    expect(route).toBeUndefined();
+    expect(route).toBeDefined();
+    expect(route.name).toBe('Report');
   });
 });

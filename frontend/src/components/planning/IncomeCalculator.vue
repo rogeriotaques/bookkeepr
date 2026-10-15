@@ -1,9 +1,13 @@
 <template>
-  <BaseModal title="Income Calculator" @close="onClose">
+  <BaseModal
+    v-model="isOpen"
+    title="Income Calculator"
+    confirm-text="Done"
+    @confirm="onDone"
+    @cancel="onClose"
+  >
     <div class="income-calc">
-      <div class="income-calc__total">
-        Total: {{ formatCurrency(total) }}
-      </div>
+      <div class="box income-calc__total">Total: {{ formatCurrency(total) }}</div>
 
       <div class="income-calc__rows">
         <div
@@ -11,19 +15,27 @@
           :key="index"
           class="income-calc__row"
         >
-          <input
-            v-model="item.label"
-            class="income-calc__input"
-            placeholder="Label"
-          />
-          <input
-            v-model.number="item.amount"
-            type="number"
-            class="income-calc__input"
-            placeholder="Amount"
-          />
+          <div class="input income-calc__label">
+            <input
+              ref="firstFields"
+              v-model="item.label"
+              placeholder="Label"
+            />
+          </div>
+          <div class="input input--with-addons income-calc__amount">
+            <span class="input__addon">¥</span>
+            <input
+              v-model="item.amount"
+              v-money="V_MONEY_OPTIONS"
+              type="text"
+              inputmode="numeric"
+              placeholder="Amount"
+            />
+          </div>
           <button
-            class="income-calc__delete"
+            tabindex="-1"
+            class="button--auto-width income-calc__delete"
+            aria-label="Remove"
             @click="removeRow(index)"
           >
             ×
@@ -31,26 +43,21 @@
         </div>
       </div>
 
-      <button class="income-calc__add" @click="addRow">
+      <button class="is-full-width income-calc__add" @click="addRow">
         + Add
       </button>
-
-      <div class="income-calc__actions">
-        <button class="income-calc__btn income-calc__btn--secondary" @click="onClose">
-          Cancel
-        </button>
-        <button class="income-calc__btn income-calc__btn--primary" @click="onDone">
-          Done
-        </button>
-      </div>
     </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import BaseModal from '@/components/shared/BaseModal.vue';
 import { BudgetItem } from '@/domain/interfaces.budget';
+import { V_MONEY_OPTIONS } from '@/domain/constants';
+import { parseAmount, formatAmount } from '@/domain/utils';
+
+type EditableItem = Omit<BudgetItem, 'amount'> & { amount: number | string };
 
 const props = defineProps<{
   items: BudgetItem[];
@@ -61,25 +68,30 @@ const emit = defineEmits<{
   (e: 'update', items: BudgetItem[]): void;
 }>();
 
-const localItems = ref<BudgetItem[]>(
+const isOpen = ref(true);
+const firstFields = ref<HTMLInputElement[]>([]);
+
+const localItems = ref<EditableItem[]>(
   props.items.length > 0
-    ? props.items.map((i) => ({ ...i }))
-    : [{ type: 'income', label: '', amount: 0, group_code: null, expense_type: null, sort_order: 0 }]
+    ? props.items.map((i) => ({ ...i, amount: formatAmount(i.amount) }))
+    : [{ type: 'income', label: '', amount: '', group_code: null, expense_type: null, sort_order: 0 }]
 );
 
 const total = computed(() =>
-  localItems.value.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+  localItems.value.reduce((sum, item) => sum + parseAmount(item.amount), 0)
 );
 
-function addRow() {
+async function addRow() {
   localItems.value.push({
     type: 'income',
     label: '',
-    amount: 0,
+    amount: '',
     group_code: null,
     expense_type: null,
     sort_order: localItems.value.length,
   });
+  await nextTick();
+  firstFields.value[localItems.value.length - 1]?.focus();
 }
 
 function removeRow(index: number) {
@@ -90,13 +102,17 @@ function removeRow(index: number) {
 }
 
 function onClose() {
+  isOpen.value = false;
   emit('close');
 }
 
 function onDone() {
   // Filter out empty rows
-  const valid = localItems.value.filter((item) => item.label.trim() !== '' && item.amount > 0);
-  emit('update', valid);
+  const valid = localItems.value
+    .map((item) => ({ ...item, label: item.label.trim(), amount: parseAmount(item.amount) }))
+    .filter((item) => item.label !== '' && item.amount > 0);
+  isOpen.value = false;
+  emit('update', valid as BudgetItem[]);
 }
 
 function formatCurrency(value: number): string {
@@ -106,15 +122,10 @@ function formatCurrency(value: number): string {
 
 <style lang="scss" scoped>
 .income-calc {
-  padding: var(--bk-space-md);
-
   &__total {
     font-size: var(--bk-text-lg);
     font-weight: 600;
     text-align: center;
-    padding: var(--bk-space-md);
-    background: var(--bk-background);
-    border-radius: var(--bk-radius-md);
     margin-bottom: var(--bk-space-lg);
   }
 
@@ -122,85 +133,33 @@ function formatCurrency(value: number): string {
     display: flex;
     flex-direction: column;
     gap: var(--bk-space-sm);
-    margin-bottom: var(--bk-space-md);
-    max-height: 300px;
-    overflow-y: auto;
   }
 
   &__row {
     display: flex;
+    align-items: flex-start;
     gap: var(--bk-space-sm);
-    align-items: center;
   }
 
-  &__input {
+  &__label,
+  &__amount {
     flex: 1;
-    padding: var(--bk-space-sm);
-    border: 1px solid var(--bk-border);
-    border-radius: var(--bk-radius-md);
-    font-size: var(--bk-text-base);
-    min-height: var(--bk-touch-min);
-
-    &:focus {
-      outline: none;
-      border-color: var(--bk-primary);
-    }
   }
 
   &__delete {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--bk-radius-md);
-    border: none;
-    background: transparent;
-    color: var(--bk-danger);
-    font-size: var(--bk-text-xl);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: var(--bk-touch-min);
-    min-height: var(--bk-touch-min);
+    flex: 0 0 auto;
+    color: var(--c-danger);
+    background-color: var(--c-danger-background);
+    border-color: var(--c-danger);
+    box-shadow: var(--s-box-shadow) var(--c-danger);
   }
 
   &__add {
-    width: 100%;
-    padding: var(--bk-space-sm);
-    border: 1px dashed var(--bk-border);
-    border-radius: var(--bk-radius-md);
-    background: var(--bk-surface);
-    color: var(--bk-primary);
-    font-size: var(--bk-text-base);
-    cursor: pointer;
-    margin-bottom: var(--bk-space-lg);
-    min-height: var(--bk-touch-min);
+    margin-top: var(--bk-space-lg);
   }
 
-  &__actions {
-    display: flex;
-    gap: var(--bk-space-md);
-  }
-
-  &__btn {
-    flex: 1;
-    padding: var(--bk-space-md);
-    border-radius: var(--bk-radius-md);
-    font-size: var(--bk-text-base);
-    font-weight: 500;
-    cursor: pointer;
-    min-height: var(--bk-touch-min);
-    border: none;
-
-    &--primary {
-      background: var(--bk-primary);
-      color: white;
-    }
-
-    &--secondary {
-      background: var(--bk-surface);
-      color: var(--bk-text-primary);
-      border: 1px solid var(--bk-border);
-    }
+  .input {
+    margin-bottom: 0;
   }
 }
 </style>

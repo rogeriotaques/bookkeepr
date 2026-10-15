@@ -1,17 +1,25 @@
 <template>
   <div class="entry-page">
     <header class="entry-page__header">
-      <h1>Transaction</h1>
+      <h1>Transactions</h1>
     </header>
 
-    <EntryForm
-      :data="form"
-      :is-submitting="isSubmitting"
-      :is-editing="false"
-      :locale="locale"
-      @submit="onSubmitHandler"
-      @cancel="resetForm"
-    />
+    <div class="entry-page__grid" data-testid="transactions-grid">
+      <div class="entry-page__main">
+        <EntryForm
+          :data="form"
+          :is-submitting="isSubmitting"
+          :is-editing="false"
+          :locale="locale"
+          @submit="onSubmitHandler"
+          @cancel="resetForm"
+        />
+      </div>
+
+      <div class="entry-page__side">
+        <TransactionHistoryPage />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -21,6 +29,7 @@ import { useToast } from 'vue-toastification';
 import dayjs from 'dayjs';
 
 import EntryForm from '@/components/transactions/EntryForm.vue';
+import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 import { addEntry } from '@/domain/network';
 import useDataFetch from '@/composable/useDataFetch';
 
@@ -75,7 +84,7 @@ const onSubmitHandler = async () => {
 <style lang="scss" scoped>
 .entry-page {
   padding: var(--bk-space-md);
-  max-width: var(--bk-max-width);
+  max-width: var(--bk-max-width-wide);
   margin: 0 auto;
 
   &__header {
@@ -85,6 +94,38 @@ const onSubmitHandler = async () => {
       font-size: var(--bk-text-2xl);
       color: var(--bk-text-primary);
       margin: 0;
+    }
+  }
+
+  &__grid {
+    display: block;
+  }
+
+  &__main {
+    min-width: 0;
+  }
+
+  &__side {
+    margin-top: var(--bk-space-lg);
+  }
+}
+
+// Desktop: the entry form on the left, the month's transactions on the right.
+@media (min-width: 1024px) {
+  .entry-page {
+    &__header h1 {
+      font-size: var(--bk-text-3xl);
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+      gap: var(--bk-space-lg);
+      align-items: start;
+    }
+
+    &__side {
+      margin-top: 0;
     }
   }
 }

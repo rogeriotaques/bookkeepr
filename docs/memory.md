@@ -7,7 +7,7 @@
 - Auth: password-based (PBKDF2), `config.passwd`; no magic link.
 - CSS: vendored `frontend/src/styles/boring_2.0.0.css` (boring-css v2.0.0), imported by `bookkeepr.scss`. Simple Grid is gone (v2 has built-in CSS Grid).
 - Design tokens: `frontend/src/styles/tokens.scss` (`--bk-*`).
-- Test runners: Vitest. Frontend `npm test` (57 tests), backend `npm test` (36 tests).
+- Test runners: Vitest. Frontend `npm test` (63 tests), backend `npm test` (36 tests).
 
 ## Session 2026-10-10 — Boring CSS v2 upgrade
 
@@ -50,8 +50,82 @@
 - Locals sync when data for the selected month arrives, guarded by a `dirty` flag (unsaved local edits). `useSaveBudget` writes saved data back with `setQueryData` (no refetch) so the cache is never stale.
 - Bug found in the browser: returning to a month showed an empty goal and the next save 400'd ("Budget already exists"). Cause: Vue Query served the **stale cached** value (e.g. `null` from before the create); the watcher applied it, then the fresh refetch for the **same key** was skipped by a key-only guard, leaving `budgetId` null. Fix: `setQueryData` on save + re-apply same-key data when not dirty. Covered by `PlanningPage.integration.test.ts`.
 - Tests: `useBudget.test.ts` (reactive refetch) + `PlanningPage.test.ts` (9 unit cases) + `PlanningPage.integration.test.ts` (return-to-month, edited goal → update not create). 57/57 frontend. Plan: `docs/plans/2026-10-14-planning-autosave.md`.
+- Gotcha: `IncomeCalculator`/`ExpensesCalculator` do not use the current `BaseModal` API. `BaseModal` uses `defineModel()` for `isOpen` and emits `cancel`/`confirm`; the calculators passed no `v-model` and used `@close`, so `isOpen` was undefined and the `+` buttons opened nothing. Fixed both to `v-model="isOpen"` (local ref, starts true) + `confirm-text="Done"`/`@confirm`/`@cancel`, dropping their custom footer. `PlanningPage` tests stub these components, so only `PlanningCalculators.test.ts` (mounts real `BaseModal`, asserts teleported modal text) catches it. 59/59 frontend.
+- Restyled both calculators to Boring primitives (replacing the old rounded custom look): total is a nested `.box`; each item is a flex row grouping its fields + an auto-width red delete button (`--c-danger` text/border, `--c-danger-background`); add is `.is-full-width` with a `--bk-space-lg` top gap matching the total gap; amount uses `.input--with-addons` with a `¥` `.input__addon`. Boring's `.input > [type=number]` hides the native spinners. Verified via terminal-browser screenshots.
+- Known cramped spot: at narrow widths the Expenses row packs type + category + amount(+addon) + delete into one flex line, so "Select category" wraps and its caret overlaps. Not yet fixed.
+- Calculator UX tweaks: delete buttons are `tabindex="-1"` (Tab skips them → next row's first field, then `+ Add`); `+ Add` focuses the new row's first field via a `v-for` template-ref array; amount uses the `v-money` directive (masked, `V_MONEY_OPTIONS`). NOTE: the `v-money` *directive* (v0.8.1, Vue 2-era; the bundled `<money>` component is not usable with Vue 3 `v-model`) makes the model a formatted **string** ("1,000"), so `BudgetItem.amount` is edited as `number | string` and normalized with new `parseAmount`/`formatAmount` helpers in `domain/utils.ts` before totals/emit. Tests register `VMoney` via `global.plugins`.
+- Bug: the expense calculator listed no categories. `ExpensesCalculator` called raw `http.get('/groups?active=1')`, which sends **no** `Authorization` header (only the named network helpers pass `headers.value`), so it 401'd (and emits `unauthorized` → logout) and read the wrong shape (`res.data.groups`; `http` already unwraps to the body). Added `fetchGroups()` to `domain/network` (with auth headers) and used `res.groups`. Test asserts only `outcome` groups are listed.
 
 ## Phase 4 status (WIP)
 
 - Done: 4.1 schema + budget tables; 4.2 budget/reports/groups endpoints; 4.3 routes + bottom-tab layout + tokens; 4.4 Dashboard; 4.5 Planning + calculators; 4.6 entry/history split; 4.7 groups `expense_type`; most 4.8 shared-component bug fixes.
 - Open: `PRAGMA foreign_keys = ON` missing in production `backend/main.js` (only in `tests/utils.js`); no `entries.group` ON DELETE rule; dead/unrouted files `pages/NewEntryPage.vue`, `pages/ReportPage.vue`, `components/report/*`, `components/navigation/AppNavBar.vue`; 4.9 responsive/a11y/QA not verified; `docs/plans/phase-4-redesign.md` has no `status` field and is not linked from root `AGENTS.md`.
+
+## Session 2026-10-15 — Desktop UX pass
+
+- New `--bk-max-width-wide: 1180px` (tokens.scss). Dashboard, History, Entry and Planning use it; Auth and lone forms keep `--bk-max-width`.
+- `Dashboard.vue`: at ≥1024px the tab bar becomes a sticky **top** bar (5 tabs + right-aligned Logout); the fixed bottom bar stays below 1024px. Gotcha: `bookkeepr.scss` has `button, .button { display: flex !important }`, which beats a plain `display: none` — every breakpoint toggle of a button's display needs `!important`.
+- `DashboardPage`: dropped the 5 quick-action buttons (the nav owns History/Planning/Settings). Header keeps "Record new expense" (primary) + Logout. ≥1024px: 2-col grid — summary + progress + annual chart | recent transactions.
+- New `components/report/AnnualChart.vue` (chart.js `Bar`, `/reports?year=`: balance line + income bars + negative outcome bars) and `components/transactions/RecentTransactions.vue` (current-month entries, newest first, `limit` prop). Both self-fetch with `useDataFetch` + top-level await (needs Suspense, same as `EntryForm`).
+- `TransactionHistoryPage` widened; `TransactionEntryPage` 2-col (form | recent); `PlanningPage` 2-col (goal | totals). Page `h1` → `--bk-text-3xl` at ≥1024px.
+- Gotcha: `vue-chartjs` `Bar` has no `name`, so VTU cannot stub it by key (`stubs: { Bar: true }` is a no-op and chart.js then fails on the jsdom canvas). Mock the `vue-chartjs` module instead.
+- `/report` stays unrouted (`router.test.ts` asserts it); the chart lives on the Dashboard.
+- Tests 63 → 74, all green. Build OK. Browser check blocked: `terminal-browser` cannot resolve the ghostty pane from the agent shell and no browser MCP is configured.
+
+## Session 2026-10-15 — Desktop UX feedback round 2
+
+- **Browser checks are possible after all:** `terminal-browser` cannot find the ghostty pane from the agent shell, but headless Chrome over CDP works. Launch `Google Chrome --headless=new --remote-debugging-port`, seed `sessionStorage.setItem('credential','dXNlcjoxMjM=')`, `Page.reload`, then `Page.captureScreenshot`. Chrome is at `/Applications/Google Chrome.app`. `usePasswd` is true, so the seed step is required.
+- Fixed the nav overlap: the base rule is `position: fixed` and the desktop media query never set `position`. Now `position: sticky`.
+- Nav tabs looked like boxed widgets because Boring styles every bare anchor (`a:not(.button):not(.card__link)`, 0,2,1). Styled from `.dashboard__nav .dashboard__tab` (0,3,0) to win without `!important`.
+- Added a `display: none`/`flex` font-size 10px + 4px padding for the mobile tab so 6 tabs fit 375px; `overflow-x: auto` on the bar is a safety net.
+- `--bk-danger-light: color-mix(in srgb, var(--bk-danger) 55%, white)` is the progress fill on Dashboard + History.
+- Chart.js left legends clip their labels because the text is measured before the Archivo webfont loads. Pinning `legend.labels.font.family = 'Archivo, sans-serif'` (+ size 11, boxWidth 12) fixes it. Applied in `AnnualChart` and `ReportPage`.
+- `/report` restored (route + 6th nav tab). Two dormant bugs surfaced: `ReportPage`'s scoped `&__insights { display: flex }` beat Boring's `.row` grid so the insight cards collapsed, and the chart had no height so it rendered blank.
+- The Dashboard annual chart is `display: none` below 1024px — a 21-item left legend does not fit a phone. The Report page has the full chart.
+- Tests 74 → 75, all green. Build OK. Visually verified at 375px and 1440px: Dashboard, Entry, History, Planning, Report.
+
+## Session 2026-10-15 — Logout prominence
+
+- The desktop nav Logout is now a quiet grey text action (transparent, no border, no shadow); it turns `--bk-danger` on hover/focus/active. The mobile page Logout became a neutral outline button instead of a red-filled one, so the action looks the same on both.
+- Specificity gotcha (same family as the `display: none` one): Boring's `button:not(:disabled):not(.button--disabled):hover` is **(0,3,1)**, not (0,2,1) — `:hover` counts too. A scoped `&__logout:hover` is only (0,3,0) and loses. Add the ancestor (`.dashboard__nav .dashboard__logout`) or `.dashboard-page .dashboard-page__logout` to reach (0,4,0).
+- Screenshot tip: `Page.captureScreenshot` with `captureBeyondViewport: true` re-renders and **drops the hover state**, so verify hover with `Runtime.evaluate(getComputedStyle(...).color)` after `Input.dispatchMouseEvent`, not from the image.
+
+## Session 2026-10-15 — Nav alignment
+
+- The bar now shares the page grid: a `__nav-inner` wrapper with `max-width: var(--bk-max-width-wide)` and the same 16px gutter, `justify-content: flex-start` on desktop. The first tab starts exactly on the `h1` (`tabLeft === h1Left === 146` at 1440px) and Logout ends on the content's right edge.
+- Gotcha: for an absolutely positioned element, `right` measures from the **margin box**, so Boring's `button { margin: 0 4px 8px 0 }` shifted the Logout 4px short of the content edge. `margin: 0` fixes it.
+- Logout hover is now a `--bk-danger-light` pill with `--bk-danger` text (confirmed via computed style: `rgb(165, 43, 43)` on `rgb(205, 138, 138)`).
+
+## Session 2026-10-15 — Dashboard layout swap
+
+- `DashboardPage` columns swapped: the annual chart is the left column (2fr) and the summary + spending progress + recent transactions stack in the right column (1fr). At 1440px that measured chart `x=146 w=745`, side `x=919 w=375`.
+- The 3-up summary still fits the 375px right column; the chart legend still fits 745px. Below 1024px the grid is `display: block` (single column) and the chart stays `display: none` — a 21-item left legend does not fit a phone, so the full chart lives on the Report page.
+- `RecentTransactions` moved inside the side column but outside the `isLoading` branch, so it renders with its own skeleton while the budget/report queries settle.
+
+## Session 2026-10-15 — Entry + History merged into Transactions
+
+- Routes `/entry` and `/history` are gone; both are now `redirect: '/transactions'` so old hash bookmarks still work. Nav is 5 tabs (Dashboard, Transactions, Planning, Report, Settings); the merged tab uses `IconReceipt`.
+- `TransactionEntryPage` is the merged page: `EntryForm` (380px) left, `TransactionHistoryPage` (1fr) right at ≥1024px; single column (form first) below.
+- `TransactionHistoryPage` lost its page chrome (gutter/max-width/`h1`) and its `Cmd+I → /entry` shortcut. **Watch out:** it used to fight `EntryForm`'s `Cmd+I` (focus the amount field) — two `keydown` listeners on `document` for the same chord. Any future page that hosts both must not re-add it.
+- The balance table survives the narrower column: `white-space: nowrap` keeps amounts on one line and the description column (`white-space: normal`, `min-width: 200px`) takes all the wrapping. Verified by injecting rows with `¥ 1,234,567` and 3-line descriptions into the live DOM in headless Chrome — the table stayed at 744px and `document.scrollWidth` never left the viewport, so no `overflow-x` workaround is needed.
+- Handy trick: to test wide data without writing to the DB, `insertAdjacentHTML` fake `<tr>`s into the live table and re-measure.
+- Tests 75 → 71 (four tests about the retired pages/tabs removed). Build OK.
+
+## Session 2026-10-15 — Dashboard annual budget summary
+
+- `DashboardPage` no longer uses `useBudget`/`useMonthlyReport`. It fetches `/reports?year=` and derives **annual budget = Σ `budgets[].budget`** and **annual actual = `insights.thisYear.outcome`**. No backend change was needed: the annual report already carries both.
+- **`useDataFetch` caches by value, not by ref:** the key is `['fetch', url]` and vue-query unwraps the ref, so two components fetching `/reports?year=2026` share one cache entry and issue **one** request. Verified with CDP `Network.requestWillBeSent` (1 call with both the page and `AnnualChart` mounted). The earlier worry about a duplicated `/reports` fetch was unfounded.
+- `DashboardPage` now has a top-level `await`, so it needs the `<Suspense>` that `App.vue` already wraps `<RouterView>` in. Its test must mount through a `Suspense` helper (same as `EntryForm`/`AnnualChart`).
+- Testing trick worth reusing: when the real data cannot distinguish two behaviours (here the annual sum equals the only month that has a budget), intercept the API and serve crafted data. `Fetch.enable({ patterns: [{ urlPattern: '*/api/reports*' }] })` + `Fetch.fulfillRequest` with a base64 `body` — no DB writes, and it proves the whole path.
+- Tests 71 → 72. Build OK. Verified at 1440px and 375px.
+
+## Session 2026-10-15 — Transactions summary follows the filter
+
+- Bug: the summary bar on `/transactions` was pinned to the mount month. Cause: `useBudget(Number(year.value), Number(month.value))` — reading a ref with `Number()` during setup snapshots the value. The table was fine because its URL is a `computed`.
+- **Rule of thumb:** reactiveness must come from a `computed`/getter, never from `someRef.value`. Two ways to spot it: a `.value` inside a composable argument, or a composable whose parameters are plain `number`/`string` (as `useMonthlyReport` was).
+- `useMonthlyReport` now mirrors `useBudget`: `MaybeRefOrGetter<number>` + `toValue` in both the `queryKey` (`computed`) and the `queryFn`. With a reactive key vue-query refetches on its own; the `watch([year, month])` only needs to invalidate the entries/recorded-years queries.
+- Test recipe for "does this follow the filter?": capture the composable's arguments in the mock, emit `update:month` from the filter stub, then `toValue(capturedArg)`. A snapshot returns the old number and fails.
+- Verified by driving the real dropdown in headless Chrome (`trigger.click()` then the `.base-dropdown__item` with the wanted label — plain DOM `.click()`, no mouse events needed). October ¥1,700/¥1,000/59% → May ¥0/¥0/0%, with a fresh `month=5` request.
+- Tests 72 → 74 (19 files). Build OK.
+
+

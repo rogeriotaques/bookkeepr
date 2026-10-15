@@ -4,6 +4,7 @@
   --bk-primary-hover: color-mix(in srgb, var(--bk-primary) 85%, black);
   --bk-danger: #a52b2b;
   --bk-danger-hover: color-mix(in srgb, var(--bk-danger) 85%, black);
+  --bk-danger-light: color-mix(in srgb, var(--bk-danger) 55%, white);
   --bk-surface: #ffffff;
   --bk-background: #f5f5f5;
   --bk-text-primary: #1a1a1a;
@@ -47,6 +48,7 @@
   --bk-nav-height: 60px;
   --bk-bottom-nav-height: 64px;
   --bk-max-width: 600px;
+  --bk-max-width-wide: 1180px;
   --bk-safe-area-top: env(safe-area-inset-top, 0px);
   --bk-safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
