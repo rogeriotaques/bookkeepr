@@ -1,11 +1,16 @@
 <template>
   <div class="history-page">
-    <!-- Planned vs realized summary -->
-    <PlannedRealizedSummary
-      v-if="!isLoading"
-      :planned="planned"
-      :realized="realized"
-    />
+    <!-- Planned vs realized: table and progress, side by side when wide -->
+    <div v-if="!isLoading" class="history-page__summary">
+      <PlannedRealizedTable
+        :planned="planned"
+        :realized="realized"
+      />
+      <PlannedRealizedProgress
+        :planned="planned"
+        :realized="realized"
+      />
+    </div>
 
     <BalanceFilterForm
       v-model:year="year"
@@ -31,7 +36,8 @@ import dayjs from 'dayjs';
 
 import BalanceTable from '@/components/transactions/BalanceTable.vue';
 import BalanceFilterForm from '@/components/transactions/BalanceFilterForm.vue';
-import PlannedRealizedSummary from '@/components/report/PlannedRealizedSummary.vue';
+import PlannedRealizedTable from '@/components/report/PlannedRealizedTable.vue';
+import PlannedRealizedProgress from '@/components/report/PlannedRealizedProgress.vue';
 
 import { ExtendedEntry } from '@/domain/interfaces';
 import useDataFetch from '@/composable/useDataFetch';
@@ -97,5 +103,14 @@ watch([year, month], () => {
 .history-page {
   // No page chrome: this is the right-hand column of the Transactions page,
   // which owns the width and the gutter.
+
+  // Table and progress sit side by side when there is room, stacked when not.
+  &__summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: var(--bk-space-lg);
+    align-items: stretch;
+    margin-bottom: var(--bk-space-lg);
+  }
 }
 </style>

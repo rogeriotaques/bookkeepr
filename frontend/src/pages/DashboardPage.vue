@@ -1,55 +1,62 @@
 <template>
   <div class="dashboard-page">
-    <header class="dashboard-page__header">
-      <div class="dashboard-page__heading">
-        <h1>You're doing great!</h1>
-        <p class="dashboard-page__subtitle">Keep it up.</p>
-      </div>
-
-      <button
-        type="button"
-        class="is-full-width dashboard-page__logout"
-        @click="onLogout"
-      >
-        Logout
-      </button>
-    </header>
-
     <div class="dashboard-page__grid" data-testid="dashboard-grid">
-      <!-- Left: the annual overview. -->
-      <div class="box dashboard-page__chart" data-testid="dashboard-chart">
-        <AnnualChart :year="year" />
-      </div>
+      <!-- Row 1: greeting (left) + annual budget card (right). -->
+      <header class="dashboard-page__header">
+        <div class="box dashboard-page__heading">
+          <h1>You're doing great!</h1>
+          <p class="dashboard-page__subtitle">Keep it up.</p>
+        </div>
 
-      <!-- Right: summary, progress and the latest entries, stacked. -->
-      <div class="dashboard-page__side">
+        <button
+          type="button"
+          class="is-full-width dashboard-page__logout"
+          @click="onLogout"
+        >
+          Logout
+        </button>
+      </header>
+
+      <div class="dashboard-page__summary">
         <div v-if="isLoading" data-testid="dashboard-loading" class="dashboard-page__loading">
           <BaseSkeleton />
         </div>
 
-        <template v-else>
-          <!-- Empty state: no budget anywhere in the year -->
-          <div v-if="!hasBudget" class="dashboard-page__empty">
-            <p>No budget set for {{ year }}.</p>
-            <RouterLink to="/planning" class="dashboard-page__cta">
-              Set up your budget
-            </RouterLink>
-          </div>
+        <!-- Empty state: no budget anywhere in the year -->
+        <div v-else-if="!hasBudget" class="dashboard-page__empty">
+          <p>No budget set for {{ year }}.</p>
+          <RouterLink to="/planning" class="dashboard-page__cta">
+            Set up your budget
+          </RouterLink>
+        </div>
 
-          <template v-else>
-            <!-- Summary (planned vs realized) and progress -->
-            <PlannedRealizedSummary
-              :planned="planned"
-              :realized="realized"
-              :title="`Annual budget ${year}`"
-            />
+        <PlannedRealizedTable
+          v-else
+          :planned="planned"
+          :realized="realized"
+          :title="`Annual budget ${year}`"
+        />
+      </div>
 
-            <!-- Empty state: no transactions -->
-            <div v-if="realized.income === 0 && realized.expense === 0" class="dashboard-page__empty">
-              <p>No transactions recorded this year.</p>
-            </div>
-          </template>
-        </template>
+      <!-- Row 2: the annual overview (left) + progress and latest entries (right). -->
+      <div class="box dashboard-page__chart" data-testid="dashboard-chart">
+        <AnnualChart :year="year" />
+      </div>
+
+      <div class="dashboard-page__side">
+        <PlannedRealizedProgress
+          v-if="!isLoading && hasBudget"
+          :planned="planned"
+          :realized="realized"
+        />
+
+        <!-- Empty state: no transactions -->
+        <div
+          v-if="!isLoading && hasBudget && realized.income === 0 && realized.expense === 0"
+          class="dashboard-page__empty"
+        >
+          <p>No transactions recorded this year.</p>
+        </div>
 
         <RecentTransactions :limit="5" />
       </div>
@@ -63,7 +70,8 @@ import { RouterLink } from 'vue-router';
 import dayjs from 'dayjs';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import AnnualChart from '@/components/report/AnnualChart.vue';
-import PlannedRealizedSummary from '@/components/report/PlannedRealizedSummary.vue';
+import PlannedRealizedTable from '@/components/report/PlannedRealizedTable.vue';
+import PlannedRealizedProgress from '@/components/report/PlannedRealizedProgress.vue';
 import RecentTransactions from '@/components/transactions/RecentTransactions.vue';
 import useDataFetch from '@/composable/useDataFetch';
 import { logout } from '@/composable/useState';
@@ -106,6 +114,7 @@ const onLogout = () => logout();
     margin-bottom: var(--bk-space-xl);
   }
 
+  // The greeting is an account insight, not a title: keep its own casing.
   &__heading {
     text-align: center;
 
@@ -113,6 +122,7 @@ const onLogout = () => logout();
       font-size: var(--bk-text-xl);
       color: var(--bk-text-primary);
       margin: 0;
+      text-transform: none;
     }
   }
 
@@ -128,9 +138,14 @@ const onLogout = () => logout();
     background-color: var(--bk-surface);
   }
 
-  // Mobile: everything stacks in one column.
+  // Mobile: everything stacks in one column, in template order:
+  // greeting, budget card, chart, progress + recent transactions.
   &__grid {
     display: block;
+  }
+
+  &__summary {
+    margin-bottom: var(--bk-space-lg);
   }
 
   &__side {
@@ -180,18 +195,27 @@ const onLogout = () => logout();
   background-color: var(--bk-surface);
 }
 
-// Desktop: the chart on the left, the summary / progress / recent transactions
-// stacked on the right.
+// Desktop: row 1 is greeting | annual budget, row 2 is the overview chart |
+// progress + recent transactions. Rows share a band, so the chart lines up
+// with the progress panel.
 @media (min-width: 1024px) {
   .dashboard-page {
+    // The insight card fills its cell, so it matches the annual budget card
+    // beside it. Its text is centred vertically and reads left-aligned.
     &__header {
-      flex-direction: row;
-      align-items: flex-end;
-      justify-content: space-between;
+      grid-area: header;
+      align-self: stretch;
+      align-items: stretch;
+      margin-bottom: 0;
     }
 
     &__heading {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
       text-align: left;
+      margin: 0;
 
       h1 {
         font-size: var(--bk-text-3xl);
@@ -207,13 +231,36 @@ const onLogout = () => logout();
     &__grid {
       display: grid;
       grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      grid-template-areas:
+        'header summary'
+        'chart side';
       gap: var(--bk-space-lg);
       align-items: start;
     }
 
+    &__summary {
+      grid-area: summary;
+      margin-bottom: 0;
+
+      // The card is the child component's root; drop Boring's box margin so the
+      // grid gap owns the spacing.
+      :deep(.box) {
+        margin: 0;
+      }
+    }
+
     &__chart {
+      grid-area: chart;
       display: block;
       margin: 0;
+    }
+
+    &__side {
+      grid-area: side;
+
+      :deep(.planned-realized-progress) {
+        margin-bottom: var(--bk-space-lg);
+      }
     }
   }
 }

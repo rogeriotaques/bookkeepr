@@ -92,6 +92,17 @@ hgroup {
   }
 }
 
+// Titles read the same everywhere: Title Case. `capitalize` only lifts the
+// first letter of each word, so the readable source text is untouched.
+h1,
+h2,
+h3,
+h4,
+h5,
+.title {
+  text-transform: capitalize;
+}
+
 .input {
   input,
   select {

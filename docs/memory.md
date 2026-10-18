@@ -146,4 +146,19 @@
 - Height alignment (follow-up): `align-items: stretch` plus a slimmer bar — `:deep(.progress){height:28px;margin-bottom:0}`, header `margin-bottom: 4px`, `justify-content: center` — brings the progress panel down to the summary panel's height (was ~35px taller: Boring bars are 36px + an 8px bottom margin each).
 - Tests: backend 38 → 39, frontend 75 → 77 (`TransactionEntryPage` invalidation test + rewritten `TransactionHistoryPage` summary/progress tests). Build OK.
 
+## Session 2026-10-18 — Dashboard layout per wireframe
+
+- Split `PlannedRealizedSummary.vue` into `PlannedRealizedTable.vue` (card; props `planned`/`realized`/`title`) and `PlannedRealizedProgress.vue` (card; props `planned`/`realized`, keeps `data-testid="progress-bar"`); deleted the old bundled component. Each **page now owns the layout**, which is what the wireframe needed (table and progress live in different grid cells on the Dashboard).
+- `DashboardPage`: explicit grid areas at ≥1024px — `grid-template-areas: 'header summary' 'chart side'`. Row 1 = greeting | annual budget card; row 2 = chart | progress + recent transactions. The header moved *inside* the grid and the budget card moved *out* of the side column. Because a grid row's height is the tallest cell, the chart now starts level with the progress panel (row 1 is as tall as the budget card).
+- Spacing: `margin-bottom` is reset on `__header`/`__summary` at desktop and `:deep(.box){margin:0}` on the summary cell, so the grid `gap` is the only spacing.
+- Mobile: `__grid` stays `display: block`; template order is greeting → budget card → chart (hidden) → progress + recent, i.e. unchanged from before.
+- `TransactionHistoryPage` wraps the two components in `.history-page__summary` with the same auto-fit `minmax(min(300px,100%),1fr)` + `align-items: stretch`, so the side-by-side behaviour is preserved.
+- Tests: frontend 77 → 80 (3 structural tests: grid child order, budget card in the summary cell not the side, progress + recent in the side). Build OK.
+
+### Follow-ups (same session)
+
+- Greeting is an **insight, not a title**: it opts out of the global Title Case with `text-transform: none`, and it is wrapped in its own `.box` like every other card.
+- Insight alignment: desktop `&__header { align-self: stretch; align-items: stretch }` + `&__heading { display:flex; flex-direction:column; justify-content:center; flex:1; text-align:left }` → the insight card fills row 1 (same height as the annual budget card), text vertically centred and left-aligned. History: `align-items: center` wrongly centred the block horizontally; `flex-start` flush-left the bare text; wrapping in a `.box` replaces that with the card's own padding.
+- Titles are Title Case app-wide: one rule in `bookkeepr.scss` — `h1,h2,h3,h4,h5,.title { text-transform: capitalize }`. Uses CSS only, so the source strings stay readable. `PlannedRealizedTable`'s `thead th` stays `uppercase` (column headers, not titles).
+
 

@@ -168,6 +168,48 @@ describe('DashboardPage', () => {
     expect(wrapper.findComponent({ name: 'RecentTransactions' }).exists()).toBe(true);
   });
 
+  it('should order the grid as heading + budget card, then chart + side', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    // The wireframe: row 1 is heading | annual budget, row 2 is chart | side.
+    const grid = wrapper.find('[data-testid="dashboard-grid"]');
+    const classes = Array.from(grid.element.children).map((el) => el.className);
+
+    expect(classes[0]).toContain('dashboard-page__header');
+    expect(classes[1]).toContain('dashboard-page__summary');
+    expect(classes[2]).toContain('dashboard-page__chart');
+    expect(classes[3]).toContain('dashboard-page__side');
+  });
+
+  it('should show the annual budget card in the summary cell, not the side column', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    const summary = wrapper.find('.dashboard-page__summary');
+    expect(summary.text()).toContain(`Annual budget ${YEAR}`);
+    expect(summary.text()).toContain('Planned');
+    expect(summary.text()).toContain('¥ 5,500');
+
+    // The table lives above the chart, so the side column has no table.
+    expect(wrapper.find('.dashboard-page__side').text()).not.toContain('Planned');
+  });
+
+  it('should keep the progress bars with the recent transactions in the side column', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    const side = wrapper.find('.dashboard-page__side');
+    expect(side.find('[data-testid="progress-bar"]').exists()).toBe(true);
+    expect(side.findComponent({ name: 'RecentTransactions' }).exists()).toBe(true);
+  });
+
   it('should log out when Logout is clicked', async () => {
     (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
