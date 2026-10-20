@@ -67,6 +67,16 @@ describe('PlanningPage', () => {
     expect(wrapper.find('select').exists()).toBe(true);
   });
 
+  it('should show year selector next to the month selector', () => {
+    (useBudget as any).mockReturnValue(mockBudget());
+    (useSaveBudget as any).mockReturnValue(mockSave());
+
+    const wrapper = mountPlanning();
+    const yearSelect = wrapper.find('[data-testid="year-select"]');
+    expect(yearSelect.exists()).toBe(true);
+    expect((yearSelect.element as HTMLSelectElement).value).toBe(String(now.getFullYear()));
+  });
+
   it('should show goal textarea', () => {
     (useBudget as any).mockReturnValue(mockBudget());
     (useSaveBudget as any).mockReturnValue(mockSave());
@@ -176,6 +186,49 @@ describe('PlanningPage', () => {
     await flushPromises();
 
     expect(wrapper.find('textarea').element.value).toBe('Other goal');
+  });
+
+  it('should load the newly selected year', async () => {
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const otherYear = year + 1;
+    const q = mockBudget({ id: 1, year, month, goal: 'This year' });
+    (useBudget as any).mockReturnValue(q);
+    (useSaveBudget as any).mockReturnValue(mockSave());
+
+    const wrapper = mountPlanning();
+    await wrapper.find('[data-testid="year-select"]').setValue(String(otherYear));
+
+    q.queryData.value = {
+      year: otherYear,
+      month,
+      budget: { id: 2, year: otherYear, month, goal: 'Next year' },
+      items: [],
+    };
+    await flushPromises();
+
+    expect(wrapper.find('textarea').element.value).toBe('Next year');
+  });
+
+  it('should save a pending goal to the year it was typed in', async () => {
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const saveBudget = vi.fn().mockResolvedValue({});
+    (useBudget as any).mockReturnValue(mockBudget({ id: 1, year, month, goal: '' }));
+    (useSaveBudget as any).mockReturnValue(mockSave(saveBudget));
+
+    const wrapper = mountPlanning();
+    vi.useFakeTimers();
+    await wrapper.find('textarea').setValue('Typed before switching year');
+    await wrapper
+      .find('[data-testid="year-select"]')
+      .setValue(String(year + 1));
+    vi.useRealTimers();
+    await flushPromises();
+
+    expect(saveBudget).toHaveBeenCalledWith(
+      expect.objectContaining({ year, month, goal: 'Typed before switching year' })
+    );
   });
 
   it('should not clobber local edits when the same month refetches', async () => {

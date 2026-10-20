@@ -2,12 +2,19 @@
   <div class="planning-page">
     <header class="planning-page__header">
       <h1>Planning</h1>
-      <div class="input planning-page__month-input">
-        <select v-model="selectedMonth">
-          <option v-for="m in 12" :key="m" :value="m">
-            {{ monthName(m) }}
-          </option>
-        </select>
+      <div class="planning-page__period">
+        <div class="input planning-page__period-field">
+          <select v-model="selectedMonth" data-testid="month-select" aria-label="Month">
+            <option v-for="m in 12" :key="m" :value="m">
+              {{ monthName(m) }}
+            </option>
+          </select>
+        </div>
+        <div class="input planning-page__period-field planning-page__period-field--year">
+          <select v-model="selectedYear" data-testid="year-select" aria-label="Year">
+            <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
+          </select>
+        </div>
       </div>
     </header>
 
@@ -16,52 +23,48 @@
     </div>
 
     <div v-else class="planning-page__grid">
-      <div class="planning-page__main">
-        <!-- Goal -->
-        <section class="planning-page__section">
-          <label class="label">Goal for this month</label>
-          <div class="input">
-            <textarea
-              v-model="goal"
-              rows="3"
-              placeholder="What do you want to achieve this month?"
-              @blur="flushGoalSave"
-            />
-          </div>
-        </section>
-      </div>
+      <!-- Goal -->
+      <section class="planning-page__section planning-page__goal">
+        <label class="label">Goal for this month</label>
+        <div class="input">
+          <textarea
+            v-model="goal"
+            rows="3"
+            placeholder="What do you want to achieve this month?"
+            @blur="flushGoalSave"
+          />
+        </div>
+      </section>
 
-      <div class="planning-page__side">
-        <!-- Income -->
-        <section class="box planning-page__section">
-          <div class="planning-page__row">
-            <label class="label">Expected Total Income</label>
-            <button
-              data-testid="add-income"
-              class="is-auto-width"
-              @click="showIncomeCalc = true"
-            >
-              +
-            </button>
-          </div>
-          <div class="planning-page__total">{{ formatCurrency(incomeTotal) }}</div>
-        </section>
+      <!-- Income -->
+      <section class="box planning-page__section">
+        <div class="planning-page__row">
+          <label class="label">Expected Total Income</label>
+          <button
+            data-testid="add-income"
+            class="is-auto-width"
+            @click="showIncomeCalc = true"
+          >
+            +
+          </button>
+        </div>
+        <div class="planning-page__total">{{ formatCurrency(incomeTotal) }}</div>
+      </section>
 
-        <!-- Expenses -->
-        <section class="box planning-page__section">
-          <div class="planning-page__row">
-            <label class="label">Expected Total Expenses</label>
-            <button
-              data-testid="add-expense"
-              class="is-auto-width"
-              @click="showExpenseCalc = true"
-            >
-              +
-            </button>
-          </div>
-          <div class="planning-page__total">{{ formatCurrency(expenseTotal) }}</div>
-        </section>
-      </div>
+      <!-- Expenses -->
+      <section class="box planning-page__section">
+        <div class="planning-page__row">
+          <label class="label">Expected Total Expenses</label>
+          <button
+            data-testid="add-expense"
+            class="is-auto-width"
+            @click="showExpenseCalc = true"
+          >
+            +
+          </button>
+        </div>
+        <div class="planning-page__total">{{ formatCurrency(expenseTotal) }}</div>
+      </section>
     </div>
 
     <!-- Income Calculator Modal -->
@@ -96,7 +99,10 @@ const now = dayjs();
 const toast = useToast();
 
 const selectedMonth = ref(now.month() + 1);
-const selectedYear = now.year();
+const selectedYear = ref(now.year());
+
+// Planning is open-ended: past years to review and the next one to prepare.
+const years = Array.from({ length: 7 }, (_, i) => now.year() - 5 + i);
 
 const { budget, queryData, isLoading } = useBudget(selectedYear, selectedMonth);
 const { saveBudget } = useSaveBudget();
@@ -117,7 +123,7 @@ let dirty = false;
 watch(
   queryData,
   (d) => {
-    if (!d || d.year !== selectedYear || d.month !== selectedMonth.value) return;
+    if (!d || d.year !== selectedYear.value || d.month !== selectedMonth.value) return;
     const key = `${d.year}-${d.month}`;
     if (key === loadedKey && dirty) return;
     loadedKey = key;
@@ -137,6 +143,7 @@ let inFlight: Promise<void> | null = null;
 let queued: SaveSnapshot | null = null;
 
 interface SaveSnapshot {
+  year: number;
   month: number;
   goal: string;
   items: BudgetItem[];
@@ -148,8 +155,8 @@ watch(goal, (value) => {
   scheduleGoalSave();
 });
 
-function snapshot(month: number): SaveSnapshot {
-  return { month, goal: goal.value, items: [...incomeItems.value, ...expenseItems.value] };
+function snapshot(year: number, month: number): SaveSnapshot {
+  return { year, month, goal: goal.value, items: [...incomeItems.value, ...expenseItems.value] };
 }
 
 function scheduleGoalSave() {
@@ -167,8 +174,11 @@ function flushGoalSave() {
   saveNow();
 }
 
-function saveNow(monthOverride?: number) {
-  const snap = snapshot(monthOverride ?? selectedMonth.value);
+function saveNow(yearOverride?: number, monthOverride?: number) {
+  const snap = snapshot(
+    yearOverride ?? selectedYear.value,
+    monthOverride ?? selectedMonth.value
+  );
   if (inFlight) {
     queued = snap;
     return;
@@ -193,7 +203,7 @@ async function doSave(snap: SaveSnapshot) {
   try {
     const res: any = await saveBudget({
       id: budgetId.value ?? undefined,
-      year: selectedYear,
+      year: snap.year,
       month: snap.month,
       goal: snap.goal,
       items: snap.items,
@@ -206,6 +216,7 @@ async function doSave(snap: SaveSnapshot) {
 }
 
 function isCurrent(snap: SaveSnapshot): boolean {
+  if (snap.year !== selectedYear.value) return false;
   if (snap.month !== selectedMonth.value) return false;
   if (snap.goal !== goal.value) return false;
   const current = [...incomeItems.value, ...expenseItems.value];
@@ -213,11 +224,12 @@ function isCurrent(snap: SaveSnapshot): boolean {
 }
 
 // Flush a pending goal edit for the month we are leaving.
-watch(selectedMonth, (_value, previous) => {
+watch([selectedYear, selectedMonth], (_value, previous) => {
+  const [previousYear, previousMonth] = previous;
   if (goalTimer) {
     clearTimeout(goalTimer);
     goalTimer = null;
-    saveNow(previous);
+    saveNow(previousYear, previousMonth);
   }
 });
 
@@ -279,27 +291,36 @@ function onExpenseUpdate(newItems: BudgetItem[]) {
     }
   }
 
-  &__month-input {
+  &__period {
+    display: flex;
+    align-items: center;
+    gap: var(--bk-space-sm);
+  }
+
+  &__period-field {
     display: inline-block;
     width: auto;
     margin: 0;
+
+    // A four-digit year is short, so the shrink-to-fit width lands under the
+    // select's own padding and clips the last digit. Reserve room for it.
+    &--year {
+      min-width: 120px;
+    }
   }
 
   &__grid {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--bk-space-lg);
   }
 
-  &__main,
-  &__side {
-    min-width: 0;
-  }
-
-  &__side {
-    margin-top: var(--bk-space-lg);
+  &__goal {
+    grid-column: 1 / -1;
   }
 
   &__section {
-    margin-bottom: var(--bk-space-lg);
+    min-width: 0;
   }
 
   &__row {
@@ -323,22 +344,21 @@ function onExpenseUpdate(newItems: BudgetItem[]) {
   }
 }
 
-// Desktop: goal on the left, the two totals on the right.
+// Tablet and up: goal full width, then the two totals side by side.
+@media (min-width: 768px) {
+  .planning-page {
+    &__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+    }
+  }
+}
+
+// Desktop: larger title.
 @media (min-width: 1024px) {
   .planning-page {
     &__header h1 {
       font-size: var(--bk-text-3xl);
-    }
-
-    &__grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: var(--bk-space-lg);
-      align-items: start;
-    }
-
-    &__side {
-      margin-top: 0;
     }
   }
 }
