@@ -1,5 +1,7 @@
 # Phase 4: Mobile-First Redesign & Budget Planning
 
+**Status: DONE**
+
 ## Overview
 
 Transform BookKeepr from a desktop-oriented transaction logger into a **mobile-first personal finance app** with a Dashboard home screen, monthly budget planning (Income/Expenses calculators), and separated transaction entry/history flows. The existing password-based auth remains unchanged.
