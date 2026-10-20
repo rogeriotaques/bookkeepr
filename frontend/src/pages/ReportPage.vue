@@ -11,24 +11,24 @@
       <p>Failed to load report. {{ reportError?.message }}</p>
     </div>
     <div class="report-page__insights row">
-      <div class="col-2 report-page__filter">
-        <BaseDropdown
-          v-model="filterByYear"
-          :options="recordedYears"
-          :disabled="isRecordedYearsLoading"
-        />
-      </div>
-      <div class="col-8">
+      <div class="col-10">
         <ReportInsights
           :data="reportData?.insights || {}"
           :loading="isReportLoading || isSettingsLoading"
           :locale="locale"
         />
       </div>
-      <div class="col-2 report-page__print">
+      <div class="col-2 report-page__controls">
+        <BaseDropdown
+          v-model="filterByYear"
+          class="report-page__control"
+          :options="recordedYears"
+          :disabled="isRecordedYearsLoading"
+          full-width
+        />
         <button
           type="button"
-          class="is-auto-width has-tooltip has-tooltip--bottom"
+          class="report-page__control has-tooltip has-tooltip--bottom"
           data-tooltip="Print report (⌘+P)"
           @click="onPrintClickHandler"
         >
@@ -37,13 +37,21 @@
       </div>
     </div>
 
-    <div class="report-page__chart">
-      <Bar
-        id="my-chart-id"
-        :style="chartStyles"
-        :options="chartOptions"
-        :data="chartData"
-      />
+    <div class="report-page__charts row">
+      <div class="col-4 report-page__pie">
+        <Pie
+          :data="pieData"
+          :options="pieOptions"
+        />
+      </div>
+      <div class="col-8 report-page__chart">
+        <Bar
+          id="my-chart-id"
+          :style="chartStyles"
+          :options="chartOptions"
+          :data="chartData"
+        />
+      </div>
     </div>
 
     <div class="pagebreak" />
@@ -61,11 +69,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import { Bar } from 'vue-chartjs';
+import { Bar, Pie } from 'vue-chartjs';
 import { Chart as ChartJS, registerables } from 'chart.js';
 import { IconPrinter } from '@tabler/icons-vue';
-
-import { ENTRY_OPERATIONS } from '@/domain/constants';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 import ProTip from '@/components/shared/ProTip.vue';
@@ -75,13 +81,6 @@ import ReportData from '@/components/report/ReportData.vue';
 import useDataFetch from '@/composable/useDataFetch';
 
 ChartJS.register(...registerables);
-
-const randomColor = (opacity = 0.1) => {
-  const o = Math.round,
-    r = Math.random,
-    s = 255;
-  return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ',' + opacity + ')';
-};
 
 const filterByYear = ref(`${new Date().getFullYear()}`);
 const recordedYearsUrl = ref('/entries/recorded-years');
@@ -114,24 +113,40 @@ const datasets = computed(() => {
 
   if (!data) return _ds;
 
+  // One bar series per operation, summed across categories per month.
+  const sumByMonth = (rows: any[]) =>
+    Array.from({ length: 12 }, (_, month) =>
+      rows.reduce((total, row) => total + Number(row[month + 1] ?? 0), 0)
+    );
+
+  if (data.income?.length) {
+    _ds.push({
+      type: 'bar',
+      label: 'Income',
+      borderWidth: 1,
+      backgroundColor: 'rgba(55, 172, 40, 0.5)',
+      data: sumByMonth(data.income),
+      yAxisID: 'y',
+    });
+  }
+
+  if (data.outcome?.length) {
+    _ds.push({
+      type: 'bar',
+      label: 'Expenses',
+      borderWidth: 1,
+      backgroundColor: 'rgba(165, 43, 43, 0.5)',
+      data: sumByMonth(data.outcome).map((amount) => -amount),
+      yAxisID: 'y',
+    });
+  }
+
   _ds.push({
     type: 'line',
     label: 'Net worth',
-    data: data.balance.slice(1),
-  });
-
-  Object.keys(data).forEach((table) => {
-    if (['balance', 'tax'].includes(table)) return;
-
-    data[table].forEach((group: any) => {
-      _ds.push({
-        type: 'bar',
-        label: group[0] ?? 'N/A',
-        borderWidth: 1,
-        backgroundColor: randomColor(0.5),
-        data: group.slice(1).map((amount: any) => (table === ENTRY_OPERATIONS.EXPENSE ? amount * -1 : amount)),
-      });
-    });
+    data: data.netWorth.slice(1),
+    yAxisID: 'y1',
+    fill: false,
   });
 
   return _ds;
@@ -142,12 +157,55 @@ const chartData = computed(() => ({
   datasets: datasets.value,
 }));
 
+// Each category's yearly total, income and expenses combined. A pie cannot
+// show a zero slice, so categories with no activity are left out.
+const pieData = computed(() => {
+  const data = reportData.value?.data;
+
+  if (!data) return { labels: [], datasets: [] };
+
+  const slices = [...(data.income ?? []), ...(data.outcome ?? [])]
+    .map((row: any[]) => ({
+      label: row[0] ?? 'N/A',
+      total: row.slice(1).reduce((sum, amount) => sum + Number(amount ?? 0), 0),
+    }))
+    .filter((slice) => slice.total > 0);
+
+  return {
+    labels: slices.map((slice) => slice.label),
+    datasets: [
+      {
+        data: slices.map((slice) => slice.total),
+        backgroundColor: slices.map(
+          (_, index) => `hsl(${Math.round((index * 137.5) % 360)}, 60%, 55%)`
+        ),
+        borderWidth: 1,
+      },
+    ],
+  };
+});
+
+const pieOptions: any = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      position: 'bottom',
+      labels: {
+        boxWidth: 10,
+        boxHeight: 10,
+        font: { size: 10, family: 'Archivo, sans-serif' },
+        padding: 4,
+      },
+    },
+  },
+};
+
 const chartOptions: any = {
   responsive: true,
   maintainAspectRatio: false,
   elements: {
     line: {
-      fill: true,
       borderDash: [5, 5],
       borderWidth: 2,
       borderColor: 'rgb(0, 0, 0)',
@@ -156,11 +214,17 @@ const chartOptions: any = {
   },
   scales: {
     x: { stacked: true },
+    // Bars use the left axis; the lifetime net worth gets the right one so
+    // its larger scale does not squash them.
     y: { stacked: true },
+    y1: {
+      position: 'right',
+      grid: { drawOnChartArea: false },
+    },
   },
   plugins: {
     legend: {
-      position: 'right',
+      position: 'top',
       labels: {
         boxWidth: 12,
         boxHeight: 12,
@@ -198,6 +262,11 @@ const onPrintClickHandler = () => {
     }
   }
 
+  &__insights {
+    margin-bottom: var(--bk-space-xl);
+  }
+
+  &__pie,
   &__chart {
     position: relative;
     height: 420px;
@@ -206,11 +275,22 @@ const onPrintClickHandler = () => {
     box-shadow: rgba(0, 0, 0, 0.15) 0 0 12px inset;
   }
 
-  &__filter,
-  &__print {
+  &__controls {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    gap: var(--bk-space-md);
+
+    // The dropdown and the print button share the column width.
+    :deep(.base-dropdown) {
+      width: 100%;
+      margin-bottom: 0;
+    }
+
+    button {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
   }
 }
 
@@ -228,6 +308,7 @@ const onPrintClickHandler = () => {
       display: none;
     }
 
+    &__pie,
     &__chart {
       box-shadow: none;
       background-color: transparent;

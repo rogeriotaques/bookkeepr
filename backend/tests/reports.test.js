@@ -19,6 +19,13 @@ describe('Reports API (Phase 4)', () => {
       { date: '2025-01-20', description: 'Transport', group: 11, wallet: 1, amount: 100 },
     ]);
 
+    // Seed entries for 2024, so lifetime totals and the opening balance span
+    // more than the selected year.
+    await knex('entries').insert([
+      { date: '2024-06-01', description: 'Salary', group: 101, wallet: 1, amount: 1200 },
+      { date: '2024-06-02', description: 'Food', group: 14, wallet: 1, amount: 200 },
+    ]);
+
     // Seed budget for 2025-01
     const [budgetId] = await knex('monthly_budgets').insert({ year: 2025, month: 1 });
     await knex('budget_items').insert([
@@ -116,7 +123,29 @@ describe('Reports API (Phase 4)', () => {
       const res = await request.get('/api/reports?year=2024');
 
       expect(res.body.planned).toEqual({ income: 0, expense: 0 });
-      expect(res.body.realized).toEqual({ income: 0, expense: 0 });
+      expect(res.body.realized).toEqual({ income: 1200, expense: 200 });
+    });
+
+    it('should include lifetime totals across every recorded year', async () => {
+      const res = await request.get('/api/reports?year=2025');
+
+      expect(res.body.insights.lifetime).toEqual({ income: 6200, outcome: 2100 });
+    });
+
+    it('should start net worth at the balance carried from earlier years', async () => {
+      const res = await request.get('/api/reports?year=2025');
+
+      // 2024 leaves 1000; January 2025 adds 5000 - 1900.
+      expect(res.body.data.netWorth[0]).toBe('-');
+      expect(res.body.data.netWorth[1]).toBe(4100);
+      expect(res.body.data.netWorth[12]).toBe(4100);
+    });
+
+    it('should accumulate net worth from zero in the earliest year', async () => {
+      const res = await request.get('/api/reports?year=2024');
+
+      // 1200 - 200 recorded in June, with nothing before it.
+      expect(res.body.data.netWorth.slice(1)).toEqual([0, 0, 0, 0, 0, 1000, 1000, 1000, 1000, 1000, 1000, 1000]);
     });
   });
 });

@@ -13,12 +13,16 @@
         <tr>
           <th scope="row">Income</th>
           <td class="planned-realized-table__value">{{ formatCurrency(planned.income) }}</td>
-          <td class="planned-realized-table__value">{{ formatCurrency(realized.income) }}</td>
+          <td class="planned-realized-table__value" :class="realizedIncomeClass">
+            {{ formatCurrency(realized.income) }}
+          </td>
         </tr>
         <tr>
           <th scope="row">Expenses</th>
           <td class="planned-realized-table__value">{{ formatCurrency(planned.expense) }}</td>
-          <td class="planned-realized-table__value">{{ formatCurrency(realized.expense) }}</td>
+          <td class="planned-realized-table__value" :class="realizedExpenseClass">
+            {{ formatCurrency(realized.expense) }}
+          </td>
         </tr>
         <tr>
           <th scope="row">Balance</th>
@@ -59,9 +63,26 @@ const plannedBalanceClass = computed(() => ({
   'planned-realized-table__value--negative': plannedBalance.value < 0,
 }));
 
-const realizedBalanceClass = computed(() => ({
-  'planned-realized-table__value--negative': realizedBalance.value < 0,
-}));
+// Realized is on track when income meets the plan, expenses stay under it and
+// the balance meets the plan. A tie is neutral, so it keeps the default color.
+function realizedClass(realized: number, planned: number, better: 'higher' | 'lower'): string {
+  if (realized === planned) return '';
+
+  const onTrack = better === 'higher' ? realized > planned : realized < planned;
+  return onTrack
+    ? 'planned-realized-table__value--positive'
+    : 'planned-realized-table__value--negative';
+}
+
+const realizedIncomeClass = computed(() =>
+  realizedClass(props.realized.income, props.planned.income, 'higher')
+);
+const realizedExpenseClass = computed(() =>
+  realizedClass(props.realized.expense, props.planned.expense, 'lower')
+);
+const realizedBalanceClass = computed(() =>
+  realizedClass(realizedBalance.value, plannedBalance.value, 'higher')
+);
 
 function formatCurrency(value: number | undefined): string {
   return '¥ ' + Number(value ?? 0).toLocaleString();
@@ -109,6 +130,10 @@ function formatCurrency(value: number | undefined): string {
 
     &--negative {
       color: var(--bk-danger);
+    }
+
+    &--positive {
+      color: var(--bk-primary);
     }
   }
 }

@@ -275,6 +275,7 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 .report {
   &__data {
     padding: 24px 16px;
+    overflow-x: auto;
   }
 
   &__item-title {
@@ -291,8 +292,6 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 
   thead {
     background-color: var(--c-background);
-    position: sticky;
-    top: 60px;
   }
 
   tbody + thead th {
@@ -308,6 +307,12 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
   td:not(:first-child) {
     text-align: right;
     width: 6.25%;
+  }
+
+  // Amounts never wrap; the container scrolls sideways instead.
+  th,
+  td {
+    white-space: nowrap;
   }
 
   tfoot tr:first-child td {

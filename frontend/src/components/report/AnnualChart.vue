@@ -55,11 +55,20 @@ const datasets = computed(() => {
 
   if (!data) return [];
 
+  // The API returns each month's net. The chart shows the running annual
+  // balance instead, so January's net carries into February and so on.
+  const monthlyBalance = (data.balance ?? []).slice(1).map(Number);
+  let runningBalance = 0;
+  const annualBalance = monthlyBalance.map((amount) => {
+    runningBalance += amount;
+    return runningBalance;
+  });
+
   const series: any[] = [
     {
       type: 'line',
       label: 'Balance',
-      data: (data.balance ?? []).slice(1).map(Number),
+      data: annualBalance,
       borderColor: 'rgb(0, 0, 0)',
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
       borderDash: [5, 5],

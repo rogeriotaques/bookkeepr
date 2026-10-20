@@ -67,6 +67,17 @@ describe('AnnualChart', () => {
     expect(chart.props('data').datasets.length).toBe(3);
   });
 
+  it('plots the cumulative annual balance, not the monthly net', async () => {
+    (useDataFetch as any).mockReturnValue(mockFetch({ year: 2025, data: reportData }));
+
+    const wrapper = mountWithSuspense({ year: 2025 });
+    await flushPromises();
+
+    const chart = wrapper.findComponent({ name: 'Bar' });
+    const balance = chart.props('data').datasets.find((d: any) => d.label === 'Balance');
+    expect(balance.data).toEqual([50, 190, 330, 470, 610, 750, 890, 1030, 1170, 1310, 1450, 1590]);
+  });
+
   it('shows an empty state when the report is empty', async () => {
     (useDataFetch as any).mockReturnValue(mockFetch(null));
 

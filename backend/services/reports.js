@@ -78,6 +78,41 @@ exports.getOverviewReport = async (knex, { year }) => {
     }
   }
 
+  // Lifetime totals, independent of the selected year.
+  const lifetimeTotals = await knex('entries')
+    .innerJoin('groups', 'entries.group', 'groups.code')
+    .select('groups.operation AS operation')
+    .sum('entries.amount AS total')
+    .groupBy('groups.operation');
+
+  insights.lifetime = { income: 0, outcome: 0 };
+  for (const row of lifetimeTotals) {
+    if (row.operation === ENTRY_OPERATIONS.INCOME) insights.lifetime.income = Number(row.total ?? 0);
+    if (row.operation === ENTRY_OPERATIONS.EXPENSE) insights.lifetime.outcome = Number(row.total ?? 0);
+  }
+
+  // Net worth carries the balance from every earlier year into the selected
+  // year, then accumulates each month's net.
+  const openingTotals = await knex('entries')
+    .innerJoin('groups', 'entries.group', 'groups.code')
+    .where('date', '<', `${year}-01-01`)
+    .select('groups.operation AS operation')
+    .sum('entries.amount AS total')
+    .groupBy('groups.operation');
+
+  let netWorth = 0;
+  for (const row of openingTotals) {
+    const total = Number(row.total ?? 0);
+    if (row.operation === ENTRY_OPERATIONS.INCOME) netWorth += total;
+    if (row.operation === ENTRY_OPERATIONS.EXPENSE) netWorth -= total;
+  }
+
+  data.netWorth = ['-'];
+  for (let i = 1; i <= 12; i++) {
+    netWorth += Number(data.balance[i] ?? 0);
+    data.netWorth.push(netWorth);
+  }
+
   insights.today.income = await knex
     .sum('amount AS amount')
     .from('entries')
