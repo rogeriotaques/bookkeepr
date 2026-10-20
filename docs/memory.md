@@ -190,3 +190,12 @@
 - Boring styles **every** `img:not(.icon)` with a 2px border, radius, shadow and margin; the snapshot img resets all four or it prints as a framed picture.
 - Wrapper print height is fixed at 360px for both charts, `overflow: hidden` in case a stale canvas is taller.
 - Verified with CDP + `Page.printToPDF` (dispatch `beforeprint` first, since CDP printing does not): 2 sheets, both charts whole, with and without `printBackground`. Frontend 101 tests (new: beforeprint fills both snapshots).
+
+## Session 2026-10-21 — Docker build repaired after npm migration
+
+- Docker was broken. The `Dockerfile` still ran `yarn policies set-version` + `yarn install`. Yarn 4 runs it at `/`, creates `/package.json`, then rejects `/bookkeepr/frontend` ("not part of the project declared in /"). The refactor moved both apps to npm (`package-lock.json`, no `yarn.lock`).
+- Fixed `Dockerfile`: `npm install -g npm@11.17.0` (base ships npm 10.9, which fails `npm ci` with `Missing: @esbuild/linux-*@0.28.2 from lock file`), then `npm ci && npm run build` in `frontend` and `npm ci --omit=dev` in `backend`. Kept `pm2-runtime main.js`.
+- Fixed `.dockerignore`: bare `node_modules/` and `dist/` only match the repository root. The build context was 552 MB and carried macOS binaries into the image. Now `**/node_modules/`, `**/dist/`, and `data/` (removed stale `api/data/`).
+- Verified image (linux/arm64): build OK, frontend build OK, `sqlite3` 3.44.2 loads, server starts, migrations create 8 tables, `GET /` 200 SPA, `/api/settings` 200, unknown route 404 JSON, DB written to the mounted volume.
+- Verified amd64 install/build under emulation: `npm ci`, vite build, and the `sqlite3` prebuilt binary all pass. The local daemon has no BuildKit, so `docker build --platform linux/amd64` cannot commit a foreign-platform image (fails at `COPY`; not a Dockerfile bug).
+- Stale leftovers not touched (code, not docs): root `package.json` `packageManager: yarn@4.8.1`, root `.pnp.cjs`/`.pnp.loader.mjs`/`.yarn/`, and the `volta.yarn` fields in `frontend`/`backend` `package.json`.

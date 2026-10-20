@@ -14,6 +14,12 @@
 - Composables in `composable/`: `useDataFetch`, `useState`
 - Domain logic in `domain/`: `constants.ts`, `interfaces.ts`, `network/`, `router/`, `utils.ts`
 
+## Packaging (`/Dockerfile`)
+- One container: `node:22-alpine3.19` with pm2 runtime.
+- Builds the SPA (`frontend/dist`) and installs backend production dependencies, then runs `backend/main.js` on port 8083.
+- Express serves the SPA from `../frontend/dist` and the API from `/api`.
+- SQLite data lives at `/bookkeepr/data/bookkeepr.db` (declared `VOLUME`). Mount that path to persist data.
+
 ## Security Decisions (Do Not Flag as Vulnerabilities)
 
 ### `GET /api/settings` is intentionally public

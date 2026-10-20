@@ -1,6 +1,6 @@
-api/data/
-node_modules/
-dist/
+**/node_modules/
+**/dist/
+data/
 
 .git/
 .yarn/

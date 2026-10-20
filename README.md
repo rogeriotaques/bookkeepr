@@ -28,17 +28,19 @@ Once this repository is cloned, open a terminal window and go to the project fol
 
 ```sh
 cd backend
-yarn install
-yarn start
+npm install
+npm start
 ```
 
 #### Run the frontend (app) with:
 
 ```sh
 cd frontend
-yarn install
-yarn start
+npm install
+npm start
 ```
+
+Or run both from the repository root with `npm start`.
 
 Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
 
@@ -52,6 +54,9 @@ docker build --platform linux/amd64 -t abtzco/bookkeepr .
 
 > [!WARNING]
 > Note: Especially if you're building on a different host platform (e.g. Mac M1), you may need to use the `--platform` flag to specify the correct `target` platform.
+
+> [!NOTE]
+> The image installs dependencies with `npm ci`. It pins npm 11.17.0 because the committed `package-lock.json` files were generated with npm 11.
 
 Then, run the image:
 
@@ -91,7 +96,7 @@ docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookk
 
 #### Troubleshooting
 
-If you run into problems related to `sqlite3` and `node-gyp` while running `yarn install` or `yarn start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
+If you run into problems related to `sqlite3` and `node-gyp` while running `npm install` or `npm start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
 
 ```sh
 npm install -g node-gyp
@@ -100,8 +105,10 @@ npm install -g node-gyp
 ### Tech stack
 
 - Node 20.17+
+- npm (lockfile v3)
 - Vue 3.4+
 - SQLite
+- Docker image `node:22-alpine3.19`
 
 ## Questions?
 
