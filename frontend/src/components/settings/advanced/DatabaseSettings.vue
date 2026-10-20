@@ -1,18 +1,17 @@
 <template>
   <div class="settings-advanced-database">
-    <div class="row">
-      <div class="col-8">
-        <hgroup>
-          <h5>Database</h5>
-          <p>Maintenace actions for this app database</p>
-        </hgroup>
+    <SettingsRow>
+      <hgroup>
+        <h5>Database</h5>
+        <p>Maintenace actions for this app database</p>
+      </hgroup>
 
-        <div>
-          <b>Database size:</b>
-        </div>
-        <code>{{ props.loading ? '...' : props.data.dbFileSize.toFixed(2) }} MB</code>
+      <div>
+        <b>Database size:</b>
       </div>
-      <div class="col-4 settings-advanced-database__actions">
+      <code>{{ props.loading ? '...' : props.data.dbFileSize.toFixed(2) }} MB</code>
+
+      <template #control>
         <button
           :disabled="props.loading"
           class="has-tooltip has-tooltip--left"
@@ -39,8 +38,8 @@
           <IconDeviceFloppy />
           <span>Backup</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </SettingsRow>
   </div>
 </template>
 
@@ -50,6 +49,8 @@ import { IconDeviceFloppy, IconLoader2, IconLayoutBottombarCollapseFilled } from
 import { useToast } from 'vue-toastification';
 
 import { runVacuum } from '@/domain/network';
+
+import SettingsRow from '@/components/settings/SettingsRow.vue';
 
 interface Props {
   data: {
@@ -84,15 +85,9 @@ const onVacuumHandler = async () => {
 
 <style lang="scss" scoped>
 .settings-advanced-database {
-  &__actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-
-    > button {
-      width: 100px;
-    }
+  button {
+    width: 100px;
+    max-width: 100%;
   }
 }
 </style>

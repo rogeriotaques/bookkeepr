@@ -60,6 +60,13 @@ describe('Dashboard', () => {
     expect(links.some((l) => l.props('to') === '/settings')).toBe(true);
   });
 
+  it('should render the app footer below the content', () => {
+    const wrapper = mountLayout();
+
+    expect(wrapper.find('.dashboard__footer').exists()).toBe(true);
+    expect(wrapper.find('.app_footer--inline').exists()).toBe(true);
+  });
+
   it('should render the page content', () => {
     const wrapper = mountLayout();
     expect(wrapper.find('.dashboard__content').exists()).toBe(true);

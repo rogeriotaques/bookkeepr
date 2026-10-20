@@ -1,26 +1,26 @@
 <template>
   <div class="settings-advanced-tax">
-    <div class="row">
-      <div class="col-8">
-        <hgroup>
-          <h5>Tax</h5>
-          <p>Configure consumption tax estimation to be displayed in reports</p>
-        </hgroup>
-      </div>
-      <div class="col-4 has-text-right">
+    <SettingsRow>
+      <hgroup>
+        <h5>Tax</h5>
+        <p>Configure consumption tax estimation to be displayed in reports</p>
+      </hgroup>
+
+      <template #control>
         <BaseDropdown
           :modelValue="props.taxPercentage"
           :options="taxOptions"
           :disabled="props.loading"
           @select="emit('update', $event)"
         />
-      </div>
-    </div>
+      </template>
+    </SettingsRow>
   </div>
 </template>
 
 <script setup lang="ts">
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
+import SettingsRow from '@/components/settings/SettingsRow.vue';
 
 interface Props {
   taxPercentage: number;
@@ -42,4 +42,11 @@ const taxOptions = [
 ];
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.settings-advanced-tax {
+  // Long labels ("Not applicable") must not push the dropdown past its column.
+  :deep(.base-dropdown) {
+    max-width: 100%;
+  }
+}
+</style>

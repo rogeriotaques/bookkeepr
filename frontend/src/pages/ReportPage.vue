@@ -28,7 +28,7 @@
         />
         <button
           type="button"
-          class="report-page__control has-tooltip has-tooltip--bottom"
+          class="report-page__control report-page__print has-tooltip has-tooltip--bottom"
           data-tooltip="Print report (⌘+P)"
           @click="onPrintClickHandler"
         >
@@ -298,6 +298,16 @@ onBeforeUnmount(() => window.removeEventListener('beforeprint', onBeforePrint));
     margin-bottom: var(--bk-space-xl);
   }
 
+  // Mobile: the year selector leads the section, above the insights. Printing
+  // stays a desktop action.
+  &__controls {
+    order: -1;
+  }
+
+  &__print {
+    display: none !important;
+  }
+
   &__pie,
   &__chart {
     position: relative;
@@ -337,6 +347,18 @@ onBeforeUnmount(() => window.removeEventListener('beforeprint', onBeforePrint));
       min-width: 0;
       margin: 0;
     }
+  }
+}
+
+// Boring splits the 12 column grid at 768px, so the controls return to the
+// right column and the print button appears from there up.
+@media (min-width: 768px) {
+  .report-page__controls {
+    order: initial;
+  }
+
+  .report-page__print {
+    display: flex !important;
   }
 }
 

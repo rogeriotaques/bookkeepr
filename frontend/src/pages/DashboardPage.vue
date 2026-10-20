@@ -7,14 +7,6 @@
           <h1>You're doing great!</h1>
           <p class="dashboard-page__subtitle">Keep it up.</p>
         </div>
-
-        <button
-          type="button"
-          class="is-full-width dashboard-page__logout"
-          @click="onLogout"
-        >
-          Logout
-        </button>
       </header>
 
       <div class="dashboard-page__summary">
@@ -60,6 +52,15 @@
 
         <RecentTransactions :limit="5" />
       </div>
+
+      <!-- Mobile only: the bottom bar has no room for it, so it closes the page. -->
+      <button
+        type="button"
+        class="is-full-width dashboard-page__logout"
+        @click="onLogout"
+      >
+        Logout
+      </button>
     </div>
   </div>
 </template>
@@ -136,6 +137,7 @@ const onLogout = () => logout();
     color: var(--bk-text-secondary);
     border-color: var(--bk-border);
     background-color: var(--bk-surface);
+    margin-top: var(--bk-space-md);
   }
 
   // Mobile: everything stacks in one column, in template order:

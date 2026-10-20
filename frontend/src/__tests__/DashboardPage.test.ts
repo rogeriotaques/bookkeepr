@@ -210,8 +210,19 @@ describe('DashboardPage', () => {
     expect(side.findComponent({ name: 'RecentTransactions' }).exists()).toBe(true);
   });
 
-  it('should log out when Logout is clicked', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+  it('should close the mobile layout with the Logout button', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    const grid = wrapper.find('[data-testid="dashboard-grid"]');
+    const lastChild = grid.element.lastElementChild as HTMLElement;
+    expect(lastChild.textContent).toMatch(/logout/i);
+    expect(lastChild.classList.contains('dashboard-page__logout')).toBe(true);
+  });
+
+  it('should log out when Logout is clicked', async () => {    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();

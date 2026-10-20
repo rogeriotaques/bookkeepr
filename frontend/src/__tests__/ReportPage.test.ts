@@ -133,7 +133,7 @@ describe('ReportPage', () => {
     const controls = wrapper.find('.report-page__controls');
     expect(controls.exists()).toBe(true);
     expect(controls.findComponent({ name: 'BaseDropdown' }).exists()).toBe(true);
-    expect(controls.find('button').exists()).toBe(true);
+    expect(controls.find('button.report-page__print').exists()).toBe(true);
 
     // The insights take the remaining width, to the left of the controls.
     expect(wrapper.find('.report-page__insights > .col-10').exists()).toBe(true);

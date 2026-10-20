@@ -4,6 +4,10 @@
       <RouterView />
     </main>
 
+    <div class="dashboard__footer">
+      <AppFooter inline />
+    </div>
+
     <nav class="dashboard__nav" role="navigation" aria-label="Main navigation">
       <div class="dashboard__nav-inner">
         <RouterLink
@@ -49,6 +53,7 @@ import {
 } from '@tabler/icons-vue';
 
 import { logout } from '@/composable/useState';
+import AppFooter from '@/components/navigation/AppFooter.vue';
 
 const tabs = [
   { name: 'Dashboard', label: 'Dashboard', to: '/', icon: IconLayoutDashboard },
@@ -117,6 +122,12 @@ const onLogout = () => logout();
   &__logout {
     display: none !important;
   }
+
+  // The footer would crowd the bottom navigation on phones; the desktop bar has
+  // the room for it.
+  &__footer {
+    display: none;
+  }
 }
 
 // Boring styles bare anchors (`a:not(.button):not(.card__link)`) with a bottom
@@ -179,6 +190,10 @@ const onLogout = () => logout();
 
     &__content {
       padding-top: var(--bk-space-lg);
+    }
+
+    &__footer {
+      display: block;
     }
   }
 

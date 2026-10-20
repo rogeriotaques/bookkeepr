@@ -136,6 +136,11 @@ const onAddConfirmClickHandler = async () => {
   }
 }
 
+// Matches the gap between the settings tabs and the page content.
+hgroup {
+  margin-bottom: var(--bk-space-lg);
+}
+
 .is-pulled-right {
   float: right;
 }
