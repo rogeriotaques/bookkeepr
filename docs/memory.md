@@ -199,3 +199,12 @@
 - Verified image (linux/arm64): build OK, frontend build OK, `sqlite3` 3.44.2 loads, server starts, migrations create 8 tables, `GET /` 200 SPA, `/api/settings` 200, unknown route 404 JSON, DB written to the mounted volume.
 - Verified amd64 install/build under emulation: `npm ci`, vite build, and the `sqlite3` prebuilt binary all pass. The local daemon has no BuildKit, so `docker build --platform linux/amd64` cannot commit a foreign-platform image (fails at `COPY`; not a Dockerfile bug).
 - Stale leftovers not touched (code, not docs): root `package.json` `packageManager: yarn@4.8.1`, root `.pnp.cjs`/`.pnp.loader.mjs`/`.yarn/`, and the `volta.yarn` fields in `frontend`/`backend` `package.json`.
+
+## Session 2026-10-21 — Justfile
+
+- Added `Justfile` at the repo root, following the sibling projects (`tasssks`, `emmmail`, `uptime`): `default` lists recipes; recipes carry `#` descriptions.
+- Recipes: `install`, `start`, `start-backend`, `start-frontend`, `build`, `test`, `test-backend`, `test-frontend`, `docker-build *args`, `docker-run`, `docker-stop`.
+- `start` runs the root `npm start` (concurrently) in the foreground; Ctrl+C stops both children.
+- `docker-build` forwards extra args to `docker build` (e.g. `just docker-build --platform linux/amd64`). `docker-run` maps 8090 → 8083 and mounts `./tmp-data`; `tmp-data/` was added to `.gitignore`.
+- `docs/knowledge/commands.md` now points at `just --list`.
+- Verified: `just --fmt --check` OK; `just test` green (backend 42, frontend 114).

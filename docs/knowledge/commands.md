@@ -1,5 +1,7 @@
 # Commands
 
+A `Justfile` wraps these commands: run `just` (or `just --list`) to see the recipes.
+
 ```sh
 # Install dependencies
 (cd frontend; npm install)
