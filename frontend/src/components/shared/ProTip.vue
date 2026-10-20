@@ -70,4 +70,11 @@ const currentTip = computed(() => {
     margin: 0;
   }
 }
+
+// A tip about screen shortcuts has no place on paper.
+@media print {
+  .pro-tip {
+    display: none;
+  }
+}
 </style>

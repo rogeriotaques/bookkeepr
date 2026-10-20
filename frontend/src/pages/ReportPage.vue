@@ -1,7 +1,7 @@
 <template>
   <section class="report-page">
     <header class="report-page__header">
-      <h1>Annual Report</h1>
+      <h1>Annual Report for {{ filterByYear }}</h1>
     </header>
 
     <div
@@ -40,17 +40,31 @@
     <div class="report-page__charts row">
       <div class="col-4 report-page__pie">
         <Pie
+          ref="pieRef"
           :data="pieData"
           :options="pieOptions"
         />
+        <img
+          v-if="pieSnapshot"
+          class="report-page__snapshot"
+          :src="pieSnapshot"
+          alt=""
+        >
       </div>
       <div class="col-8 report-page__chart">
         <Bar
           id="my-chart-id"
+          ref="barRef"
           :style="chartStyles"
           :options="chartOptions"
           :data="chartData"
         />
+        <img
+          v-if="barSnapshot"
+          class="report-page__snapshot"
+          :src="barSnapshot"
+          alt=""
+        >
       </div>
     </div>
 
@@ -68,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { Bar, Pie } from 'vue-chartjs';
 import { Chart as ChartJS, registerables } from 'chart.js';
 import { IconPrinter } from '@tabler/icons-vue';
@@ -244,6 +258,22 @@ const chartStyles: any = {
 const onPrintClickHandler = () => {
   window.print();
 };
+
+const pieRef = ref<any>();
+const barRef = ref<any>();
+const pieSnapshot = ref('');
+const barSnapshot = ref('');
+
+// Chart.js redraws whenever the print layout changes the size of its container,
+// and a redraw caught mid-flight prints a clipped or squashed chart. Handing the
+// printer a bitmap taken just before it starts keeps the charts off that race.
+const onBeforePrint = () => {
+  pieSnapshot.value = pieRef.value?.chart?.canvas?.toDataURL('image/png') ?? '';
+  barSnapshot.value = barRef.value?.chart?.canvas?.toDataURL('image/png') ?? '';
+};
+
+onMounted(() => window.addEventListener('beforeprint', onBeforePrint));
+onBeforeUnmount(() => window.removeEventListener('beforeprint', onBeforePrint));
 </script>
 
 <style lang="scss" scoped>
@@ -259,6 +289,8 @@ const onPrintClickHandler = () => {
       font-size: var(--bk-text-2xl);
       color: var(--bk-text-primary);
       margin: 0;
+      // The year reads as "Annual Report for 2026", not Title Case.
+      text-transform: none;
     }
   }
 
@@ -270,9 +302,23 @@ const onPrintClickHandler = () => {
   &__chart {
     position: relative;
     height: 420px;
-    padding: 16px 0;
+    // Clothes the canvas on every side, not just above and below.
+    padding: 16px;
     background-color: var(--c-background-disabled);
     box-shadow: rgba(0, 0, 0, 0.15) 0 0 12px inset;
+    // Matches the boxes and cards.
+    border-radius: var(--bk-radius-md);
+  }
+
+  // The print bitmap of each chart, see `onBeforePrint`.
+  &__snapshot {
+    display: none;
+
+    // Boring frames every `img`; this one is a bitmap, not a figure.
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
   &__controls {
@@ -303,18 +349,69 @@ const onPrintClickHandler = () => {
 @media print {
   .report-page {
     padding: 0;
+    max-width: none;
+
+    &__header {
+      margin-bottom: var(--bk-space-xl);
+    }
 
     &__insights {
+      // The figures belong on the chart sheet, above the charts themselves.
+      margin-bottom: var(--bk-space-xl);
+
+      // Boring's grid does not split columns in print, see below.
+      > .col-10 {
+        grid-column: span 12;
+      }
+    }
+
+    &__controls {
       display: none;
+    }
+
+    // Boring only splits the grid inside `@media screen`, so print would stack
+    // both charts on their own full-width row. Restate the spans here.
+    &__charts > &__pie {
+      grid-column: span 4;
+    }
+
+    &__charts > &__chart {
+      grid-column: span 8;
     }
 
     &__pie,
     &__chart {
+      // One printed height for both, so the charts line up on the sheet.
+      height: 360px;
       box-shadow: none;
       background-color: transparent;
+      break-inside: avoid;
+      // A stale canvas can be taller than the sheet box.
+      overflow: hidden;
+    }
+
+    // Sits over the live canvas, which may be a half-drawn frame by now.
+    &__snapshot {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+      // Same padding as its wrapper, so the bitmap fills the content box.
+      padding: 16px;
+      background-color: #fff;
+      object-fit: contain;
+    }
+
+    // `visibility` keeps Chart.js's measurements intact, unlike `display`.
+    &__pie:has(&__snapshot) :deep(canvas),
+    &__chart:has(&__snapshot) :deep(canvas) {
+      visibility: hidden;
     }
 
     .pagebreak {
+      break-before: page;
       page-break-before: always;
     }
   }

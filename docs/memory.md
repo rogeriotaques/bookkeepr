@@ -162,3 +162,31 @@
 - Titles are Title Case app-wide: one rule in `bookkeepr.scss` — `h1,h2,h3,h4,h5,.title { text-transform: capitalize }`. Uses CSS only, so the source strings stay readable. `PlannedRealizedTable`'s `thead th` stays `uppercase` (column headers, not titles).
 
 
+
+## Session 2026-10-20 — Print report review
+
+- Bugs reported on `CMD+P`: charts each on a full page, mobile bottom nav printed, Pro Tip printed, portrait paper clipped the 13-column table.
+- Root cause of the stacked charts: Boring's grid only assigns `grid-column` spans inside `@media screen (min-width: 768px)`. Print matches no breakpoint, so **every `.col-*` falls back to `span 12`**. Any printable layout must restate its spans under `@media print`.
+- Chart.js sizes the canvas from the **screen** layout and keeps those pixels when printing (no resize on `beforeprint`), so a canvas can be wider than its printed column. Fix: `canvas { max-width: 100% !important; height: auto !important }` in print; the column then takes the scaled canvas height (`height: auto`).
+- `@page { size: A4 landscape; margin: 10mm }` lives in `bookkeepr.scss` — the report is the only printable view. Same file resets `html/body/#app` to `height: auto` + white, otherwise the 100vh app clips the print to one sheet.
+- Print overrides are declared **last** in `Dashboard.vue`: plain `@media (min-width: 1024px)` also matches landscape print (content width 1047px), so an earlier print block loses to the desktop rules.
+- Chrome repeats only the **first** `thead` on every sheet. With three sections (expenses/income/footer) that labels the footer's rows "Expenses", so print sets `thead { display: table-row-group }`; each section already carries its own heading in the flow.
+- The footer (Balance/Consumption tax) jumped to a third sheet because the repeated header + the 48px pre-footer padding did not fit. Trimmed to `--bk-space-sm` under `@media print`.
+- Table fitted to landscape with `font-size: 12px`, `padding: 2px 6px` and a 170px `report__item-title`.
+- Verified by Chrome headless `--print-to-pdf` + Ghostscript render: 2 A4-landscape sheets (charts | table), no nav, no tip, no clipping. Needs `--window-size=1440,900`; at the default 800px the pie legend prints tiny.
+- Auth for that check: backed up `data/bookkeepr.db`, set `config.usePasswd=0`, then restored to 1. Frontend 99 tests pass.
+
+### Follow-ups (same session)
+
+- Title is `Annual Report for <YEAR>` (`filterByYear`). It sets `text-transform: none` so the global Title Case rule does not turn "for" into "For".
+- The insights print above the charts. The row also holds the year dropdown + print button (`.report-page__controls`), so print hides the controls, widens the `col-10` to 12 and restates `col-3` in `ReportInsights.vue` — otherwise each box would take a full row.
+- Frontend 100 tests (one new: the title carries the year).
+
+### Follow-ups 2 (same session)
+
+- Print gaps: title and insights each get `--bk-space-xl` (32px) below them.
+- Chart wrappers are cards now: `padding: 16px` all round (was `16px 0`), `border-radius: var(--bk-radius-md)` to match the boxes. The canvas shrinks accordingly, so screen and print both look clothed.
+- **Chart.js cannot be trusted at print time**: `--print-to-pdf` runs sometimes caught it mid-redraw, painting a pie centred on the canvas's left edge (only half the pie visible). CSS cannot recover pixels that were never drawn, and `max-width`/`object-fit` on the canvas do not help. Fix: `beforeprint` writes `canvas.toDataURL()` into an `img` that print shows over the canvas (`inset: 0`, `box-sizing: border-box`, `padding: 16px`, `object-fit: contain`, white background). The canvases are `visibility: hidden` in print when a snapshot exists (`:has`) — `display: none` would make Chart.js measure a zero-size container.
+- Boring styles **every** `img:not(.icon)` with a 2px border, radius, shadow and margin; the snapshot img resets all four or it prints as a framed picture.
+- Wrapper print height is fixed at 360px for both charts, `overflow: hidden` in case a stale canvas is taller.
+- Verified with CDP + `Page.printToPDF` (dispatch `beforeprint` first, since CDP printing does not): 2 sheets, both charts whole, with and without `printBackground`. Frontend 101 tests (new: beforeprint fills both snapshots).

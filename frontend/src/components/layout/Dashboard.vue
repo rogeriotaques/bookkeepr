@@ -221,4 +221,23 @@ const onLogout = () => logout();
     }
   }
 }
+
+// Print comes last so it wins over the desktop rules above; print media
+// queries carry no extra specificity.
+@media print {
+  .dashboard {
+    min-height: auto;
+    padding-bottom: 0;
+
+    &__content {
+      // A scroll container would clip the report to a single sheet.
+      overflow: visible;
+      padding-top: 0;
+    }
+
+    &__nav {
+      display: none;
+    }
+  }
+}
 </style>

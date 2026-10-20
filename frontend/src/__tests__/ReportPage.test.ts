@@ -12,7 +12,12 @@ vi.mock('vue-chartjs', () => ({
       data: { type: Object, required: true },
       options: { type: Object, default: () => ({}) },
     },
-    render: () => null,
+    setup(_: unknown, { expose }: any) {
+      expose({
+        chart: { canvas: { toDataURL: () => 'data:image/png;base64,stub' } },
+      });
+      return () => null;
+    },
   },
   Pie: {
     name: 'Pie',
@@ -20,7 +25,12 @@ vi.mock('vue-chartjs', () => ({
       data: { type: Object, required: true },
       options: { type: Object, default: () => ({}) },
     },
-    render: () => null,
+    setup(_: unknown, { expose }: any) {
+      expose({
+        chart: { canvas: { toDataURL: () => 'data:image/png;base64,stub' } },
+      });
+      return () => null;
+    },
   },
 }));
 
@@ -64,6 +74,31 @@ const mountPage = () =>
 describe('ReportPage', () => {
   beforeEach(() => {
     reportData.value = {};
+  });
+
+  it('names the selected year in the title', async () => {
+    const wrapper = mountPage();
+    await flushPromises();
+
+    const title = wrapper.find('.report-page__header h1');
+    expect(title.text()).toBe(`Annual Report for ${new Date().getFullYear()}`);
+  });
+
+  it('prints a bitmap of each chart instead of the live canvas', async () => {
+    const wrapper = mountPage();
+    await flushPromises();
+
+    // Nothing to print until the browser asks for it.
+    expect(wrapper.findAll('.report-page__snapshot')).toHaveLength(0);
+
+    window.dispatchEvent(new Event('beforeprint'));
+    await flushPromises();
+
+    const snapshots = wrapper.findAll('.report-page__snapshot');
+    expect(snapshots).toHaveLength(2);
+    snapshots.forEach((snapshot) => {
+      expect(snapshot.attributes('src')).toContain('data:image/png');
+    });
   });
 
   it('renders the insights as boxes, not cards', async () => {

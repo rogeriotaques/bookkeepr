@@ -115,4 +115,11 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 .skeleton__title {
   margin: 12px auto 24px;
 }
+
+@media print {
+  // Printed above the charts: four boxes on one row, as on screen.
+  .row > .col-3 {
+    grid-column: span 3;
+  }
+}
 </style>
