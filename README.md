@@ -26,6 +26,34 @@ Once this repository is cloned, open a terminal window and go to the project fol
 
 This project uses [`just`](https://github.com/casey/just#installation) as task runner. Run `just` (or `just --list`) to see all recipes.
 
+Optionally, use [`mise`](https://mise.jdx.dev) to install the pinned toolchain. `mise.toml` pins Node 22, npm 11.17.0, and `just`.
+
+Install mise first, then install the toolchain:
+
+```sh
+mise trust      # allow mise.toml in this repository (first run only)
+mise install    # install Node, npm, and just
+```
+
+Activate mise in your shell so `node`, `npm`, and `just` resolve to the pinned versions:
+
+```sh
+# zsh
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+
+# bash
+echo 'eval "$(mise activate bash)"' >> ~/.bashrc
+```
+
+Open a new terminal after you change the shell configuration. Without activation, run commands through mise:
+
+```sh
+mise exec -- just install
+mise exec -- just start
+```
+
+Run `mise ls` to see the installed tools and their versions.
+
 #### Install dependencies:
 
 ```sh
@@ -134,6 +162,39 @@ docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookk
 > [!NOTE]
 > If needed, adjust the host port number accordingly. By running the docker with the above command, all the data will be stored in your server's `/home/<USER>/bookkeepr/data` folder.
 
+### Publishing a new release (maintainers)
+
+Use `bump-and-push-docker-image.sh` from the repository root. The script bumps the `version` field in `frontend/package.json` and `backend/package.json`, commits and tags the bump, pushes the commit and the tag, then builds and publishes the `linux/amd64` Docker image to Docker Hub.
+
+Before you run it:
+
+- Start Docker.
+- Install `jq` (`brew install jq`).
+- Use a system with BSD `sed`. The script calls `sed -i ''`, so it does not run on GNU `sed` without changes.
+- Log in to Docker Hub with an account that can push `abtzco/bookkeepr`. The script runs `docker login` again before the push.
+- Commit or stash your work. The script runs `git add` and `git commit` on the two `package.json` files.
+
+Then run:
+
+```sh
+./bump-and-push-docker-image.sh
+```
+
+Enter the new version when prompted (for example, `2.1.0`). The script:
+
+1. reads the current version from `frontend/package.json`;
+2. writes the new version to `frontend/package.json` and `backend/package.json`;
+3. commits `Bump version to <version>`, pushes it, creates the git tag `<version>`, and pushes the tag;
+4. builds `abtzco/bookkeepr` for `linux/amd64`;
+5. tags the image as `abtzco/bookkeepr:<version>`;
+6. runs `docker login` and pushes `abtzco/bookkeepr:latest`.
+
+> [!NOTE]
+> The script updates only the `frontend` and `backend` packages. The root `package.json` keeps its own version.
+
+> [!WARNING]
+> The script pushes only the `latest` tag. The version tag stays on your machine. If you use pinned versions in production, push it manually with `docker push abtzco/bookkeepr:<version>`.
+
 #### Troubleshooting
 
 If you run into problems related to `sqlite3` and `node-gyp` while running `npm install` or `npm start`, try to downgrade `sqlite` to `^5.0.0` and install `node-gyp` globally with:
@@ -144,9 +205,10 @@ npm install -g node-gyp
 
 ### Tech stack
 
-- Node 20.17+
-- npm (lockfile v3)
+- Node 22+
+- npm 11.17+ (lockfile v3)
 - [`just`](https://github.com/casey/just) (task runner)
+- [`mise`](https://mise.jdx.dev) (optional; installs the pinned toolchain)
 - Vue 3.4+
 - SQLite
 - Docker image `node:22-alpine3.19`

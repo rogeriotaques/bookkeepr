@@ -208,3 +208,10 @@
 - `docker-build` forwards extra args to `docker build` (e.g. `just docker-build --platform linux/amd64`). `docker-run` maps 8090 → 8083 and mounts `./tmp-data`; `tmp-data/` was added to `.gitignore`.
 - `docs/knowledge/commands.md` now points at `just --list`.
 - Verified: `just --fmt --check` OK; `just test` green (backend 42, frontend 114).
+
+## Session 2026-10-21 — Release docs
+
+- Renamed `bump.sh` → `bump-and-push-docker-image.sh`. No stale references were found in the repository.
+- Documented the release flow in `README.md`, `docs/knowledge/commands.md`, and `docs/knowledge/env-notes.md`.
+- README `mise` section now covers `mise trust`, `mise install`, shell activation, and `mise exec --`.
+- Script facts for future work: it needs `jq` and BSD `sed` (`sed -i ''`); it updates only `frontend`/`backend` `package.json`; it tags `abtzco/bookkeepr:<version>` but pushes only `:latest`.

@@ -3,6 +3,7 @@ out/
 dist/
 data/
 tmp-data/
+.mise.local.toml
 
 *.db
 *.sqlite
