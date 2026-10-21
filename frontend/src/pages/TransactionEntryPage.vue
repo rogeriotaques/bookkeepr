@@ -91,16 +91,26 @@ const onSubmitHandler = async () => {
   try {
     const id = form.id;
     const payload = { ...form };
+    const isNew = id === null;
 
-    if (id !== null) {
-      await updateEntry(id, payload);
-    } else {
+    if (isNew) {
       await addEntry(payload);
+    } else {
+      await updateEntry(id, payload);
     }
 
     resetForm();
+
+    // Sequential entries usually share the date, category and wallet. Keep
+    // those three; the amount and description are cleared by resetForm.
+    if (isNew) {
+      form.date = payload.date;
+      form.group = payload.group;
+      form.wallet = payload.wallet;
+    }
+
     await invalidateAfterSave();
-    toast.success(id !== null ? 'Entry updated!' : 'Entry saved!');
+    toast.success(isNew ? 'Entry saved!' : 'Entry updated!');
   } catch (error: any) {
     toast.error(`Error: ${error.message}`);
   } finally {
@@ -169,6 +179,16 @@ const invalidateAfterSave = () =>
 
     &__side {
       margin-top: 0;
+
+      // The table's calculator bar is fixed to the viewport, so tell it where
+      // the table column starts and ends: past the form column and the gap,
+      // inside the page gutter.
+      --bk-calculator-left: calc(
+        max(0px, (100% - var(--bk-max-width-wide)) / 2) + 380px + var(--bk-space-md) + var(--bk-space-lg)
+      );
+      --bk-calculator-right: calc(
+        max(0px, (100% - var(--bk-max-width-wide)) / 2) + var(--bk-space-md)
+      );
     }
   }
 }

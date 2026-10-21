@@ -174,7 +174,7 @@ describe('ReportPage', () => {
     expect(chart.props('data').datasets).toHaveLength(1);
   });
 
-  it('puts net worth on the right-hand axis', async () => {
+  it('puts net worth on the left-hand axis with the bars', async () => {
     reportData.value = {
       data: {
         netWorth: ['-', ...Array(12).fill(4100)],
@@ -188,8 +188,9 @@ describe('ReportPage', () => {
 
     const chart = wrapper.findComponent({ name: 'Bar' });
     const line = chart.props('data').datasets.find((dataset: any) => dataset.label === 'Net worth');
-    expect(line.yAxisID).toBe('y1');
-    expect(chart.props('options').scales.y1.position).toBe('right');
+    expect(line.yAxisID).toBe('y');
+    // One axis only: no right-hand index.
+    expect(chart.props('options').scales.y1).toBeUndefined();
     expect(chart.props('options').plugins.legend.position).toBe('top');
   });
 

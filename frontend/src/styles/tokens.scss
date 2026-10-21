@@ -12,6 +12,11 @@
   --bk-text-muted: #999999;
   --bk-border: #e2e2e2;
 
+  // Search match highlight. Purple is deliberate: it must not read as income
+  // (green), expense (red), warning (gold), or selection (blue).
+  --bk-highlight: #6d28d9;
+  --bk-highlight-text: #ffffff;
+
   // Spacing scale (4px base)
   --bk-space-xs: 4px;
   --bk-space-sm: 8px;

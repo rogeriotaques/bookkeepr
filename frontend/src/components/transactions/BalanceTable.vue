@@ -27,34 +27,48 @@
           }"
           @focus="onRowFocus(index)"
         >
-          <td @click="onRowClick(entry, index)">{{ entry.date }}</td>
+          <td @click="onRowClick(entry, index)">
+            <HighlightMatch :text="entry.date" :search="search" />
+          </td>
           <td
             class="balance-table__description"
             @click="onRowClick(entry, index)"
           >
-            <div>{{ entry.description }}</div>
+            <div><HighlightMatch :text="entry.description" :search="search" /></div>
             <div>
-              <span class="badge">{{ entry.groupName }}</span>
-              <span class="badge">{{ entry.walletName }}</span>
+              <span class="badge">
+                <HighlightMatch :text="entry.groupName" :search="search" />
+              </span>
+              <span class="badge">
+                <HighlightMatch :text="entry.walletName" :search="search" />
+              </span>
             </div>
           </td>
           <td
             class="has-text-right"
             @click="onRowClick(entry, index)"
           >
-            {{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? getFormattedCurrency(entry.amount) : '' }}
+            <HighlightMatch
+              v-if="entry.operation === ENTRY_OPERATIONS.EXPENSE"
+              :text="getFormattedCurrency(entry.amount)"
+              :search="search"
+            />
           </td>
           <td
             class="has-text-right"
             @click="onRowClick(entry, index)"
           >
-            {{ entry.operation === ENTRY_OPERATIONS.INCOME ? getFormattedCurrency(entry.amount) : '' }}
+            <HighlightMatch
+              v-if="entry.operation === ENTRY_OPERATIONS.INCOME"
+              :text="getFormattedCurrency(entry.amount)"
+              :search="search"
+            />
           </td>
           <td
             class="has-text-right"
             @click="onRowClick(entry, index)"
           >
-            {{ getFormattedCurrency(entry.balance) }}
+            <HighlightMatch :text="getFormattedCurrency(entry.balance)" :search="search" />
           </td>
           <td class="has-text-right">
             <div class="balance-table__actions">
@@ -178,10 +192,11 @@ import { useToast } from 'vue-toastification';
 import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 import { deleteEntry } from '@/domain/network';
-import { formatCurrency } from '@/domain/utils';
+import { escapeRegExp, formatCurrency } from '@/domain/utils';
 import { useTableCursor } from '@/composable/useTableCursor';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
+import HighlightMatch from '@/components/shared/HighlightMatch.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 
@@ -212,7 +227,8 @@ const selectedEntries = ref<ExtendedEntry[]>([]);
 
 const entries = computed(() => {
   const entries = props.data.map((entry) => ({ ...entry, balance: 0 }));
-  const searchRegExp = props.search ? new RegExp(props.search, 'ig') : null;
+  const search = props.search.trim();
+  const searchRegExp = search ? new RegExp(escapeRegExp(search), 'i') : null;
 
   entries.forEach((e, i) => {
     const expense = e.operation === ENTRY_OPERATIONS.EXPENSE;
@@ -334,8 +350,6 @@ const onDeleteConfirmHandler = async () => {
 
 <style lang="scss" scoped>
 .balance-table {
-  $class: &;
-
   table {
     th {
       font-family: Impact, sans-serif;
@@ -364,18 +378,6 @@ const onDeleteConfirmHandler = async () => {
 
   tbody td {
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-  }
-
-  tbody > tr:not(#{$class}__editing) {
-    #{$class}__actions {
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    }
-
-    &:hover #{$class}__actions,
-    &:focus-within #{$class}__actions {
-      opacity: 1;
-    }
   }
 
   tbody > tr[tabindex]:focus {
@@ -420,11 +422,23 @@ const onDeleteConfirmHandler = async () => {
     }
   }
 
-  &__selected-entries {
-    position: sticky;
-    bottom: 16px;
+  &__actions {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    white-space: nowrap;
+  }
 
-    margin: 24px 0 0;
+  &__selected-entries {
+    // Pinned to the viewport so the running total stays in view while the
+    // table scrolls. It sits above the mobile bottom bar and spans the page
+    // gutter there; the Transactions page aligns it with the table column.
+    position: fixed;
+    left: var(--bk-calculator-left, var(--bk-space-md));
+    right: var(--bk-calculator-right, var(--bk-space-md));
+    bottom: calc(var(--bk-bottom-nav-height) + var(--bk-safe-area-bottom) + var(--bk-space-md));
+
+    margin: 0;
     border: 1px solid var(--c-info);
     border-radius: 8px;
     padding: 8px 16px;
@@ -490,6 +504,14 @@ const onDeleteConfirmHandler = async () => {
       display: flex;
       align-items: center;
     }
+  }
+}
+
+// Desktop moves the bottom navigation to the top bar, so the calculator only
+// needs the page gutter below.
+@media (min-width: 1024px) {
+  .balance-table__selected-entries {
+    bottom: var(--bk-space-md);
   }
 }
 

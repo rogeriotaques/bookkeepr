@@ -185,7 +185,7 @@ const datasets = computed(() => {
     type: 'line',
     label: 'Net worth',
     data: data.netWorth.slice(1),
-    yAxisID: 'y1',
+    yAxisID: 'y',
     fill: false,
   });
 
@@ -254,13 +254,9 @@ const chartOptions: any = {
   },
   scales: {
     x: { stacked: true },
-    // Bars use the left axis; the lifetime net worth gets the right one so
-    // its larger scale does not squash them.
+    // One axis for the bars and the lifetime net worth, so there is no
+    // right-hand index.
     y: { stacked: true },
-    y1: {
-      position: 'right',
-      grid: { drawOnChartArea: false },
-    },
   },
   plugins: {
     legend: {

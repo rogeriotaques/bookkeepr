@@ -7,6 +7,10 @@ exports.serializeOverviewReport = ({ year, data, insights, budgets, planned, rea
   realized,
 });
 
+exports.serializeInsight = ({ code, title, subtitle }) => ({
+  insight: { code, title, subtitle },
+});
+
 exports.serializeMonthlyReport = ({ year, month, budgetTotal, actualTotal, progress, breakdown, planned, realized }) => ({
   year,
   month,

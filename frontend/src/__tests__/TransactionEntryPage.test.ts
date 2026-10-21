@@ -113,6 +113,45 @@ describe('TransactionEntryPage', () => {
     expect(invalidateQueriesMock).toHaveBeenCalled();
   });
 
+  it('keeps the last date, category and wallet after saving a new entry', async () => {
+    addEntryMock.mockResolvedValue({ success: true });
+
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
+    await flushPromises();
+
+    const form = wrapper.findComponent({ name: 'EntryForm' });
+    Object.assign(form.props('data') as any, {
+      amount: '1,200',
+      description: 'Lunch',
+      group: '10',
+      wallet: 2,
+      date: '2026-10-05',
+    });
+
+    form.vm.$emit('submit');
+    await flushPromises();
+
+    expect(addEntryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: '1,200',
+        description: 'Lunch',
+        group: '10',
+        wallet: 2,
+        date: '2026-10-05',
+      })
+    );
+
+    // Amount and description are cleared; the context stays for the next entry.
+    expect(form.props('data')).toMatchObject({
+      id: null,
+      amount: '',
+      description: '',
+      group: '10',
+      wallet: 2,
+      date: '2026-10-05',
+    });
+  });
+
   it('loads the selected entry into the form and updates it', async () => {
     updateEntryMock.mockResolvedValue({ success: true });
 

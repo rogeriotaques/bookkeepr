@@ -270,24 +270,17 @@ button.link {
 }
 
 .group-table {
-  $class: &;
-
   thead {
     position: sticky;
     top: 58px;
     background-color: var(--c-background);
   }
 
-  tbody > tr {
-    #{$class}__actions {
-      opacity: 0;
-      transition: opacity 0.2s ease-in-out;
-    }
-
-    &:hover #{$class}__actions,
-    &:focus-within #{$class}__actions {
-      opacity: 1;
-    }
+  &__actions {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    white-space: nowrap;
   }
 
   tbody > tr[tabindex]:focus {

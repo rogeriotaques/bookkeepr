@@ -1,12 +1,14 @@
 <template>
   <div class="dashboard-page">
     <div class="dashboard-page__grid" data-testid="dashboard-grid">
-      <!-- Row 1: greeting (left) + annual budget card (right). -->
+      <!-- Row 1: insight (left) + annual budget card (right). -->
       <header v-if="isLoading || hasBudget" class="dashboard-page__header">
-        <div class="box dashboard-page__heading">
-          <h1>You're doing great!</h1>
-          <p class="dashboard-page__subtitle">Keep it up.</p>
-        </div>
+        <InsightPanel
+          class="box dashboard-page__heading"
+          :insight="insightData?.insight"
+          :loading="insightLoading"
+          :error="insightError"
+        />
       </header>
 
       <div v-if="isLoading || hasBudget" class="dashboard-page__summary">
@@ -87,6 +89,7 @@ import dayjs from 'dayjs';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import AnnualChart from '@/components/report/AnnualChart.vue';
+import InsightPanel from '@/components/report/InsightPanel.vue';
 import PlannedRealizedTable from '@/components/report/PlannedRealizedTable.vue';
 import PlannedRealizedProgress from '@/components/report/PlannedRealizedProgress.vue';
 import RecentTransactions from '@/components/transactions/RecentTransactions.vue';
@@ -96,12 +99,28 @@ import { logout } from '@/composable/useState';
 
 const router = useRouter();
 const year = dayjs().year();
+const month = dayjs().month() + 1;
 const isLogoutOpen = ref(false);
 
 // The same query the annual chart makes, so vue-query shares one request.
 const reportUrl = ref(`/reports?year=${year}`);
-const { fetchData: getAnnualReport } = useDataFetch(reportUrl);
-const { isLoading, data: reportData } = await getAnnualReport();
+const insightUrl = ref(`/reports/insight?year=${year}&month=${month}`);
+const annualFetch = useDataFetch(reportUrl);
+const insightFetch = useDataFetch(insightUrl);
+
+// Both fetchData calls run before this await so both useQuery calls keep the
+// setup injection context. Awaiting one first makes the second throw.
+const [annualResult, insightResult] = await Promise.all([
+  annualFetch.fetchData(),
+  insightFetch.fetchData(),
+]);
+
+const { isLoading, data: reportData } = annualResult;
+const {
+  isLoading: insightLoading,
+  isError: insightError,
+  data: insightData,
+} = insightResult;
 
 // Planned: what the year's budget items add up to, split by operation.
 // Realized: what the report recorded, same split. Both fall back to zero so
@@ -147,22 +166,9 @@ const onConfirmLogout = () => {
     margin-bottom: var(--bk-space-xl);
   }
 
-  // The greeting is an account insight, not a title: keep its own casing.
+  // The insight card owns its typography; this class owns the cell.
   &__heading {
     text-align: center;
-
-    h1 {
-      font-size: var(--bk-text-xl);
-      color: var(--bk-text-primary);
-      margin: 0;
-      text-transform: none;
-    }
-  }
-
-  &__subtitle {
-    color: var(--bk-text-secondary);
-    font-size: var(--bk-text-sm);
-    margin-top: var(--bk-space-xs);
   }
 
   &__logout {
@@ -173,7 +179,7 @@ const onConfirmLogout = () => {
   }
 
   // Mobile: everything stacks in one column, in template order:
-  // greeting, budget card, chart, progress + recent transactions.
+  // insight, budget card, chart, progress + recent transactions.
   &__grid {
     display: block;
   }
@@ -208,7 +214,7 @@ const onConfirmLogout = () => {
     }
   }
 
-  // Replaces the greeting and the budget card while the year has no budget.
+  // Replaces the insight and the budget card while the year has no budget.
   &__notice {
     display: flex;
     flex-wrap: wrap;
@@ -253,7 +259,7 @@ const onConfirmLogout = () => {
   background-color: var(--bk-surface);
 }
 
-// Desktop: row 1 is greeting | annual budget, row 2 is the overview chart |
+// Desktop: row 1 is insight | annual budget, row 2 is the overview chart |
 // progress + recent transactions. Rows share a band, so the chart lines up
 // with the progress panel.
 @media (min-width: 1024px) {
@@ -274,10 +280,6 @@ const onConfirmLogout = () => {
       flex: 1;
       text-align: left;
       margin: 0;
-
-      h1 {
-        font-size: var(--bk-text-3xl);
-      }
     }
 
     // The top navigation owns the Logout action on desktop. `!important` beats

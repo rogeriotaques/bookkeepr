@@ -30,26 +30,48 @@ import useDataFetch from '@/composable/useDataFetch';
 import { logout } from '@/composable/useState';
 
 const YEAR = new Date().getFullYear();
+const MONTH = new Date().getMonth() + 1;
 
-const mockReport = (data: any) => ({
-  fetchData: vi.fn(() => ({
-    isLoading: ref(false),
-    data: ref(data),
-    isError: ref(false),
-    error: ref(null),
-  })),
-  invalidateQuery: vi.fn(),
-});
+const insightFixture = {
+  code: 'positive',
+  title: "You're doing great!",
+  subtitle: 'You kept ¥ 3,200 this month.',
+};
 
-const mockLoading = () => ({
-  fetchData: vi.fn(() => ({
-    isLoading: ref(true),
-    data: ref(null),
-    isError: ref(false),
-    error: ref(null),
-  })),
-  invalidateQuery: vi.fn(),
-});
+const noPlanInsight = {
+  code: 'no_plan',
+  title: `No plan for ${YEAR}`,
+  subtitle: 'Add income and expenses in Planning.',
+};
+
+// The page makes two requests now, so the mock must answer by URL.
+const mockHttp = ({
+  report = annualReport,
+  insight = insightFixture,
+  loading = false,
+  insightError = false,
+}: {
+  report?: any;
+  insight?: any;
+  loading?: boolean;
+  insightError?: boolean;
+} = {}) =>
+  ((url: any) => {
+    const isInsight = url.value.includes('/insight');
+
+    return {
+      fetchData: vi.fn(() => ({
+        isLoading: ref(loading),
+        isFetched: ref(!loading),
+        isError: ref(isInsight && insightError),
+        error: ref(isInsight && insightError ? new Error('request failed') : null),
+        data: ref(
+          loading ? null : isInsight ? { success: true, insight } : report
+        ),
+      })),
+      invalidateQuery: vi.fn(),
+    };
+  });
 
 // Three months of budget; only two of them carry an amount.
 const annualReport = {
@@ -94,17 +116,52 @@ describe('DashboardPage', () => {
     vi.clearAllMocks();
   });
 
-  it('should show greeting and month selector', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+  it('should show the month insight', async () => {
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
     expect(wrapper.text()).toContain("You're doing great!");
-    expect(wrapper.text()).toContain('Keep it up.');
+    expect(wrapper.text()).toContain('You kept ¥ 3,200 this month.');
+  });
+
+  it('should request the insight for the current month', async () => {
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    const urls = (useDataFetch as any).mock.calls.map(([url]: any) => url.value);
+    expect(urls).toContain(`/reports/insight?year=${YEAR}&month=${MONTH}`);
+  });
+
+  it('should hide the insight when the year has no budget', async () => {
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    expect(wrapper.find('.insight-panel').exists()).toBe(false);
+  });
+
+  it('should show neutral copy when the insight fails', async () => {
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: annualReport, insightError: true })
+    );
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('Insight unavailable');
+    expect(wrapper.text()).toContain('Refresh to try again.');
   });
 
   it('should show empty state when the year has no budget', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -112,7 +169,9 @@ describe('DashboardPage', () => {
   });
 
   it('should build the empty state from Boring primitives', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -125,7 +184,9 @@ describe('DashboardPage', () => {
   });
 
   it('should replace both top blocks with one full-row notice when the year has no budget', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -139,7 +200,7 @@ describe('DashboardPage', () => {
   });
 
   it('should show planned vs realized for income and expenses', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -158,7 +219,7 @@ describe('DashboardPage', () => {
   });
 
   it('should show the planned and realized balance', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -169,7 +230,7 @@ describe('DashboardPage', () => {
   });
 
   it('should show planned vs realized progress for income and expenses', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -181,7 +242,7 @@ describe('DashboardPage', () => {
   });
 
   it('should label the summary as annual', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -189,7 +250,9 @@ describe('DashboardPage', () => {
   });
 
   it('should not render a quick-action list or a record button', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -200,7 +263,9 @@ describe('DashboardPage', () => {
   });
 
   it('should render the annual chart and recent transactions in a grid', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -210,7 +275,7 @@ describe('DashboardPage', () => {
   });
 
   it('should order the grid as heading + budget card, then chart + side', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -226,7 +291,7 @@ describe('DashboardPage', () => {
   });
 
   it('should show the annual budget card in the summary cell, not the side column', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -241,7 +306,7 @@ describe('DashboardPage', () => {
   });
 
   it('should keep the progress bars with the recent transactions in the side column', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -252,7 +317,7 @@ describe('DashboardPage', () => {
   });
 
   it('should close the mobile layout with the Logout button', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -264,7 +329,9 @@ describe('DashboardPage', () => {
   });
 
   it('should ask before logging out when Logout is clicked', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+    (useDataFetch as any).mockImplementation(
+      mockHttp({ report: noBudgetReport, insight: noPlanInsight })
+    );
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -288,7 +355,7 @@ describe('DashboardPage', () => {
   });
 
   it('should show loading state', async () => {
-    (useDataFetch as any).mockReturnValue(mockLoading());
+    (useDataFetch as any).mockImplementation(mockHttp({ loading: true }));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -296,7 +363,7 @@ describe('DashboardPage', () => {
   });
 
   it('opens a new entry with n', async () => {
-    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    (useDataFetch as any).mockImplementation(mockHttp({ report: annualReport }));
     const uninstall = installHotkeyDispatcher();
     const wrapper = mountWithSuspense();
     await flushPromises();

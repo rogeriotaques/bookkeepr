@@ -3,7 +3,7 @@
     <div class="planned-realized-progress__row">
       <div class="planned-realized-progress__header">
         <span>Income</span>
-        <span>{{ incomeProgress }}%</span>
+        <span>{{ percentLabel(incomeProgress) }}</span>
       </div>
       <BaseProgress
         :value="incomeProgress"
@@ -14,7 +14,7 @@
     <div class="planned-realized-progress__row">
       <div class="planned-realized-progress__header">
         <span>Expenses</span>
-        <span>{{ expenseProgress }}%</span>
+        <span>{{ percentLabel(expenseProgress) }}</span>
       </div>
       <BaseProgress
         :value="expenseProgress"
@@ -44,6 +44,8 @@ const props = defineProps<Props>();
 
 const percent = (actual: number, target: number) =>
   target === 0 ? 0 : Math.round((actual / target) * 100);
+
+const percentLabel = (value: number) => `${value.toLocaleString('en-US')}%`;
 
 const incomeProgress = computed(() => percent(props.realized.income, props.planned.income));
 const expenseProgress = computed(() => percent(props.realized.expense, props.planned.expense));

@@ -16,6 +16,9 @@ export const parseAmount = (value: number | string): number => {
 
 export const formatAmount = (value: number): string => (value ? value.toLocaleString('en-US') : '');
 
+export const escapeRegExp = (value: string): string =>
+  String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 export const getCurrencySymbol = (currencyCode: string) => {
   const currencies: Record<string, string> = {
     AED: 'د.إ',
