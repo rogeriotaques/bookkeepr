@@ -189,6 +189,14 @@ Enter the new version when prompted (for example, `2.1.0`). The script:
 5. tags the image as `abtzco/bookkeepr:<version>`;
 6. runs `docker login` and pushes `abtzco/bookkeepr:latest`.
 
+If you already updated the version by hand, use `--no-bump`:
+
+```sh
+./bump-and-push-docker-image.sh --no-bump
+```
+
+In this mode, the script does not prompt and does not run `sed`. It reads the version from both `package.json` files and stops with an error if they differ. Otherwise it uses that version, commits the files only when they have uncommitted changes, and creates the git tag only when it does not exist yet. Run `./bump-and-push-docker-image.sh --help` for the short usage note.
+
 > [!NOTE]
 > The script updates only the `frontend` and `backend` packages. The root `package.json` keeps its own version.
 

@@ -215,3 +215,11 @@
 - Documented the release flow in `README.md`, `docs/knowledge/commands.md`, and `docs/knowledge/env-notes.md`.
 - README `mise` section now covers `mise trust`, `mise install`, shell activation, and `mise exec --`.
 - Script facts for future work: it needs `jq` and BSD `sed` (`sed -i ''`); it updates only `frontend`/`backend` `package.json`; it tags `abtzco/bookkeepr:<version>` but pushes only `:latest`.
+
+## Session 2026-10-21 — Release script --no-bump
+
+- Added `--no-bump` (and `-h`/`--help`) to `bump-and-push-docker-image.sh`. It skips the prompt and `sed`, reads both `package.json` versions, and exits 1 when they differ.
+- Bump mode now replaces each file's own version, so a frontend/backend mismatch can no longer leave one file unchanged.
+- `--no-bump` commits with a pathspec limited to the two `package.json` files, so other staged work stays staged. It creates the tag only when missing.
+- Docs updated: `README.md`, `docs/knowledge/commands.md`, `docs/knowledge/env-notes.md`.
+- Verified in a throwaway git repo with a fake `docker`: bump updates both files; `--no-bump` commits only the two files, leaves other staged files alone, pushes the tag, and rejects mismatched versions. `bash -n` OK.

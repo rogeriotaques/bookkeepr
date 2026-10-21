@@ -88,10 +88,14 @@ docker rm -f bookkeepr
 `bump-and-push-docker-image.sh` (repository root) bumps the `frontend` and `backend` `package.json` versions, commits and tags the bump, pushes the commit and the tag, then builds and pushes the amd64 Docker image.
 
 ```sh
-./bump-and-push-docker-image.sh
+./bump-and-push-docker-image.sh             # bump, then publish
+./bump-and-push-docker-image.sh --no-bump   # publish an already-updated version
+./bump-and-push-docker-image.sh --help
 ```
 
-The script prompts for the new version. It requires:
+The default mode prompts for the new version. `--no-bump` skips the prompt and the `sed` calls, reads the version from `frontend/package.json` and `backend/package.json`, and stops if the two versions differ. It commits the files only when they have uncommitted changes and creates the tag only when it does not already exist.
+
+The script requires:
 
 - Docker is running.
 - `jq` is installed.

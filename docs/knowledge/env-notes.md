@@ -24,3 +24,4 @@
 - The script requires a running Docker daemon and Docker Hub push access to `abtzco/bookkeepr`. It runs `docker login` before the push.
 - The script builds `linux/amd64`, tags `abtzco/bookkeepr:<version>`, and pushes only `abtzco/bookkeepr:latest`. Push the version tag manually: `docker push abtzco/bookkeepr:<version>`.
 - The script updates only `frontend/package.json` and `backend/package.json`. The root `package.json` version does not change.
+- `--no-bump` skips the version prompt and `sed`. It requires the two `package.json` versions to match and exits with code 1 when they differ.
