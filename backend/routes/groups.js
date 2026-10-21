@@ -14,6 +14,7 @@ const groupValidation = {
   name: [isRequired('Missing name'), isString(60, 'Name too long')],
   operation: [isRequired('Missing operation'), isOneOf(Object.values(ENTRY_OPERATIONS), 'Missing operation')],
   active: [isRequired('Invalid active flag'), isOneOf([0, 1], 'Invalid active flag')],
+  expense_type: [isOneOf(['fixed', 'variable', null], 'Invalid expense type')],
 };
 
 router.get('/', groupsController.getGroups);

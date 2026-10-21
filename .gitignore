@@ -2,9 +2,13 @@ node_modules/
 out/
 dist/
 data/
+tmp-data/
+.mise.local.toml
 
 *.db
 *.sqlite
 *.sqlite3
 
 .DS_Store
+
+deploy.sh

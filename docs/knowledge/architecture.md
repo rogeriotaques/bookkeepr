@@ -9,10 +9,16 @@
 
 ## Frontend (`/frontend/src`)
 - Vue 3 Composition API with `<script setup>` syntax
-- Pages in `pages/`: `AuthPage`, `FirstAccessPage`, `NewEntryPage`, `ReportPage`, and Settings variants
-- Components in `components/` organized by feature: `navigation`, `new-entry`, `report`, `settings`, `shared`
+- Pages in `pages/`: `AuthPage`, `FirstAccessPage`, `DashboardPage`, `PlanningPage`, `TransactionEntryPage`, `TransactionHistoryPage`, `ReportPage`, and Settings variants
+- Components in `components/` organized by feature: `layout`, `navigation`, `planning`, `transactions`, `report`, `settings`, `shared`
 - Composables in `composable/`: `useDataFetch`, `useState`
 - Domain logic in `domain/`: `constants.ts`, `interfaces.ts`, `network/`, `router/`, `utils.ts`
+
+## Packaging (`/Dockerfile`)
+- One container: `node:22-alpine3.19` with pm2 runtime.
+- Builds the SPA (`frontend/dist`) and installs backend production dependencies, then runs `backend/main.js` on port 8083.
+- Express serves the SPA from `../frontend/dist` and the API from `/api`.
+- SQLite data lives at `/bookkeepr/data/bookkeepr.db` (declared `VOLUME`). Mount that path to persist data.
 
 ## Security Decisions (Do Not Flag as Vulnerabilities)
 

@@ -1,50 +1,81 @@
 <template>
   <div class="settings-navigation">
-    <div class="row">
-      <div class="col-3 col-3--sticky">
-        <dl class="box is-shadowless settings-navigation__menu">
-          <dt class="settings-navigation__menu-item">
-            <router-link to="/settings/groups">Categories</router-link>
-          </dt>
-          <dt class="settings-navigation__menu-item">
-            <router-link to="/settings/wallets">Wallets</router-link>
-          </dt>
-          <dt class="settings-navigation__menu-item">
-            <router-link to="/settings/advanced">Advanced</router-link>
-          </dt>
-        </dl>
-      </div>
-      <div class="col-9">
-        <router-view />
-      </div>
-    </div>
+    <nav
+      class="settings-navigation__tabs"
+      aria-label="Settings sections"
+    >
+      <RouterLink
+        to="/settings/groups"
+        class="settings-navigation__tab"
+        active-class="settings-navigation__tab--active"
+      >
+        Categories
+      </RouterLink>
+      <RouterLink
+        to="/settings/wallets"
+        class="settings-navigation__tab"
+        active-class="settings-navigation__tab--active"
+      >
+        Wallets
+      </RouterLink>
+      <RouterLink
+        to="/settings/advanced"
+        class="settings-navigation__tab"
+        active-class="settings-navigation__tab--active"
+      >
+        Advanced
+      </RouterLink>
+    </nav>
+
+    <RouterView />
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+</script>
 
 <style lang="scss" scoped>
 .settings-navigation {
-  &__menu {
-    &-item {
-      margin-bottom: 1rem;
-    }
+  &__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--bk-space-sm);
+    margin-bottom: var(--bk-space-lg);
   }
 }
 
-.router-link-active {
-  border-left: 4px solid var(--c-success) !important;
-  border-bottom: none !important;
-  padding-left: 4px !important;
+// Boring styles bare anchors with a bottom border and a `::before` highlight at
+// (0,2,1). The extra class keeps this above it without `!important`.
+.settings-navigation .settings-navigation__tab {
+  display: flex;
+  align-items: center;
+  min-height: var(--bk-touch-min);
+  padding: 0 var(--bk-space-md);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius-md);
+  color: var(--bk-text-secondary);
+  background-color: var(--bk-surface);
+  font-size: var(--bk-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 
-  &::before {
-    content: none !important;
+  &::before,
+  &::after {
+    content: none;
   }
-}
 
-.col-3--sticky {
-  position: sticky;
-  top: 85px;
-  z-index: 1;
+  &:hover {
+    color: var(--bk-text-primary);
+    border-color: var(--bk-text-muted);
+  }
+
+  &--active,
+  &--active:hover {
+    color: var(--bk-primary);
+    border-color: var(--bk-primary);
+    background-color: var(--c-success-background);
+  }
 }
 </style>

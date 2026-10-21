@@ -275,6 +275,7 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 .report {
   &__data {
     padding: 24px 16px;
+    overflow-x: auto;
   }
 
   &__item-title {
@@ -291,8 +292,6 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 
   thead {
     background-color: var(--c-background);
-    position: sticky;
-    top: 60px;
   }
 
   tbody + thead th {
@@ -310,14 +309,58 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
     width: 6.25%;
   }
 
+  // Amounts never wrap; the container scrolls sideways instead.
+  th,
+  td {
+    white-space: nowrap;
+  }
+
   tfoot tr:first-child td {
     padding-top: 48px;
   }
 }
 
 @media print {
-  [class^='report__table'] tfoot {
-    display: table-row-group;
+  .report__data {
+    // The print area is the paper, not a scroll box.
+    padding: 0;
+    overflow-x: visible;
+  }
+
+  .report__item-title {
+    width: 170px;
+  }
+
+  // Landscape A4 holds 13 columns only at a smaller type size. The month
+  // amounts stay on one line; the smaller font keeps them inside the page.
+  [class^='report__table'] {
+    font-size: 12px;
+
+    // Chrome repeats the first `thead` on every sheet, which would label the
+    // footer's rows as "Expenses". Every section already carries its own
+    // heading in the flow, so the print sheet repeats none.
+    thead {
+      display: table-row-group;
+    }
+
+    th,
+    td {
+      padding: 2px 6px;
+      white-space: nowrap;
+    }
+
+    tr {
+      break-inside: avoid;
+    }
+
+    tfoot {
+      display: table-row-group;
+
+      // Less air above the balance keeps the footer on the table's page.
+      tr:first-child td {
+        padding-top: var(--bk-space-sm);
+      }
+    }
   }
 
   .has-tooltip {

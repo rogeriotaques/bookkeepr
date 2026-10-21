@@ -1,5 +1,7 @@
 # Phase 4: Mobile-First Redesign & Budget Planning
 
+**Status: DONE**
+
 ## Overview
 
 Transform BookKeepr from a desktop-oriented transaction logger into a **mobile-first personal finance app** with a Dashboard home screen, monthly budget planning (Income/Expenses calculators), and separated transaction entry/history flows. The existing password-based auth remains unchanged.
@@ -8,7 +10,7 @@ Transform BookKeepr from a desktop-oriented transaction logger into a **mobile-f
 - Dynamic greeting copy on Dashboard ("You're doing great!" will be static for now). Dynamic copy based on spending status and thresholds is planned for Phase 5.
 - Magic link authentication. Password-based auth stays as-is.
 
-**CSS Framework:** The app uses [boring-css](https://github.com/rogeriotaques/boring-css) (v1.0.0) which is already vendored in `frontend/src/styles/`. All new components must continue to use boring-css utility classes and CSS variables. Mobile-specific overrides should live in `bookkeepr.scss` or component-scoped styles.
+**CSS Framework:** The app uses [boring-css](https://github.com/rogeriotaques/boring-css) (v2.0.0) which is already vendored in `frontend/src/styles/`. All new components must continue to use boring-css utility classes and CSS variables. Mobile-specific overrides should live in `bookkeepr.scss` or component-scoped styles.
 
 ---
 
@@ -95,7 +97,7 @@ Create two new tables to store monthly plans.
 - **Bottom Tab Navigation** for primary screens on mobile:
   - Dashboard | Entry | History | Planning | Settings
 - **Top Navigation Bar** for desktop (or keep bottom tabs centered)
-- Create `MobileLayout.vue` with safe-area-inset padding for notched devices
+- Create `Dashboard.vue` layout with safe-area-inset padding for notched devices
 - Implement page transitions (slide-left for drill-down, slide-right for back)
 
 ### 4.3.3 Design System

@@ -1,10 +1,11 @@
 <template>
-  <table class="table group-table">
+  <table class="table group-table table-scroll">
     <thead>
       <tr>
         <th width="10%">Code</th>
-        <th width="35%">Name</th>
+        <th width="30%">Name</th>
         <th>Operation</th>
+        <th>Type</th>
         <th>Status</th>
         <th></th>
       </tr>
@@ -17,6 +18,12 @@
         <td>{{ group.code }}</td>
         <td>{{ group.name }}</td>
         <td>{{ toCamelCase(group.operation) }}</td>
+        <td>
+          <span v-if="group.operation === 'outcome' && group.expense_type">
+            {{ toCamelCase(group.expense_type) }}
+          </span>
+          <span v-else>-</span>
+        </td>
         <td>
           <span
             v-if="group.active"

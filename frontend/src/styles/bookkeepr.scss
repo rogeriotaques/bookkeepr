@@ -1,7 +1,8 @@
-@import './boring_1.0.0.css';
-@import './boring_simple-grid.css';
+@import './boring_2.0.0.css';
 
 :root {
+  // Light mode only. Dark mode is intentionally not supported.
+  color-scheme: light;
   --spacing: 8px;
 }
 
@@ -18,9 +19,52 @@ body.noscroll {
   overflow: hidden;
 }
 
+// The report is the only printable view. It carries a 13-column table, which
+// only fits sideways, so every print job uses landscape paper.
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  // A full-viewport height would clip everything after the first page.
+  html,
+  body,
+  #app {
+    height: auto;
+    // Paper is white, whatever the screen theme says.
+    background-color: #fff;
+  }
+}
+
 table {
   tbody tr:not(.table__empty):hover td {
     background-color: var(--c-success-background);
+  }
+}
+
+// Mobile-first: wide tables scroll on their own, without scrolling the page.
+table.table-scroll {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+// A sticky header cannot work inside the horizontally-scrolling table, and it
+// overlaps the first row. Pin it back to the flow while the table scrolls.
+table.table-scroll thead {
+  position: static !important;
+}
+
+@media (min-width: 768px) {
+  table.table-scroll {
+    display: table;
+    overflow-x: visible;
+  }
+
+  table.table-scroll thead {
+    position: sticky !important;
   }
 }
 
@@ -66,15 +110,31 @@ hgroup {
   }
 }
 
+// Titles read the same everywhere: Title Case. `capitalize` only lifts the
+// first letter of each word, so the readable source text is untouched.
+h1,
+h2,
+h3,
+h4,
+h5,
+.title {
+  text-transform: capitalize;
+}
+
 .input {
   input,
   select {
     height: 48px;
   }
 
-  &__addon {
+  // Boring resets `min-width: 0` on direct addons with a higher-specificity
+  // selector, so it must be matched here for the width to stick.
+  &--with-addons > &__addon,
+  &--grouped > &__addon {
     min-width: 54px;
+  }
 
+  &__addon {
     &--icon {
       display: flex !important;
       align-items: center;

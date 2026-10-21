@@ -31,6 +31,7 @@ export interface Group {
   name: string;
   operation: string;
   active: 1 | 0;
+  expense_type?: 'fixed' | 'variable' | null;
 }
 
 export interface Entry {

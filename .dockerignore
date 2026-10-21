@@ -1,6 +1,6 @@
-api/data/
-node_modules/
-dist/
+**/node_modules/
+**/dist/
+data/
 
 .git/
 .yarn/
@@ -10,6 +10,7 @@ dist/
 .DS_Store
 LICENSE
 README.md
+deploy.sh
 *.db
 *.sqlite
 *.sqlite3

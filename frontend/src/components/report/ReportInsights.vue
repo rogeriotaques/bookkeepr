@@ -4,11 +4,11 @@
       <div
         v-for="card in cards"
         :key="card.label"
-        class="col-4"
+        class="col-3"
       >
-        <div class="card">
-          <div class="card__math">
-            <p class="card__figure card__figure--income">
+        <div class="box">
+          <div class="box__math">
+            <p class="box__figure box__figure--income">
               <BaseSkeleton
                 v-if="props.loading"
                 width="60%"
@@ -16,7 +16,7 @@
               />
               <span v-else>+ {{ getFormattedCurrency(card.income) }}</span>
             </p>
-            <p class="card__figure card__figure--outcome">
+            <p class="box__figure box__figure--outcome">
               <BaseSkeleton
                 v-if="props.loading"
                 width="60%"
@@ -71,6 +71,11 @@ const props = withDefaults(defineProps<Props>(), {
 
 const cards = computed(() => [
   {
+    label: 'Lifetime',
+    income: props.data?.lifetime?.income ?? 0,
+    outcome: props.data?.lifetime?.outcome ?? 0,
+  },
+  {
     label: 'This year',
     income: props.data?.thisYear?.income ?? 0,
     outcome: props.data?.thisYear?.outcome ?? 0,
@@ -91,7 +96,7 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 </script>
 
 <style lang="scss" scoped>
-.card {
+.box {
   .title {
     margin: 0 0 16px;
   }
@@ -109,5 +114,12 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 
 .skeleton__title {
   margin: 12px auto 24px;
+}
+
+@media print {
+  // Printed above the charts: four boxes on one row, as on screen.
+  .row > .col-3 {
+    grid-column: span 3;
+  }
 }
 </style>

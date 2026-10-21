@@ -1,5 +1,5 @@
 <template>
-  <table class="table wallets-table">
+  <table class="table wallets-table table-scroll">
     <thead>
       <tr>
         <th width="65%">Name</th>

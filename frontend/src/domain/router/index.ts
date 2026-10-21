@@ -1,20 +1,43 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
-import NewEntryPage from '@/pages/NewEntryPage.vue';
-import ReportPage from '@/pages/ReportPage.vue';
+import DashboardPage from '@/pages/DashboardPage.vue';
+import TransactionEntryPage from '@/pages/TransactionEntryPage.vue';
+import PlanningPage from '@/pages/PlanningPage.vue';
 import SettingsPage from '@/pages/SettingsPage.vue';
-
-const routes = [
+export const routes = [
   {
     path: '/',
-    component: NewEntryPage,
+    name: 'Dashboard',
+    component: DashboardPage,
+  },
+  {
+    path: '/transactions',
+    name: 'Transactions',
+    component: TransactionEntryPage,
+  },
+  // Entry and History are one page now. Keep the old paths alive for bookmarked
+  // hash URLs.
+  {
+    path: '/entry',
+    redirect: '/transactions',
+  },
+  {
+    path: '/history',
+    redirect: '/transactions',
+  },
+  {
+    path: '/planning',
+    name: 'Planning',
+    component: PlanningPage,
   },
   {
     path: '/report',
-    component: ReportPage,
+    name: 'Report',
+    component: () => import('@/pages/ReportPage.vue'),
   },
   {
     path: '/settings',
+    name: 'Settings',
     component: SettingsPage,
     children: [
       {
@@ -23,21 +46,24 @@ const routes = [
       },
       {
         path: 'groups',
+        name: 'SettingsGroups',
         component: () => import('@/pages/SettingsGroupsPage.vue'),
       },
       {
         path: 'wallets',
+        name: 'SettingsWallets',
         component: () => import('@/pages/SettingsWalletsPage.vue'),
       },
       {
         path: 'advanced',
+        name: 'SettingsAdvanced',
         component: () => import('@/pages/SettingsAdvancedPage.vue'),
       },
     ],
   },
 ];
 
-const router = new createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior() {

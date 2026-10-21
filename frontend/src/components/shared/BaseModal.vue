@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body" v-if="isOpen">
-    <div :key="props.title" class="base-modal__overlay">
+    <div ref="overlayRef" class="base-modal__overlay">
       <div class="base-modal box" :style="style">
         <div v-if="props.title" class="box__header">
           <h3 class="title">{{ props.title }}</h3>
@@ -9,7 +9,7 @@
           <slot />
         </div>
         <div class="box__footer">
-          <a class="box__link" @click="!props.loading && emit('cancel')">Cancel</a>
+          <button type="button" :disabled="props.loading" @click="!props.loading && emit('cancel')">Cancel</button>
           <button :type="buttonType" :disabled="props.confirmDisabled || props.loading" @click="onConfirmHandler">
             <IconLoader2 v-if="props.loading" class="is-spinning" width="16" height="16" />
             <template v-else>{{ props.confirmText }}</template>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
 
 interface Props {
@@ -50,8 +50,8 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const isOpen = defineModel();
+const overlayRef = ref<HTMLDivElement | null>(null);
 
-const closeWithOutsideClick = computed(() => !props.preventOutsideClick);
 const style = computed(() => ({ width: props.width }));
 const buttonType = computed(() => {
   switch (props.type) {
@@ -64,28 +64,12 @@ const buttonType = computed(() => {
   }
 });
 
-watch(isOpen, async () => {
-  await nextTick();
-
-  const body: HTMLBodyElement | null = document.querySelector('body');
-  const overlay: HTMLDivElement | null = document.querySelector('.base-modal__overlay');
-
-  if (isOpen.value) {
-    body?.classList.add('noscroll');
-    body?.addEventListener('keydown', onEscapeKeyHandler);
-    overlay?.addEventListener('click', onOverlayClick);
-  } else {
-    body?.classList.remove('noscroll');
-    body?.removeEventListener('keydown', onEscapeKeyHandler);
-    overlay?.removeEventListener('click', onOverlayClick);
-  }
-});
-
 const onOverlayClick = (e: MouseEvent) => {
-  const overlay: HTMLDivElement | null = document.querySelector('.base-modal__overlay');
-
   if (props.loading) return;
-  if ((e.target as HTMLElement)?.className === overlay?.className && closeWithOutsideClick.value) emit('cancel');
+  if (props.preventOutsideClick) return;
+  if (e.target === overlayRef.value) {
+    emit('cancel');
+  }
 };
 
 const onEscapeKeyHandler = (e: KeyboardEvent) => {
@@ -97,6 +81,26 @@ const onConfirmHandler = () => {
   if (props.loading) return;
   emit('confirm');
 };
+
+watch(isOpen, async () => {
+  await nextTick();
+
+  if (isOpen.value) {
+    document.body?.classList.add('noscroll');
+    document.addEventListener('keydown', onEscapeKeyHandler);
+    overlayRef.value?.addEventListener('click', onOverlayClick);
+  } else {
+    document.body?.classList.remove('noscroll');
+    document.removeEventListener('keydown', onEscapeKeyHandler);
+    overlayRef.value?.removeEventListener('click', onOverlayClick);
+  }
+});
+
+onBeforeUnmount(() => {
+  document.body?.classList.remove('noscroll');
+  document.removeEventListener('keydown', onEscapeKeyHandler);
+  overlayRef.value?.removeEventListener('click', onOverlayClick);
+});
 </script>
 
 <style lang="scss" scoped>
@@ -116,22 +120,26 @@ const onConfirmHandler = () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: var(--bk-space-md);
   }
 }
 
 .box {
   padding: 32px;
 
-  &__link {
-    cursor: pointer;
-  }
-
   &__footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
     padding: 16px 0 0;
+
+    button {
+      flex: 1 1 0;
+      min-width: 0;
+      margin: 0;
+    }
   }
 }
 </style>

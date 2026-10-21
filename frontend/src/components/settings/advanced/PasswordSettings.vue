@@ -1,13 +1,12 @@
 <template>
   <div class="settings-advanced-password">
-    <div class="row">
-      <div class="col-8">
-        <hgroup>
-          <h5>Password</h5>
-          <p>Manage your current password</p>
-        </hgroup>
-      </div>
-      <div class="col-4 settings-advanced-password__actions">
+    <SettingsRow>
+      <hgroup>
+        <h5>Password</h5>
+        <p>Manage your current password</p>
+      </hgroup>
+
+      <template #control>
         <button
           :disabled="props.loading"
           type="button"
@@ -33,8 +32,8 @@
           <IconEraser />
           <span>Remove</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </SettingsRow>
   </div>
 
   <BaseConfirmModal
@@ -113,6 +112,7 @@ import { useToast } from 'vue-toastification';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import BaseModal from '@/components/shared/BaseModal.vue';
+import SettingsRow from '@/components/settings/SettingsRow.vue';
 
 import { disableUserPassword, saveUserPassword } from '@/domain/network';
 
@@ -199,15 +199,9 @@ watch(showChangePasswordModal, async () => {
 
 <style lang="scss" scoped>
 .settings-advanced-password {
-  &__actions {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-
-    > button {
-      width: 100px;
-    }
+  button {
+    width: 100px;
+    max-width: 100%;
   }
 
   &__alert-icon {

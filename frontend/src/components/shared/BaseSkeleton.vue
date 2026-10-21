@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ 'skeleton__wrapper--right': props.right, 'skeleton__wrapper--centered': props.centered }"
+    :class="wrapperClasses"
     class="skeleton__wrapper"
   >
     <div
@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 interface Props {
   width?: string;
   height?: string;
@@ -22,13 +24,17 @@ const props = withDefaults(defineProps<Props>(), {
   width: '100%',
   height: '24px',
 });
+
+const wrapperClasses = computed(() => ({
+  'skeleton__wrapper--right': props.right && !props.centered,
+  'skeleton__wrapper--centered': props.centered,
+}));
 </script>
 
 <style lang="scss" scoped>
 .skeleton {
   $class: &;
 
-  max-width: 800px;
   background-color: #e0e0e0;
   background-image: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
   background-size: 200% 100%;

@@ -1,45 +1,44 @@
 <template>
   <div class="settings-advanced-currency">
-    <div class="row">
-      <div class="col-8">
-        <hgroup>
-          <h5>Locale</h5>
-          <p>Define the symbols and formats to be used for currency and dates</p>
-        </hgroup>
-      </div>
-      <div class="col-4 has-text-right">
-        <div>
-          <div class="input">
-            <!-- @vue-expect-error -->
-            <input
-              :value="props.data.currencyCode"
-              :disabled="props.loading"
-              type="text"
-              placeholder="E.g. JPY"
-              maxlength="3"
-              @change="emit('update', { key: 'currencyCode', value: $event.target.value })"
-            />
-          </div>
+    <SettingsRow>
+      <hgroup>
+        <h5>Locale</h5>
+        <p>Define the symbols and formats to be used for currency and dates</p>
+      </hgroup>
 
-          <div class="input">
-            <!-- @vue-expect-error -->
-            <input
-              :value="props.data.currencyLocale"
-              :disabled="props.loading"
-              type="text"
-              placeholder="E.g. ja-JP"
-              maxlength="5"
-              @change="emit('update', { key: 'currencyLocale', value: $event.target.value })"
-            />
-          </div>
+      <template #control>
+        <div class="input">
+          <!-- @vue-expect-error -->
+          <input
+            :value="props.data.currencyCode"
+            :disabled="props.loading"
+            type="text"
+            placeholder="E.g. JPY"
+            maxlength="3"
+            @change="emit('update', { key: 'currencyCode', value: $event.target.value })"
+          />
         </div>
-      </div>
-    </div>
+
+        <div class="input">
+          <!-- @vue-expect-error -->
+          <input
+            :value="props.data.currencyLocale"
+            :disabled="props.loading"
+            type="text"
+            placeholder="E.g. ja-JP"
+            maxlength="5"
+            @change="emit('update', { key: 'currencyLocale', value: $event.target.value })"
+          />
+        </div>
+      </template>
+    </SettingsRow>
   </div>
 </template>
 
 <script setup lang="ts">
 import { CurrencyLocale } from '@/domain/interfaces';
+
+import SettingsRow from '@/components/settings/SettingsRow.vue';
 
 interface Props {
   data: CurrencyLocale;
@@ -57,14 +56,16 @@ const emit = defineEmits<Emits>();
 
 <style lang="scss" scoped>
 .settings-advanced-currency {
+  .input {
+    width: 100%;
+  }
+
   .input > input {
     text-align: center;
     width: 149px;
-  }
-
-  .col-4 {
-    display: flex;
-    justify-content: flex-end;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: 0;
   }
 }
 </style>
