@@ -1,6 +1,9 @@
 <template>
   <div class="balance-table">
-    <table class="table-scroll">
+    <table
+      ref="tableRef"
+      class="table-scroll"
+    >
       <thead>
         <tr>
           <th>Day</th>
@@ -13,17 +16,21 @@
       </thead>
       <tbody>
         <tr
-          v-for="entry in entries"
+          v-for="(entry, index) in entries"
           :key="entry.id"
+          :data-row-index="index"
+          :tabindex="rowTabIndex(index)"
           :class="{
             'balance-table__editing': props.editing === entry.id,
             'balance-table__selected': isSelected(entry),
+            'balance-table__row--focused': activeIndex === index,
           }"
+          @focus="onRowFocus(index)"
         >
-          <td @click="onEntryClickHandler(entry)">{{ entry.date }}</td>
+          <td @click="onRowClick(entry, index)">{{ entry.date }}</td>
           <td
             class="balance-table__description"
-            @click="onEntryClickHandler(entry)"
+            @click="onRowClick(entry, index)"
           >
             <div>{{ entry.description }}</div>
             <div>
@@ -33,31 +40,33 @@
           </td>
           <td
             class="has-text-right"
-            @click="onEntryClickHandler(entry)"
+            @click="onRowClick(entry, index)"
           >
             {{ entry.operation === ENTRY_OPERATIONS.EXPENSE ? getFormattedCurrency(entry.amount) : '' }}
           </td>
           <td
             class="has-text-right"
-            @click="onEntryClickHandler(entry)"
+            @click="onRowClick(entry, index)"
           >
             {{ entry.operation === ENTRY_OPERATIONS.INCOME ? getFormattedCurrency(entry.amount) : '' }}
           </td>
           <td
             class="has-text-right"
-            @click="onEntryClickHandler(entry)"
+            @click="onRowClick(entry, index)"
           >
             {{ getFormattedCurrency(entry.balance) }}
           </td>
           <td class="has-text-right">
             <div class="balance-table__actions">
-              <a
+              <button
                 v-if="props.editing !== entry.id"
+                type="button"
                 class="link"
+                aria-label="Edit entry"
                 @click="emit('edit', entry)"
               >
                 <IconEdit />
-              </a>
+              </button>
               <span
                 v-else
                 class="link link--editing"
@@ -65,12 +74,14 @@
                 <IconEye />
               </span>
 
-              <a
+              <button
+                type="button"
                 class="link is-danger"
+                aria-label="Delete entry"
                 @click="onDeleteHandler(entry.id ?? 0)"
               >
                 <IconTrash />
-              </a>
+              </button>
             </div>
           </td>
         </tr>
@@ -130,7 +141,14 @@
       <h5>{{ getFormattedCurrency(totalSelected) }}</h5>
     </div>
     <div class="balance-table__selected-entries-action">
-      <a @click="selectedEntries = []"><IconX /></a>
+      <button
+        type="button"
+        class="link"
+        aria-label="Clear calculator selection"
+        @click="selectedEntries = []"
+      >
+        <IconX />
+      </button>
     </div>
   </div>
 
@@ -153,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { IconEdit, IconTrash, IconEye, IconLoader2, IconX } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
@@ -161,6 +179,7 @@ import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
 import { ENTRY_OPERATIONS } from '@/domain/constants';
 import { deleteEntry } from '@/domain/network';
 import { formatCurrency } from '@/domain/utils';
+import { useTableCursor } from '@/composable/useTableCursor';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
@@ -216,6 +235,39 @@ const entries = computed(() => {
 
   return entries;
 });
+
+const tableRef = ref<HTMLTableElement | null>(null);
+
+const focusRow = (index: number) => {
+  nextTick(() => {
+    tableRef.value?.querySelector<HTMLElement>(`[data-row-index="${index}"]`)?.focus();
+  });
+};
+
+const { activeIndex, rowTabIndex, onRowFocus } = useTableCursor({
+  count: () => entries.value.length,
+  onMove: focusRow,
+  onActivate: (index) => {
+    const entry = entries.value[index];
+    if (entry) emit('edit', entry);
+  },
+  onDelete: (index) => {
+    const entry = entries.value[index];
+    if (entry) onDeleteHandler(entry.id ?? 0);
+  },
+  onToggle: (index) => {
+    const entry = entries.value[index];
+    if (entry) onEntryClickHandler(entry);
+  },
+  onClear: () => {
+    selectedEntries.value = [];
+  },
+});
+
+const onRowClick = (entry: ExtendedEntry, index: number) => {
+  activeIndex.value = index;
+  onEntryClickHandler(entry);
+};
 
 const totalIncome = computed(() => entries.value.filter(isIncome).reduce((acc, entry) => entry.amount + acc, 0));
 const totalOutcome = computed(() => entries.value.filter(isOutcome).reduce((acc, entry) => entry.amount + acc, 0));
@@ -320,9 +372,18 @@ const onDeleteConfirmHandler = async () => {
       transition: opacity 0.2s ease-in-out;
     }
 
-    &:hover #{$class}__actions {
+    &:hover #{$class}__actions,
+    &:focus-within #{$class}__actions {
       opacity: 1;
     }
+  }
+
+  tbody > tr[tabindex]:focus {
+    outline: none;
+  }
+
+  tbody > tr.balance-table__row--focused td {
+    box-shadow: inset 0 2px 0 var(--c-info), inset 0 -2px 0 var(--c-info);
   }
 
   &__editing {
@@ -380,14 +441,25 @@ const onDeleteConfirmHandler = async () => {
       margin: 0;
     }
 
-    a {
+    button {
+      min-width: var(--bk-touch-min);
+      min-height: var(--bk-touch-min);
       padding: 0;
-      margin: 4px 0 0;
+      margin: 0;
       border: 0;
+      background: transparent;
+      box-shadow: none;
       cursor: pointer;
 
       &::before {
         content: none !important;
+      }
+
+      &:not(:disabled):hover,
+      &:not(:disabled):focus {
+        background: transparent;
+        box-shadow: none;
+        transform: none;
       }
 
       &:hover {
@@ -423,30 +495,55 @@ const onDeleteConfirmHandler = async () => {
 
 .link {
   border-bottom-color: transparent !important;
+
+  &::before {
+    content: none !important;
+  }
+
+  &--editing {
+    cursor: default;
+  }
+}
+
+button.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--bk-touch-min);
+  min-height: var(--bk-touch-min);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
 
   + .link {
     margin-left: 8px;
   }
 
-  &::before {
-    content: none !important;
+  &:not(:disabled):hover,
+  &:not(:disabled):focus {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
   }
 
-  &:not(.link--editing):hover {
+  &:not(.link--editing):hover,
+  &:not(.link--editing):focus-visible {
     > svg {
       stroke: var(--c-info);
     }
   }
 
-  &.is-danger:hover {
+  &.is-danger:hover,
+  &.is-danger:focus-visible {
     > svg {
       stroke: var(--c-danger);
     }
-  }
-
-  &--editing {
-    cursor: default;
   }
 }
 </style>

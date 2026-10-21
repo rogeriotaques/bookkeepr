@@ -2,6 +2,20 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense } from 'vue';
 import DashboardPage from '@/pages/DashboardPage.vue';
+import {
+  installHotkeyDispatcher,
+  resetHotkeys,
+} from '@/composable/useHotkeys';
+
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
+
+vi.mock('vue-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('vue-router')>();
+  return {
+    ...actual,
+    useRouter: () => ({ push: pushMock }),
+  };
+});
 
 vi.mock('@/composable/useDataFetch', () => ({
   default: vi.fn(),
@@ -95,6 +109,33 @@ describe('DashboardPage', () => {
     const wrapper = mountWithSuspense();
     await flushPromises();
     expect(wrapper.text()).toContain('Set up your budget');
+  });
+
+  it('should build the empty state from Boring primitives', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    const empty = wrapper.find('.dashboard-page__notice');
+    expect(empty.classes()).toContain('box');
+
+    const cta = wrapper.findComponent(RouterLinkStub);
+    expect(cta.classes()).toContain('button');
+  });
+
+  it('should replace both top blocks with one full-row notice when the year has no budget', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    expect(wrapper.find('.dashboard-page__header').exists()).toBe(false);
+    expect(wrapper.find('.dashboard-page__summary').exists()).toBe(false);
+
+    const notice = wrapper.find('.dashboard-page__notice');
+    expect(notice.text()).toContain(`No budget set for ${YEAR}`);
+    expect(notice.text()).toContain('Setting a budget helps BookKeepr');
   });
 
   it('should show planned vs realized for income and expenses', async () => {
@@ -222,7 +263,8 @@ describe('DashboardPage', () => {
     expect(lastChild.classList.contains('dashboard-page__logout')).toBe(true);
   });
 
-  it('should log out when Logout is clicked', async () => {    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
+  it('should ask before logging out when Logout is clicked', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(noBudgetReport));
 
     const wrapper = mountWithSuspense();
     await flushPromises();
@@ -230,7 +272,19 @@ describe('DashboardPage', () => {
     expect(logoutButton).toBeDefined();
 
     await logoutButton?.trigger('click');
-    expect(logout).toHaveBeenCalled();
+    await flushPromises();
+
+    expect(logout).not.toHaveBeenCalled();
+    const confirm = document.querySelector(
+      '.base-confirm-modal .card__link--danger'
+    ) as HTMLButtonElement;
+    expect(confirm).not.toBeNull();
+
+    confirm.click();
+    await flushPromises();
+    expect(logout).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
   });
 
   it('should show loading state', async () => {
@@ -239,5 +293,23 @@ describe('DashboardPage', () => {
     const wrapper = mountWithSuspense();
     await flushPromises();
     expect(wrapper.find('[data-testid="dashboard-loading"]').exists()).toBe(true);
+  });
+
+  it('opens a new entry with n', async () => {
+    (useDataFetch as any).mockReturnValue(mockReport(annualReport));
+    const uninstall = installHotkeyDispatcher();
+    const wrapper = mountWithSuspense();
+    await flushPromises();
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'n', bubbles: true, cancelable: true })
+    );
+    await flushPromises();
+
+    expect(pushMock).toHaveBeenCalledWith('/transactions');
+
+    wrapper.unmount();
+    uninstall();
+    resetHotkeys();
   });
 });

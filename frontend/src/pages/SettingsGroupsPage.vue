@@ -10,6 +10,7 @@
       type="submit"
       class="is-auto-width is-pulled-right has-icon has-tooltip has-tooltip--left"
       data-tooltip="Add new category"
+      aria-keyshortcuts="n"
       @click="isModalOpen = true"
     >
       <IconPlus :size="18" />
@@ -51,6 +52,7 @@ import { IconPlus } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
 import { Group } from '@/domain/interfaces';
 import { addGroup, updateGroup } from '@/domain/network';
 
@@ -79,6 +81,12 @@ const groups = computed(() => data.value?.groups ?? []);
 const isEditing = computed(() => form.id !== undefined);
 const modalTitle = computed(() => (isEditing.value ? 'Edit category' : 'Add new category'));
 const isFormValid = computed(() => `${form.code}`.length > 0 && form.name.length > 0 && form.operation.length > 0 && form.active !== undefined);
+
+useHotkeys({
+  n: () => {
+    isModalOpen.value = true;
+  },
+});
 
 const onCancelModalHandler = () => {
   isModalOpen.value = false;

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { mount, RouterLinkStub } from '@vue/test-utils';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import Dashboard from '@/components/layout/Dashboard.vue';
+import { resetHotkeys } from '@/composable/useHotkeys';
 
 const { logoutMock } = vi.hoisted(() => ({ logoutMock: vi.fn() }));
 
@@ -10,8 +11,10 @@ vi.mock('@/composable/useState', () => ({
 }));
 
 describe('Dashboard', () => {
-  const mountLayout = () =>
-    mount(Dashboard, {
+  let mounted: ReturnType<typeof mount> | undefined;
+
+  const mountLayout = () => {
+    mounted = mount(Dashboard, {
       global: {
         stubs: {
           RouterView: true,
@@ -19,6 +22,16 @@ describe('Dashboard', () => {
         },
       },
     });
+
+    return mounted;
+  };
+
+  afterEach(() => {
+    mounted?.unmount();
+    mounted = undefined;
+    resetHotkeys();
+    document.body.innerHTML = '';
+  });
 
   it('should render navigation with 5 tabs', () => {
     const wrapper = mountLayout();
@@ -72,7 +85,7 @@ describe('Dashboard', () => {
     expect(wrapper.find('.dashboard__content').exists()).toBe(true);
   });
 
-  it('should log out from the navigation', async () => {
+  it('asks for confirmation before logging out', async () => {
     logoutMock.mockClear();
     const wrapper = mountLayout();
 
@@ -80,6 +93,45 @@ describe('Dashboard', () => {
     expect(button.exists()).toBe(true);
 
     await button.trigger('click');
-    expect(logoutMock).toHaveBeenCalled();
+    await flushPromises();
+
+    expect(logoutMock).not.toHaveBeenCalled();
+    expect(document.querySelector('.base-confirm-modal')).not.toBeNull();
+
+    const confirm = document.querySelector(
+      '.base-confirm-modal .card__link--danger'
+    ) as HTMLButtonElement;
+    confirm.click();
+    await flushPromises();
+
+    expect(logoutMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the shortcut panel with ?', async () => {
+    mountLayout();
+    await flushPromises();
+
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: '?', bubbles: true, cancelable: true })
+    );
+    await flushPromises();
+
+    expect(document.querySelector('.shortcut-help')).not.toBeNull();
+    expect(document.body.textContent).toContain('Keyboard shortcuts');
+    expect(document.body.textContent).toContain('g d');
+  });
+
+  it('opens the shortcut panel from the navbar', async () => {
+    const wrapper = mountLayout();
+    await flushPromises();
+
+    const button = wrapper.find('[data-testid="nav-shortcuts"]');
+    expect(button.exists()).toBe(true);
+    expect(button.attributes('aria-label')).toBe('Keyboard shortcuts');
+
+    await button.trigger('click');
+    await flushPromises();
+
+    expect(document.querySelector('.shortcut-help')).not.toBeNull();
   });
 });

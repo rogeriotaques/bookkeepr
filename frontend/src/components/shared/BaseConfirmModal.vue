@@ -1,7 +1,17 @@
 <template>
   <Teleport to="body" v-if="isOpen">
-    <div ref="overlayRef" class="base-confirm-modal__overlay">
-      <div class="base-confirm-modal card">
+    <div
+      class="base-confirm-modal__overlay"
+      @click.self="onOverlayClick"
+    >
+      <div
+        ref="modalRef"
+        class="base-confirm-modal card"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="props.title || 'Confirm'"
+        tabindex="-1"
+      >
         <div v-if="props.title" class="card__header">
           <h3 class="title">{{ props.title }}</h3>
         </div>
@@ -9,11 +19,25 @@
           <slot />
         </div>
         <div class="card__footer">
-          <a :class="{ 'card__link--disabled': props.loading }" class="card__link" @click="emit('cancel')">Cancel</a>
-          <a :class="[`card__link--${props.type}`, { 'card__link--disabled': props.loading }]" class="card__link" @click="onConfirmHandler">
+          <button
+            type="button"
+            :disabled="props.loading"
+            :class="{ 'card__link--disabled': props.loading }"
+            class="card__link"
+            @click="emit('cancel')"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            :disabled="props.loading"
+            :class="[`card__link--${props.type}`, { 'card__link--disabled': props.loading }]"
+            class="card__link"
+            @click="onConfirmHandler"
+          >
             <IconLoader2 v-if="props.loading" class="is-spinning" width="16" height="16" />
             <template v-else>{{ props.confirmText }}</template>
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -21,8 +45,11 @@
 </template>
 
 <script setup lang="ts">
-import { watch, nextTick, ref, onBeforeUnmount } from 'vue';
+import { computed, watch, ref, onBeforeUnmount } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
+
+import { blockHotkeys } from '@/composable/useHotkeys';
+import { useFocusTrap } from '@/composable/useFocusTrap';
 
 interface Props {
   title?: string;
@@ -47,40 +74,58 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const isOpen = defineModel();
-const overlayRef = ref<HTMLDivElement | null>(null);
+const modalRef = ref<HTMLDivElement | null>(null);
 
-const onOverlayClick = (e: MouseEvent) => {
+useFocusTrap(modalRef, computed(() => Boolean(isOpen.value)));
+
+let unblockHotkeys: (() => void) | null = null;
+
+const onOverlayClick = () => {
   if (props.loading) return;
   if (props.preventOutsideClick) return;
-  if (e.target === overlayRef.value) {
-    emit('cancel');
-  }
+  emit('cancel');
 };
 
 const onKeyDownHandler = (e: KeyboardEvent) => {
   if (props.loading) return;
-  if (e.key === 'Escape') emit('cancel');
-  if (e.key === 'Enter') emit('confirm');
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    emit('cancel');
+    return;
+  }
+
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    emit('confirm');
+  }
 };
 
-watch(isOpen, async () => {
-  await nextTick();
+watch(
+  isOpen,
+  () => {
+    if (isOpen.value) {
+      document.body?.classList.add('noscroll');
+      document.addEventListener('keydown', onKeyDownHandler);
 
-  if (isOpen.value) {
-    document.body?.classList.add('noscroll');
-    document.addEventListener('keydown', onKeyDownHandler);
-    overlayRef.value?.addEventListener('click', onOverlayClick);
-  } else {
-    document.body?.classList.remove('noscroll');
-    document.removeEventListener('keydown', onKeyDownHandler);
-    overlayRef.value?.removeEventListener('click', onOverlayClick);
-  }
-});
+      if (!unblockHotkeys) unblockHotkeys = blockHotkeys();
+    } else {
+      document.body?.classList.remove('noscroll');
+      document.removeEventListener('keydown', onKeyDownHandler);
+
+      unblockHotkeys?.();
+      unblockHotkeys = null;
+    }
+  },
+  { immediate: true }
+);
 
 onBeforeUnmount(() => {
   document.body?.classList.remove('noscroll');
   document.removeEventListener('keydown', onKeyDownHandler);
-  overlayRef.value?.removeEventListener('click', onOverlayClick);
+
+  unblockHotkeys?.();
+  unblockHotkeys = null;
 });
 
 const onConfirmHandler = () => {
@@ -121,6 +166,23 @@ const onConfirmHandler = () => {
     height: 48px;
     align-items: center;
     justify-content: center;
+
+    // These are buttons, so reset Boring's default button box.
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0 var(--bk-space-md);
+    border: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+    font: inherit;
+
+    &:not(:disabled):hover,
+    &:not(:disabled):focus {
+      box-shadow: none;
+      transform: none;
+    }
 
     &--disabled {
       cursor: not-allowed;

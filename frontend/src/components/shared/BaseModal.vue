@@ -1,7 +1,18 @@
 <template>
   <Teleport to="body" v-if="isOpen">
-    <div ref="overlayRef" class="base-modal__overlay">
-      <div class="base-modal box" :style="style">
+    <div
+      class="base-modal__overlay"
+      @click.self="onOverlayClick"
+    >
+      <div
+        ref="modalRef"
+        class="base-modal box"
+        :style="style"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="props.title || 'Dialog'"
+        tabindex="-1"
+      >
         <div v-if="props.title" class="box__header">
           <h3 class="title">{{ props.title }}</h3>
         </div>
@@ -21,8 +32,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, watch, onBeforeUnmount } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
+
+import { blockHotkeys } from '@/composable/useHotkeys';
+import { useFocusTrap } from '@/composable/useFocusTrap';
 
 interface Props {
   title?: string;
@@ -50,7 +64,11 @@ interface Emits {
 const emit = defineEmits<Emits>();
 
 const isOpen = defineModel();
-const overlayRef = ref<HTMLDivElement | null>(null);
+const modalRef = ref<HTMLDivElement | null>(null);
+
+useFocusTrap(modalRef, computed(() => Boolean(isOpen.value)));
+
+let unblockHotkeys: (() => void) | null = null;
 
 const style = computed(() => ({ width: props.width }));
 const buttonType = computed(() => {
@@ -64,17 +82,25 @@ const buttonType = computed(() => {
   }
 });
 
-const onOverlayClick = (e: MouseEvent) => {
+const onOverlayClick = () => {
   if (props.loading) return;
   if (props.preventOutsideClick) return;
-  if (e.target === overlayRef.value) {
-    emit('cancel');
-  }
+  emit('cancel');
 };
 
 const onEscapeKeyHandler = (e: KeyboardEvent) => {
   if (props.loading) return;
-  if (e.key === 'Escape') emit('cancel');
+
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    emit('cancel');
+    return;
+  }
+
+  if ((e.metaKey || e.ctrlKey) && (e.key === 's' || e.key === 'Enter')) {
+    e.preventDefault();
+    if (!props.confirmDisabled) emit('confirm');
+  }
 };
 
 const onConfirmHandler = () => {
@@ -82,24 +108,31 @@ const onConfirmHandler = () => {
   emit('confirm');
 };
 
-watch(isOpen, async () => {
-  await nextTick();
+watch(
+  isOpen,
+  () => {
+    if (isOpen.value) {
+      document.body?.classList.add('noscroll');
+      document.addEventListener('keydown', onEscapeKeyHandler);
 
-  if (isOpen.value) {
-    document.body?.classList.add('noscroll');
-    document.addEventListener('keydown', onEscapeKeyHandler);
-    overlayRef.value?.addEventListener('click', onOverlayClick);
-  } else {
-    document.body?.classList.remove('noscroll');
-    document.removeEventListener('keydown', onEscapeKeyHandler);
-    overlayRef.value?.removeEventListener('click', onOverlayClick);
-  }
-});
+      if (!unblockHotkeys) unblockHotkeys = blockHotkeys();
+    } else {
+      document.body?.classList.remove('noscroll');
+      document.removeEventListener('keydown', onEscapeKeyHandler);
+
+      unblockHotkeys?.();
+      unblockHotkeys = null;
+    }
+  },
+  { immediate: true }
+);
 
 onBeforeUnmount(() => {
   document.body?.classList.remove('noscroll');
   document.removeEventListener('keydown', onEscapeKeyHandler);
-  overlayRef.value?.removeEventListener('click', onOverlayClick);
+
+  unblockHotkeys?.();
+  unblockHotkeys = null;
 });
 </script>
 

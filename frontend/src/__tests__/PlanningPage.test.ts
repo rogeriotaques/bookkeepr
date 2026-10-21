@@ -1,7 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import PlanningPage from '@/pages/PlanningPage.vue';
+import {
+  installHotkeyDispatcher,
+  resetHotkeys,
+} from '@/composable/useHotkeys';
 
 vi.mock('@/composable/useBudget', () => ({
   useBudget: vi.fn(),
@@ -40,7 +44,7 @@ const mockSave = (saveBudget = vi.fn().mockResolvedValue({})) => ({
   isSaving: ref(false),
 });
 
-const mountPlanning = () =>
+const mountPlanning = (options: Record<string, any> = {}) =>
   mount(PlanningPage, {
     global: {
       stubs: {
@@ -52,11 +56,17 @@ const mountPlanning = () =>
         ExpensesCalculator: true,
       },
     },
+    ...options,
   });
 
 describe('PlanningPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    resetHotkeys();
+    document.body.innerHTML = '';
   });
 
   it('should show month selector', () => {
@@ -246,5 +256,41 @@ describe('PlanningPage', () => {
     await flushPromises();
 
     expect(wrapper.find('textarea').element.value).toBe('Typed');
+  });
+
+  it('opens the income calculator with i', async () => {
+    (useBudget as any).mockReturnValue(mockBudget());
+    (useSaveBudget as any).mockReturnValue(mockSave());
+
+    const uninstall = installHotkeyDispatcher();
+    const wrapper = mountPlanning();
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'i', bubbles: true, cancelable: true })
+    );
+    await nextTick();
+
+    expect(wrapper.findComponent({ name: 'IncomeCalculator' }).exists()).toBe(true);
+
+    wrapper.unmount();
+    uninstall();
+  });
+
+  it('focuses the goal with o', async () => {
+    (useBudget as any).mockReturnValue(mockBudget());
+    (useSaveBudget as any).mockReturnValue(mockSave());
+
+    const uninstall = installHotkeyDispatcher();
+    const wrapper = mountPlanning({ attachTo: document.body });
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'o', bubbles: true, cancelable: true })
+    );
+    await nextTick();
+
+    expect(document.activeElement).toBe(wrapper.find('textarea').element);
+
+    wrapper.unmount();
+    uninstall();
   });
 });

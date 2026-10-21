@@ -28,6 +28,7 @@
         <label class="label">Goal for this month</label>
         <div class="input">
           <textarea
+            ref="goalRef"
             v-model="goal"
             rows="3"
             placeholder="What do you want to achieve this month?"
@@ -93,6 +94,7 @@ import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
 import IncomeCalculator from '@/components/planning/IncomeCalculator.vue';
 import ExpensesCalculator from '@/components/planning/ExpensesCalculator.vue';
 import { useBudget, useSaveBudget } from '@/composable/useBudget';
+import { useHotkeys } from '@/composable/useHotkeys';
 import { BudgetItem } from '@/domain/interfaces.budget';
 
 const now = dayjs();
@@ -114,6 +116,52 @@ const incomeItems = ref<BudgetItem[]>([]);
 const expenseItems = ref<BudgetItem[]>([]);
 const showIncomeCalc = ref(false);
 const showExpenseCalc = ref(false);
+const goalRef = ref<HTMLTextAreaElement | null>(null);
+
+const stepMonth = (delta: number) => {
+  let month = selectedMonth.value + delta;
+  let year = selectedYear.value;
+
+  if (month < 1) {
+    month = 12;
+    year -= 1;
+  } else if (month > 12) {
+    month = 1;
+    year += 1;
+  }
+
+  selectedMonth.value = month;
+  selectedYear.value = year;
+};
+
+const stepYear = (delta: number) => {
+  const next = selectedYear.value + delta;
+  if (years.includes(next)) selectedYear.value = next;
+};
+
+useHotkeys({
+  i: () => {
+    showIncomeCalc.value = true;
+  },
+  e: () => {
+    showExpenseCalc.value = true;
+  },
+  o: () => {
+    goalRef.value?.focus();
+  },
+  '[': () => stepMonth(-1),
+  ']': () => stepMonth(1),
+  '{': () => stepYear(-1),
+  '}': () => stepYear(1),
+  'mod+s': () => {
+    if (goalTimer) {
+      flushGoalSave();
+      return;
+    }
+
+    saveNow();
+  },
+});
 
 // Sync local state when data for the selected month arrives. While there are
 // unsaved local edits, skip re-syncing the same month so background refetches

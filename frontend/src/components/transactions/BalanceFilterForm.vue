@@ -45,10 +45,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { IconSearch, IconX } from '@tabler/icons-vue';
 
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
+import { useHotkeys } from '@/composable/useHotkeys';
 
 interface Props {
   year: string;
@@ -116,12 +117,7 @@ const filterByText = computed({
   },
 });
 
-const onSearchHotKeyHandler = (e: KeyboardEvent) => {
-  if (!e.metaKey || e.key !== 'k') return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
+const onSearchHotKeyHandler = () => {
   searchRef.value?.focus();
 };
 
@@ -131,16 +127,28 @@ const onClickClearSearchHandler = async () => {
   searchRef.value?.focus();
 };
 
-onMounted(async () => {
-  document.addEventListener('keydown', onSearchHotKeyHandler);
+const onEscapeHandler = () => {
+  if (filterByText.value) {
+    filterByText.value = '';
+    return;
+  }
 
-  await nextTick();
-  searchRef.value?.focus();
-});
+  if (document.activeElement === searchRef.value) {
+    searchRef.value?.blur();
+    return;
+  }
 
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onSearchHotKeyHandler);
-});
+  return false;
+};
+
+useHotkeys(
+  {
+    'mod+k': onSearchHotKeyHandler,
+    '/': onSearchHotKeyHandler,
+    escape: onEscapeHandler,
+  },
+  { priority: 10 }
+);
 </script>
 
 <style lang="scss" scoped>

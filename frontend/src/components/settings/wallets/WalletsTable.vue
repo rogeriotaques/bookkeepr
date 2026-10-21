@@ -1,5 +1,8 @@
 <template>
-  <table class="table wallets-table table-scroll">
+  <table
+    ref="tableRef"
+    class="table wallets-table table-scroll"
+  >
     <thead>
       <tr>
         <th width="65%">Name</th>
@@ -9,8 +12,12 @@
     </thead>
     <tbody>
       <tr
-        v-for="wallet in props.data"
+        v-for="(wallet, index) in props.data"
         :key="wallet.id"
+        :data-row-index="index"
+        :tabindex="rowTabIndex(index)"
+        :class="{ 'wallets-table__row--focused': activeIndex === index }"
+        @focus="onRowFocus(index)"
       >
         <td>{{ wallet.name }}</td>
         <td>
@@ -29,18 +36,22 @@
         </td>
         <td class="has-text-right">
           <div class="wallets-table__actions">
-            <a
+            <button
+              type="button"
               class="link"
+              aria-label="Edit wallet"
               @click="emit('edit', wallet)"
             >
               <IconEdit />
-            </a>
-            <a
+            </button>
+            <button
+              type="button"
               class="link is-danger"
+              aria-label="Delete wallet"
               @click="onDeleteHandler(wallet.id ?? 0)"
             >
               <IconTrash />
-            </a>
+            </button>
           </div>
         </td>
       </tr>
@@ -86,12 +97,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { IconEdit, IconTrash } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { Wallet } from '@/domain/interfaces';
 import { deleteWallet } from '@/domain/network';
+import { useTableCursor } from '@/composable/useTableCursor';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
@@ -114,9 +126,29 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+const tableRef = ref<HTMLTableElement | null>(null);
 const selectedWallet = ref<Wallet | null>(null);
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
+
+const focusRow = (index: number) => {
+  nextTick(() => {
+    tableRef.value?.querySelector<HTMLElement>(`[data-row-index="${index}"]`)?.focus();
+  });
+};
+
+const { activeIndex, rowTabIndex, onRowFocus } = useTableCursor({
+  count: () => props.data?.length ?? 0,
+  onMove: focusRow,
+  onActivate: (index) => {
+    const wallet = props.data[index];
+    if (wallet) emit('edit', wallet);
+  },
+  onDelete: (index) => {
+    const wallet = props.data[index];
+    if (wallet) onDeleteHandler(wallet.id ?? 0);
+  },
+});
 
 const onDeleteHandler = (id: number) => {
   const wallet = props.data.find((wallet: Wallet) => wallet.id === id);
@@ -179,6 +211,43 @@ const onDeleteConfirmHandler = async () => {
   }
 }
 
+button.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--bk-touch-min);
+  min-height: var(--bk-touch-min);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+
+  &:not(:disabled):hover,
+  &:not(:disabled):focus {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    > svg {
+      stroke: var(--c-info);
+    }
+  }
+
+  &.is-danger:hover,
+  &.is-danger:focus-visible {
+    > svg {
+      stroke: var(--c-danger);
+    }
+  }
+}
+
 .wallets-table {
   $class: &;
 
@@ -194,9 +263,18 @@ const onDeleteConfirmHandler = async () => {
       transition: opacity 0.2s ease-in-out;
     }
 
-    &:hover #{$class}__actions {
+    &:hover #{$class}__actions,
+    &:focus-within #{$class}__actions {
       opacity: 1;
     }
+  }
+
+  tbody > tr[tabindex]:focus {
+    outline: none;
+  }
+
+  tbody > tr.wallets-table__row--focused td {
+    box-shadow: inset 0 2px 0 var(--c-info), inset 0 -2px 0 var(--c-info);
   }
 }
 </style>

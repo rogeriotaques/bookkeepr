@@ -70,6 +70,7 @@ import { IconChevronDown } from '@tabler/icons-vue';
 import Popper from 'vue3-popper';
 
 import type { Nullable } from '@/domain/interfaces';
+import { blockHotkeys } from '@/composable/useHotkeys';
 
 const TRIGGER_CONTEXT = {
   CLICK: 'click',
@@ -244,11 +245,16 @@ const highlightFirstItem = () => {
 };
 
 let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+let unblockHotkeys: (() => void) | null = null;
 
 onBeforeUnmount(() => {
   if (keydownHandler) {
     document.removeEventListener('keydown', keydownHandler);
   }
+
+  unblockHotkeys?.();
+  unblockHotkeys = null;
+
   document.querySelector('body')?.classList.remove('noscroll');
 });
 
@@ -256,6 +262,8 @@ watch(isOpen, async () => {
   if (isOpen.value) {
     keydownHandler = onDocumentKeydownHandler;
     document.addEventListener('keydown', keydownHandler);
+
+    if (!unblockHotkeys) unblockHotkeys = blockHotkeys();
 
     highlightFirstItem();
 
@@ -270,6 +278,9 @@ watch(isOpen, async () => {
       document.removeEventListener('keydown', keydownHandler);
       keydownHandler = null;
     }
+
+    unblockHotkeys?.();
+    unblockHotkeys = null;
 
     // Reset the filter whenever the dropdown is closed
     filter.value = '';

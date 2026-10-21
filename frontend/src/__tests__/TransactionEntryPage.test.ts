@@ -3,9 +3,10 @@ import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense } from 'vue';
 import TransactionEntryPage from '@/pages/TransactionEntryPage.vue';
 
-const { invalidateQueriesMock, addEntryMock } = vi.hoisted(() => ({
+const { invalidateQueriesMock, addEntryMock, updateEntryMock } = vi.hoisted(() => ({
   invalidateQueriesMock: vi.fn(),
   addEntryMock: vi.fn(),
+  updateEntryMock: vi.fn(),
 }));
 
 vi.mock('@/composable/useDataFetch', () => ({
@@ -33,6 +34,7 @@ vi.mock('@/domain/network', async (importOriginal) => {
   return {
     ...actual,
     addEntry: addEntryMock,
+    updateEntry: updateEntryMock,
   };
 });
 
@@ -109,5 +111,48 @@ describe('TransactionEntryPage', () => {
     expect(addEntryMock).toHaveBeenCalledTimes(1);
     // The saved entry must invalidate the list and the report queries.
     expect(invalidateQueriesMock).toHaveBeenCalled();
+  });
+
+  it('loads the selected entry into the form and updates it', async () => {
+    updateEntryMock.mockResolvedValue({ success: true });
+
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
+    await flushPromises();
+
+    const entry = {
+      id: 7,
+      amount: 1200,
+      description: 'Lunch',
+      group: '10',
+      wallet: 1,
+      date: '2026-10-01',
+      groupName: 'Food',
+      walletName: 'Cash',
+      operation: 'outcome',
+      hasMatch: false,
+    };
+
+    wrapper.findComponent({ name: 'TransactionHistoryPage' }).vm.$emit('edit', entry);
+    await flushPromises();
+
+    const form = wrapper.findComponent({ name: 'EntryForm' });
+    expect(form.props('isEditing')).toBe(true);
+    expect(form.props('data')).toMatchObject({
+      id: 7,
+      amount: '1,200',
+      description: 'Lunch',
+      group: '10',
+      wallet: 1,
+      date: '2026-10-01',
+    });
+
+    form.vm.$emit('submit');
+    await flushPromises();
+
+    expect(updateEntryMock).toHaveBeenCalledWith(
+      7,
+      expect.objectContaining({ id: 7, description: 'Lunch' })
+    );
+    expect(addEntryMock).not.toHaveBeenCalled();
   });
 });

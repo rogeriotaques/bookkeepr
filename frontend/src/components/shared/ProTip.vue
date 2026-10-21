@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { IconBulb } from '@tabler/icons-vue';
+import { modifierLabel } from '@/domain/hotkeys';
 
 interface Props {
   target: string; // What page the pro tip is for
@@ -23,10 +24,14 @@ const props = defineProps<Props>();
 
 const TIPS: Record<string, string[]> = {
   'new-entry': [
-    'Use <code>⌘+S</code> to save an entry, <code>⌘+K</code> to search, and <code>⌘+I</code> to entry a new amount.',
-    'Click on the rows to select and get their summed amounts.',
+    `Use <code>${modifierLabel()}+S</code> to save an entry, <code>${modifierLabel()}+K</code> or <code>/</code> to search, and <code>${modifierLabel()}+I</code> to focus the amount.`,
+    'Click on the rows to select and get their summed amounts, or use <code>j</code>/<code>k</code> and <code>Space</code>.',
+    'Press <code>?</code> to see every keyboard shortcut.',
   ],
-  report: ['Use <code>⌘+P</code> to print this report.'],
+  report: [
+    `Use <code>p</code> or <code>${modifierLabel()}+P</code> to print this report.`,
+    'Press <code>?</code> to see every keyboard shortcut.',
+  ],
 };
 
 const currentTip = computed(() => {

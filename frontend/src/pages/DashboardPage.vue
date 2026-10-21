@@ -2,24 +2,16 @@
   <div class="dashboard-page">
     <div class="dashboard-page__grid" data-testid="dashboard-grid">
       <!-- Row 1: greeting (left) + annual budget card (right). -->
-      <header class="dashboard-page__header">
+      <header v-if="isLoading || hasBudget" class="dashboard-page__header">
         <div class="box dashboard-page__heading">
           <h1>You're doing great!</h1>
           <p class="dashboard-page__subtitle">Keep it up.</p>
         </div>
       </header>
 
-      <div class="dashboard-page__summary">
+      <div v-if="isLoading || hasBudget" class="dashboard-page__summary">
         <div v-if="isLoading" data-testid="dashboard-loading" class="dashboard-page__loading">
           <BaseSkeleton />
-        </div>
-
-        <!-- Empty state: no budget anywhere in the year -->
-        <div v-else-if="!hasBudget" class="dashboard-page__empty">
-          <p>No budget set for {{ year }}.</p>
-          <RouterLink to="/planning" class="dashboard-page__cta">
-            Set up your budget
-          </RouterLink>
         </div>
 
         <PlannedRealizedTable
@@ -28,6 +20,17 @@
           :realized="realized"
           :title="`Annual budget ${year}`"
         />
+      </div>
+
+      <!-- No budget: one full-row notice replaces both top cards. -->
+      <div v-if="!isLoading && !hasBudget" class="box dashboard-page__notice">
+        <div class="dashboard-page__notice-copy">
+          <h1>No budget set for {{ year }}</h1>
+          <p>Setting a budget helps BookKeepr to provide you with better insights.</p>
+        </div>
+        <RouterLink to="/planning" class="button dashboard-page__cta">
+          Set up your budget
+        </RouterLink>
       </div>
 
       <!-- Row 2: the annual overview (left) + progress and latest entries (right). -->
@@ -57,27 +60,43 @@
       <button
         type="button"
         class="is-full-width dashboard-page__logout"
+        aria-keyshortcuts="Shift+L"
         @click="onLogout"
       >
         Logout
       </button>
     </div>
+
+    <BaseConfirmModal
+      v-model="isLogoutOpen"
+      type="danger"
+      title="Log out"
+      confirm-text="Log out"
+      @confirm="onConfirmLogout"
+      @cancel="isLogoutOpen = false"
+    >
+      <p>Are you sure you want to log out?</p>
+    </BaseConfirmModal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import dayjs from 'dayjs';
 import BaseSkeleton from '@/components/shared/BaseSkeleton.vue';
+import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import AnnualChart from '@/components/report/AnnualChart.vue';
 import PlannedRealizedTable from '@/components/report/PlannedRealizedTable.vue';
 import PlannedRealizedProgress from '@/components/report/PlannedRealizedProgress.vue';
 import RecentTransactions from '@/components/transactions/RecentTransactions.vue';
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
 import { logout } from '@/composable/useState';
 
+const router = useRouter();
 const year = dayjs().year();
+const isLogoutOpen = ref(false);
 
 // The same query the annual chart makes, so vue-query shares one request.
 const reportUrl = ref(`/reports?year=${year}`);
@@ -99,7 +118,20 @@ const realized = computed(() => ({
 
 const hasBudget = computed(() => planned.value.income > 0 || planned.value.expense > 0);
 
-const onLogout = () => logout();
+useHotkeys({
+  n: () => {
+    router?.push('/transactions');
+  },
+});
+
+const onLogout = () => {
+  isLogoutOpen.value = true;
+};
+
+const onConfirmLogout = () => {
+  isLogoutOpen.value = false;
+  logout();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -176,14 +208,38 @@ const onLogout = () => logout();
     }
   }
 
+  // Replaces the greeting and the budget card while the year has no budget.
+  &__notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--bk-space-lg);
+    padding: var(--bk-space-lg);
+    margin-bottom: var(--bk-space-lg);
+
+    h1 {
+      font-size: var(--bk-text-2xl);
+      color: var(--bk-text-primary);
+      margin: 0 0 var(--bk-space-sm);
+      text-transform: none;
+    }
+
+    p {
+      color: var(--bk-text-secondary);
+      margin: 0;
+      max-width: 60ch;
+    }
+  }
+
+  // Boring's `[type=submit]` palette, on a link that navigates instead of
+  // submitting a form. `inline-flex` restores Boring's auto width; the global
+  // `button, .button` rule stretches every button to its container.
   &__cta {
-    display: inline-block;
-    padding: var(--bk-space-sm) var(--bk-space-md);
-    background: var(--bk-primary);
-    color: white;
-    border-radius: var(--bk-radius-md);
-    text-decoration: none;
-    font-size: var(--bk-text-sm);
+    display: inline-flex !important;
+    color: var(--c-black);
+    background-color: var(--c-success-background);
+    border-color: var(--c-success);
   }
 }
 
@@ -248,6 +304,16 @@ const onLogout = () => logout();
       // grid gap owns the spacing.
       :deep(.box) {
         margin: 0;
+      }
+    }
+
+    &__notice {
+      grid-column: 1 / -1;
+      margin: 0;
+      padding: var(--bk-space-xl);
+
+      h1 {
+        font-size: var(--bk-text-3xl);
       }
     }
 

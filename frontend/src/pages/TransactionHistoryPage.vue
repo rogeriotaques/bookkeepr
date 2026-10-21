@@ -25,7 +25,9 @@
       :loading="isEntriesLoading || isSettingsLoading"
       :locale="locale"
       :search="search"
+      :editing="props.editing"
       @update="invalidateEntriesQuery"
+      @edit="emit('edit', $event)"
     />
   </div>
 </template>
@@ -41,7 +43,22 @@ import PlannedRealizedProgress from '@/components/report/PlannedRealizedProgress
 
 import { ExtendedEntry } from '@/domain/interfaces';
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
 import { useMonthlyReport } from '@/composable/useMonthlyReport';
+
+interface Props {
+  editing?: number | null;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  editing: null,
+});
+
+interface Emits {
+  (e: 'edit', entry: ExtendedEntry): void;
+}
+
+const emit = defineEmits<Emits>();
 
 const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
@@ -51,6 +68,46 @@ const search = ref('');
 // composables get reactive sources rather than a snapshot of the mount month.
 const selectedYear = computed(() => Number(year.value));
 const selectedMonth = computed(() => Number(month.value));
+
+const padMonth = (value: number) => `00${value}`.slice(-2);
+
+const stepMonth = (delta: number) => {
+  const next = Number(month.value) + delta;
+
+  if (next < 1) {
+    month.value = '12';
+    year.value = String(Number(year.value) - 1);
+    return;
+  }
+
+  if (next > 12) {
+    month.value = '01';
+    year.value = String(Number(year.value) + 1);
+    return;
+  }
+
+  month.value = padMonth(next);
+};
+
+const stepYear = (delta: number) => {
+  const next = Number(year.value) + delta;
+  if (next < 1900 || next > 2999) return;
+  year.value = String(next);
+};
+
+const goToCurrentMonth = () => {
+  const now = dayjs();
+  year.value = String(now.year());
+  month.value = padMonth(now.month() + 1);
+};
+
+useHotkeys({
+  '[': () => stepMonth(-1),
+  ']': () => stepMonth(1),
+  '{': () => stepYear(-1),
+  '}': () => stepYear(1),
+  t: goToCurrentMonth,
+});
 
 const settingsUrl = ref('/settings');
 const recordedYearsUrl = ref('/entries/recorded-years');

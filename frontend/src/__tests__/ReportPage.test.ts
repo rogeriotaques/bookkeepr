@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense, defineComponent } from 'vue';
 import ReportPage from '@/pages/ReportPage.vue';
+import {
+  installHotkeyDispatcher,
+  resetHotkeys,
+} from '@/composable/useHotkeys';
 
 const { reportData } = vi.hoisted(() => ({ reportData: { value: {} as any } }));
 
@@ -254,5 +258,23 @@ describe('ReportPage', () => {
     const pie = wrapper.findComponent({ name: 'Pie' });
     expect(pie.props('data').labels).toEqual(['101 - Invoice', '14 - Food']);
     expect(pie.props('data').datasets[0].data).toEqual([300, 40]);
+  });
+
+  it('prints the report with p', async () => {
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {});
+    const uninstall = installHotkeyDispatcher();
+    const wrapper = mountPage();
+    await flushPromises();
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'p', bubbles: true, cancelable: true })
+    );
+
+    expect(print).toHaveBeenCalledTimes(1);
+
+    wrapper.unmount();
+    uninstall();
+    resetHotkeys();
+    print.mockRestore();
   });
 });

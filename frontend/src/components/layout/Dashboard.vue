@@ -30,7 +30,20 @@
 
         <button
           type="button"
+          data-testid="nav-shortcuts"
+          class="is-auto-width dashboard__tab dashboard__shortcuts"
+          aria-label="Keyboard shortcuts"
+          aria-keyshortcuts="?"
+          title="Keyboard shortcuts (?)"
+          @click="isHelpOpen = true"
+        >
+          <IconHelp :size="22" class="dashboard__icon" aria-hidden="true" />
+        </button>
+
+        <button
+          type="button"
           data-testid="nav-logout"
+          aria-keyshortcuts="Shift+L"
           class="is-auto-width dashboard__logout"
           @click="onLogout"
         >
@@ -39,10 +52,25 @@
         </button>
       </div>
     </nav>
+
+    <ShortcutHelp v-model:open="isHelpOpen" />
+
+    <BaseConfirmModal
+      v-model="isLogoutOpen"
+      type="danger"
+      title="Log out"
+      confirm-text="Log out"
+      @confirm="onConfirmLogout"
+      @cancel="isLogoutOpen = false"
+    >
+      <p>Are you sure you want to log out?</p>
+    </BaseConfirmModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onBeforeUnmount } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   IconLayoutDashboard,
   IconReceipt,
@@ -50,10 +78,38 @@ import {
   IconChartBar,
   IconSettings,
   IconLogout,
+  IconHelp,
 } from '@tabler/icons-vue';
 
 import { logout } from '@/composable/useState';
+import {
+  installHotkeyDispatcher,
+  useHotkeys,
+} from '@/composable/useHotkeys';
+import { createGlobalHotkeys } from '@/domain/hotkeys';
 import AppFooter from '@/components/navigation/AppFooter.vue';
+import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
+import ShortcutHelp from '@/components/shared/ShortcutHelp.vue';
+
+const router = useRouter();
+
+const isHelpOpen = ref(false);
+const isLogoutOpen = ref(false);
+
+const uninstallHotkeys = installHotkeyDispatcher();
+
+useHotkeys(
+  createGlobalHotkeys(router, {
+    openHelp: () => {
+      isHelpOpen.value = true;
+    },
+    openLogout: () => {
+      isLogoutOpen.value = true;
+    },
+  })
+);
+
+onBeforeUnmount(uninstallHotkeys);
 
 const tabs = [
   { name: 'Dashboard', label: 'Dashboard', to: '/', icon: IconLayoutDashboard },
@@ -63,7 +119,14 @@ const tabs = [
   { name: 'Settings', label: 'Settings', to: '/settings', icon: IconSettings },
 ];
 
-const onLogout = () => logout();
+const onLogout = () => {
+  isLogoutOpen.value = true;
+};
+
+const onConfirmLogout = () => {
+  isLogoutOpen.value = false;
+  logout();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -167,6 +230,21 @@ const onLogout = () => logout();
   }
 }
 
+// The shortcut button is desktop-only; the bottom bar has no room for it.
+// `!important` beats the global `button { display: flex !important }` rule.
+.dashboard__nav .dashboard__shortcuts {
+  display: none !important;
+  margin: 0;
+  background-color: transparent;
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
 // Desktop: a sticky top bar that shares the page's content width.
 @media (min-width: 1024px) {
   .dashboard {
@@ -208,6 +286,10 @@ const onLogout = () => logout();
     &--active {
       background-color: var(--c-success-background);
     }
+  }
+
+  .dashboard__nav .dashboard__shortcuts {
+    display: flex !important;
   }
 
   // Boring's `button:hover` (0,3,1) sets the colour, a shadow and a transform,

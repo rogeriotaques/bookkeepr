@@ -29,7 +29,9 @@
         <button
           type="button"
           class="report-page__control report-page__print has-tooltip has-tooltip--bottom"
-          data-tooltip="Print report (⌘+P)"
+          :data-tooltip="`Print report (${modifierLabel()}+P)`"
+          :aria-label="`Print report (${modifierLabel()}+P)`"
+          aria-keyshortcuts="p"
           @click="onPrintClickHandler"
         >
           <IconPrinter />
@@ -93,6 +95,8 @@ import ReportInsights from '@/components/report/ReportInsights.vue';
 import ReportData from '@/components/report/ReportData.vue';
 
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
+import { modifierLabel } from '@/domain/hotkeys';
 
 ChartJS.register(...registerables);
 
@@ -105,6 +109,28 @@ const { fetchData: getRecordedYears } = useDataFetch(recordedYearsUrl);
 const { isLoading: isRecordedYearsLoading, data: recordedYearsData } = await getRecordedYears();
 
 const recordedYears = computed(() => (recordedYearsData.value?.years ?? []).map((year: string) => ({ value: year, label: year })));
+
+const stepYear = (delta: number) => {
+  const years: string[] = (recordedYearsData.value?.years ?? []).map(String);
+  if (years.length === 0) return;
+
+  const current = years.indexOf(filterByYear.value);
+  const index = Math.min(
+    years.length - 1,
+    Math.max(0, (current < 0 ? 0 : current) + delta)
+  );
+
+  filterByYear.value = years[index];
+};
+
+useHotkeys({
+  p: () => onPrintClickHandler(),
+  '[': () => stepYear(-1),
+  ']': () => stepYear(1),
+  t: () => {
+    filterByYear.value = String(new Date().getFullYear());
+  },
+});
 
   const { fetchData: getReportData } = useDataFetch(reportUrl);
   const { isLoading: isReportLoading, isError: isReportError, data: reportData, error: reportError } = await getReportData();

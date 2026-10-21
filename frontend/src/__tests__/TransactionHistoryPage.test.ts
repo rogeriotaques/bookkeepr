@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
 import { ref, h, Suspense, toValue } from 'vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
+import {
+  installHotkeyDispatcher,
+  resetHotkeys,
+} from '@/composable/useHotkeys';
 
 const { useMonthlyReportMock } = vi.hoisted(() => ({
   useMonthlyReportMock: vi.fn(),
@@ -122,5 +126,36 @@ describe('TransactionHistoryPage', () => {
     const args = calls.report;
     expect(toValue(args[0])).toBe(2025);
     expect(toValue(args[1])).toBe(7);
+  });
+
+  it('changes the period with brackets and returns to today with t', async () => {
+    const uninstall = installHotkeyDispatcher();
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
+    await flushPromises();
+
+    const filter = wrapper.findComponent({ name: 'BalanceFilterForm' });
+    const startMonth = filter.props('month') as string;
+    const expectedMonth =
+      startMonth === '12' ? '01' : `00${Number(startMonth) + 1}`.slice(-2);
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: ']', bubbles: true, cancelable: true })
+    );
+    await flushPromises();
+
+    expect(filter.props('month')).toBe(expectedMonth);
+
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 't', bubbles: true, cancelable: true })
+    );
+    await flushPromises();
+
+    const now = new Date();
+    expect(filter.props('month')).toBe(`00${now.getMonth() + 1}`.slice(-2));
+    expect(filter.props('year')).toBe(String(now.getFullYear()));
+
+    wrapper.unmount();
+    uninstall();
+    resetHotkeys();
   });
 });

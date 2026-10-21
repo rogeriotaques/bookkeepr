@@ -9,7 +9,7 @@
         <EntryForm
           :data="form"
           :is-submitting="isSubmitting"
-          :is-editing="false"
+          :is-editing="isEditing"
           :locale="locale"
           @submit="onSubmitHandler"
           @cancel="resetForm"
@@ -17,7 +17,10 @@
       </div>
 
       <div class="entry-page__side">
-        <TransactionHistoryPage />
+        <TransactionHistoryPage
+          :editing="editingId"
+          @edit="onEditHandler"
+        />
       </div>
     </div>
   </div>
@@ -31,7 +34,9 @@ import dayjs from 'dayjs';
 
 import EntryForm from '@/components/transactions/EntryForm.vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
-import { addEntry } from '@/domain/network';
+import { ExtendedEntry } from '@/domain/interfaces';
+import { addEntry, updateEntry } from '@/domain/network';
+import { formatAmount } from '@/domain/utils';
 import useDataFetch from '@/composable/useDataFetch';
 
 const isSubmitting = ref(false);
@@ -43,13 +48,16 @@ const { fetchData: getSettingsData } = useDataFetch(settingsUrl);
 const { data: settingsData } = await getSettingsData();
 
 const form = reactive({
-  id: null,
+  id: null as number | null,
   amount: '',
   description: '',
   group: '',
-  wallet: '',
+  wallet: '' as string | number,
   date: dayjs().format('YYYY-MM-DD'),
 });
+
+const editingId = computed(() => form.id);
+const isEditing = computed(() => form.id !== null);
 
 const locale = computed(() => {
   const { config } = settingsData?.value || ({} as any);
@@ -68,14 +76,31 @@ const resetForm = () => {
   form.date = dayjs().format('YYYY-MM-DD');
 };
 
+const onEditHandler = (entry: ExtendedEntry) => {
+  form.id = entry.id ?? null;
+  form.amount = formatAmount(entry.amount);
+  form.description = entry.description;
+  form.group = entry.group;
+  form.wallet = entry.wallet;
+  form.date = entry.date;
+};
+
 const onSubmitHandler = async () => {
   isSubmitting.value = true;
 
   try {
-    await addEntry(form);
+    const id = form.id;
+    const payload = { ...form };
+
+    if (id !== null) {
+      await updateEntry(id, payload);
+    } else {
+      await addEntry(payload);
+    }
+
     resetForm();
     await invalidateAfterSave();
-    toast.success('Entry saved!');
+    toast.success(id !== null ? 'Entry updated!' : 'Entry saved!');
   } catch (error: any) {
     toast.error(`Error: ${error.message}`);
   } finally {

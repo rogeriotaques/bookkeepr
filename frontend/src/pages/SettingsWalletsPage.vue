@@ -10,6 +10,7 @@
       type="submit"
       class="is-auto-width is-pulled-right has-icon has-tooltip has-tooltip--left"
       data-tooltip="Add new wallet"
+      aria-keyshortcuts="n"
       @click="isModalOpen = true"
     >
       <IconPlus :size="18" />
@@ -54,6 +55,7 @@ import { Wallet } from '@/domain/interfaces';
 import { addWallet, updateWallet } from '@/domain/network';
 
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
 import BaseModal from '@/components/shared/BaseModal.vue';
 import WalletForm from '@/components/settings/wallets/WalletForm.vue';
 import WalletsTable from '@/components/settings/wallets/WalletsTable.vue';
@@ -76,6 +78,12 @@ const wallets = computed(() => data.value?.wallets ?? []);
 const isEditing = computed(() => form.id !== undefined);
 const modalTitle = computed(() => (isEditing.value ? 'Edit wallet' : 'Add new wallet'));
 const isFormValid = computed(() => form.name.length > 0 && form.active !== undefined);
+
+useHotkeys({
+  n: () => {
+    isModalOpen.value = true;
+  },
+});
 
 const onCancelModalHandler = () => {
   isModalOpen.value = false;

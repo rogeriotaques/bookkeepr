@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, Ref, computed, watch, onMounted, nextTick } from 'vue';
 import { IconLoader2 } from '@tabler/icons-vue';
 
 import { Entry, Wallet, Group, CurrencyLocale } from '@/domain/interfaces';
@@ -112,6 +112,7 @@ import { V_MONEY_OPTIONS } from '@/domain/constants';
 import { getCurrencySymbol } from '@/domain/utils';
 
 import useDataFetch from '@/composable/useDataFetch';
+import { useHotkeys } from '@/composable/useHotkeys';
 import BaseDropdown from '@/components/shared/BaseDropdown.vue';
 import DateInput from '@/components/shared/DateInput.vue';
 
@@ -210,35 +211,23 @@ watch(
 );
 
 onMounted(async () => {
-  document.addEventListener('keydown', onCmdInputHandler);
-  document.addEventListener('keydown', onCmdSaveHandler);
-
   await nextTick();
   dateRef?.value?.focus();
 });
 
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', onCmdSaveHandler);
-  document.removeEventListener('keydown', onCmdInputHandler);
+const focusAmount = () => {
+  amountRef.value?.focus();
+};
+
+const saveIfReady = () => {
+  if (isSaveButtonEnabled.value) onSaveClickHandler();
+};
+
+useHotkeys({
+  n: focusAmount,
+  'mod+i': focusAmount,
+  'mod+s': saveIfReady,
 });
-
-const onCmdInputHandler = (e: KeyboardEvent) => {
-  if (!e.metaKey || e.key !== 'i') return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  amountRef?.value?.focus();
-};
-
-const onCmdSaveHandler = (e: KeyboardEvent) => {
-  if (!isSaveButtonEnabled.value || !e.metaKey || e.key !== 's') return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  onSaveClickHandler();
-};
 
 const onSaveClickHandler = () => {
   emit('submit');

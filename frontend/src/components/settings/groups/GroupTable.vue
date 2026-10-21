@@ -1,5 +1,8 @@
 <template>
-  <table class="table group-table table-scroll">
+  <table
+    ref="tableRef"
+    class="table group-table table-scroll"
+  >
     <thead>
       <tr>
         <th width="10%">Code</th>
@@ -12,8 +15,12 @@
     </thead>
     <tbody>
       <tr
-        v-for="group in props.data"
+        v-for="(group, index) in props.data"
         :key="group.id"
+        :data-row-index="index"
+        :tabindex="rowTabIndex(index)"
+        :class="{ 'group-table__row--focused': activeIndex === index }"
+        @focus="onRowFocus(index)"
       >
         <td>{{ group.code }}</td>
         <td>{{ group.name }}</td>
@@ -40,18 +47,22 @@
         </td>
         <td class="has-text-right">
           <div class="group-table__actions">
-            <a
+            <button
+              type="button"
               class="link"
+              aria-label="Edit category"
               @click="emit('edit', group)"
             >
               <IconEdit />
-            </a>
-            <a
+            </button>
+            <button
+              type="button"
               class="link is-danger"
+              aria-label="Delete category"
               @click="onDeleteHandler(group.id ?? 0)"
             >
               <IconTrash />
-            </a>
+            </button>
           </div>
         </td>
       </tr>
@@ -100,12 +111,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { IconEdit, IconTrash } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { Group } from '@/domain/interfaces';
 import { deleteGroup } from '@/domain/network';
+import { useTableCursor } from '@/composable/useTableCursor';
 
 import BaseConfirmModal from '@/components/shared/BaseConfirmModal.vue';
 import TableEmptyCard from '@/components/shared/TableEmptyCard.vue';
@@ -128,9 +140,29 @@ interface Emits {
 
 const emit = defineEmits<Emits>();
 
+const tableRef = ref<HTMLTableElement | null>(null);
 const selectedGroup = ref<Group | null>(null);
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
+
+const focusRow = (index: number) => {
+  nextTick(() => {
+    tableRef.value?.querySelector<HTMLElement>(`[data-row-index="${index}"]`)?.focus();
+  });
+};
+
+const { activeIndex, rowTabIndex, onRowFocus } = useTableCursor({
+  count: () => props.data?.length ?? 0,
+  onMove: focusRow,
+  onActivate: (index) => {
+    const group = props.data[index];
+    if (group) emit('edit', group);
+  },
+  onDelete: (index) => {
+    const group = props.data[index];
+    if (group) onDeleteHandler(group.id ?? 0);
+  },
+});
 
 const toCamelCase = (str: string) => {
   return str
@@ -200,6 +232,43 @@ const onDeleteConfirmHandler = async () => {
   }
 }
 
+button.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--bk-touch-min);
+  min-height: var(--bk-touch-min);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+
+  &:not(:disabled):hover,
+  &:not(:disabled):focus {
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+  }
+
+  &:hover,
+  &:focus-visible {
+    > svg {
+      stroke: var(--c-info);
+    }
+  }
+
+  &.is-danger:hover,
+  &.is-danger:focus-visible {
+    > svg {
+      stroke: var(--c-danger);
+    }
+  }
+}
+
 .group-table {
   $class: &;
 
@@ -215,9 +284,18 @@ const onDeleteConfirmHandler = async () => {
       transition: opacity 0.2s ease-in-out;
     }
 
-    &:hover #{$class}__actions {
+    &:hover #{$class}__actions,
+    &:focus-within #{$class}__actions {
       opacity: 1;
     }
+  }
+
+  tbody > tr[tabindex]:focus {
+    outline: none;
+  }
+
+  tbody > tr.group-table__row--focused td {
+    box-shadow: inset 0 2px 0 var(--c-info), inset 0 -2px 0 var(--c-info);
   }
 }
 </style>
