@@ -24,32 +24,58 @@ Source: [Wikipedia](https://en.wikipedia.org/wiki/Bookkeeping).
 
 Once this repository is cloned, open a terminal window and go to the project folder.
 
-#### Run the backend (api) with:
+This project uses [`just`](https://github.com/casey/just#installation) as task runner. Run `just` (or `just --list`) to see all recipes.
+
+#### Install dependencies:
 
 ```sh
-cd backend
-npm install
-npm start
+just install
 ```
 
-#### Run the frontend (app) with:
+#### Run the backend (api) and frontend (app) together:
 
 ```sh
-cd frontend
-npm install
-npm start
+just start
 ```
 
-Or run both from the repository root with `npm start`.
+Or run them separately:
+
+```sh
+just start-backend   # http://localhost:8083
+just start-frontend  # http://localhost:5173
+```
 
 Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
+
+#### Other recipes:
+
+```sh
+just build        # build the frontend for production
+just test         # run frontend and backend tests
+just test-frontend
+just test-backend
+```
+
+Without `just`, the same commands work with `npm`:
+
+```sh
+cd backend && npm install && npm start
+cd frontend && npm install && npm start
+
+# Both from the repository root
+npm start
+
+# Tests
+cd frontend && npm test
+cd backend && npm test
+```
 
 ### Running the Docker image locally
 
 First, build the image:
 
 ```sh
-docker build --platform linux/amd64 -t abtzco/bookkeepr .
+just docker-build --platform linux/amd64
 ```
 
 > [!WARNING]
@@ -61,11 +87,25 @@ docker build --platform linux/amd64 -t abtzco/bookkeepr .
 Then, run the image:
 
 ```sh
-docker run --rm --name bookkeepr -p 8090:8083 -v /tmp/bookkeepr:/bookkeepr/data abtzco/bookkeepr:latest
+just docker-run
 ```
 
 > [!NOTE]
-> By running the docker as above, all the data will be stored in `/tmp/bookkeepr` folder in your local machine.
+> By running the docker as above, all the data will be stored in the `./tmp-data` folder in your local machine.
+
+To stop and remove the container:
+
+```sh
+just docker-stop
+```
+
+Without `just`, the equivalent Docker commands are:
+
+```sh
+docker build --platform linux/amd64 -t abtzco/bookkeepr:latest .
+docker run --rm --name bookkeepr -p 8090:8083 -v "$PWD/tmp-data:/bookkeepr/data" abtzco/bookkeepr:latest
+docker rm -f bookkeepr
+```
 
 ### Running the Docker image in `PRODUCTION `
 
@@ -106,6 +146,7 @@ npm install -g node-gyp
 
 - Node 20.17+
 - npm (lockfile v3)
+- [`just`](https://github.com/casey/just) (task runner)
 - Vue 3.4+
 - SQLite
 - Docker image `node:22-alpine3.19`
