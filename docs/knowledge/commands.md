@@ -85,7 +85,7 @@ docker rm -f bookkeepr
 
 ## Release (maintainers)
 
-`bump-and-push-docker-image.sh` (repository root) bumps the `frontend` and `backend` `package.json` versions, commits and tags the bump, pushes the commit and the tag, then builds and pushes the amd64 Docker image.
+`bump-and-push-docker-image.sh` (repository root) bumps the `frontend` and `backend` `package.json` versions, commits and tags the bump, pushes the commit and the tag, then builds and pushes the amd64 Docker image. It pushes both `:latest` and `:<version>`.
 
 ```sh
 ./bump-and-push-docker-image.sh             # bump, then publish
@@ -103,8 +103,6 @@ The script requires:
 - Push access to `abtzco/bookkeepr` on Docker Hub. The script runs `docker login`.
 - A clean working tree. The script runs `git add` and `git commit` on the two `package.json` files.
 
-The script pushes only `:latest`. Publish the version tag manually if needed:
+The script pushes both `:latest` and `:<version>`. Production deploys use the version tag, so a rollback can pull the previous image.
 
-```sh
-docker push abtzco/bookkeepr:<version>
-```
+Production deploy: see [deployment.md](deployment.md).

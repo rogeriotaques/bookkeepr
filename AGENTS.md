@@ -8,6 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [Commands](./docs/knowledge/commands.md)
 - [Architecture](./docs/knowledge/architecture.md)
 - [Environment Notes](./docs/knowledge/env-notes.md)
+- [Deployment](./docs/knowledge/deployment.md)
 
 ## Implementation Plans
 

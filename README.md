@@ -144,7 +144,7 @@ For that, you need to spare a server where you can deploy and run docker contain
 Once you have SSHed into the server, run the following command to download the image:
 
 ```sh
-docker pull abtzco/bookkeepr:latest
+docker pull abtzco/bookkeepr:<version>
 ```
 
 If you already have an old version of BookKeepr docker running, remove the existing container with the command below. If not, skip this step.
@@ -156,7 +156,7 @@ docker rm -f bookkeepr
 Then, run the image:
 
 ```sh
-docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeepr/data abtzco/bookkeepr:latest
+docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookkeepr/data:/bookkeepr/data abtzco/bookkeepr:<version>
 ```
 
 > [!NOTE]
@@ -187,7 +187,7 @@ Enter the new version when prompted (for example, `2.1.0`). The script:
 3. commits `Bump version to <version>`, pushes it, creates the git tag `<version>`, and pushes the tag;
 4. builds `abtzco/bookkeepr` for `linux/amd64`;
 5. tags the image as `abtzco/bookkeepr:<version>`;
-6. runs `docker login` and pushes `abtzco/bookkeepr:latest`.
+6. runs `docker login` and pushes `abtzco/bookkeepr:latest` and `abtzco/bookkeepr:<version>`.
 
 If you already updated the version by hand, use `--no-bump`:
 
@@ -200,8 +200,8 @@ In this mode, the script does not prompt and does not run `sed`. It reads the ve
 > [!NOTE]
 > The script updates only the `frontend` and `backend` packages. The root `package.json` keeps its own version.
 
-> [!WARNING]
-> The script pushes only the `latest` tag. The version tag stays on your machine. If you use pinned versions in production, push it manually with `docker push abtzco/bookkeepr:<version>`.
+> [!NOTE]
+> The script pushes both the `latest` tag and the version tag. Production deploys should use the version tag, so a rollback can pull the previous image.
 
 #### Troubleshooting
 

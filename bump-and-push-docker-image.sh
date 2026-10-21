@@ -134,4 +134,9 @@ docker push abtzco/bookkeepr
 echo "Docker image pushed"
 echo ""
 
+# Push the version tag
+docker push abtzco/bookkeepr:$NEW_VERSION
+echo "Docker version tag pushed"
+echo ""
+
 echo "All done!"

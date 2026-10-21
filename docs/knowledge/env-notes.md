@@ -22,6 +22,10 @@
 
 - `bump-and-push-docker-image.sh` requires `jq` and BSD `sed`. It uses `sed -i ''`, so GNU `sed` needs an adjusted command.
 - The script requires a running Docker daemon and Docker Hub push access to `abtzco/bookkeepr`. It runs `docker login` before the push.
-- The script builds `linux/amd64`, tags `abtzco/bookkeepr:<version>`, and pushes only `abtzco/bookkeepr:latest`. Push the version tag manually: `docker push abtzco/bookkeepr:<version>`.
+- The script builds `linux/amd64`, tags `abtzco/bookkeepr:<version>`, and pushes both `abtzco/bookkeepr:latest` and `abtzco/bookkeepr:<version>`.
 - The script updates only `frontend/package.json` and `backend/package.json`. The root `package.json` version does not change.
 - `--no-bump` skips the version prompt and `sed`. It requires the two `package.json` versions to match and exits with code 1 when they differ.
+
+## Deploy
+
+Production deployment is documented in [deployment.md](deployment.md).

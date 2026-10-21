@@ -10,3 +10,5 @@ tmp-data/
 *.sqlite3
 
 .DS_Store
+
+deploy.sh

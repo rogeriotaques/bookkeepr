@@ -223,3 +223,14 @@
 - `--no-bump` commits with a pathspec limited to the two `package.json` files, so other staged work stays staged. It creates the tag only when missing.
 - Docs updated: `README.md`, `docs/knowledge/commands.md`, `docs/knowledge/env-notes.md`.
 - Verified in a throwaway git repo with a fake `docker`: bump updates both files; `--no-bump` commits only the two files, leaves other staged files alone, pushes the tag, and rejects mismatched versions. `bash -n` OK.
+
+## Session 2026-10-21 — Docker deploy script
+
+- Bare Deploy v1.4.0 is host-native: `type` accepts only `node`/`php`, and rollback re-points a symlink without restarting a container. Not used. No `bare.config.json` created.
+- Added local `deploy.sh <version>`, listed in `.gitignore` and `.dockerignore`. It pulls `abtzco/bookkeepr:<version>`, tags the running image `:previous`, stops the container, backs up `bookkeepr.db`, restarts, and health-checks `/api/settings`. On failure it restarts `:previous`.
+- Server facts: vps-4 `n4.abtz.co` (139.162.111.88), x86_64, HestiaCP site `/home/abtz/web/bookkeepr.abtz.co`, nginx → `127.0.0.1:8083`, data bind-mounted from `data/`. Container `bookkeepr`, `--restart always`.
+- `abtz` is not in the `docker` group; `admin` has NOPASSWD only for Hestia scripts and cannot read `data/`. Root SSH with `linode_rsa` works. Deploy waits for `usermod -aG docker abtz`.
+- The old container published `0.0.0.0:8083`, which bypassed nginx/TLS. The script now binds `127.0.0.1:8083`.
+- `bump-and-push-docker-image.sh` now pushes the version tag too. Docs updated: `README.md`, `docs/knowledge/commands.md`, `docs/knowledge/env-notes.md`.
+- Verified: `bash -n` OK; missing/invalid version prints usage; remote docker check exits 1 with the group instruction.
+- Added `docs/knowledge/deployment.md` (server, access, publish, deploy, first deploy, verify, rollback, troubleshooting). Indexed in `AGENTS.md`; `commands.md` and `env-notes.md` link to it.
