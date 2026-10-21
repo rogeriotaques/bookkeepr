@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Bump the version on the frontend and backend package.json files
 # and build, tag, and push the new Docker image.
 #
@@ -117,7 +119,7 @@ echo "Version updated to $NEW_VERSION"
 echo ""
 
 # Build the new Docker image
-docker build --platform linux/amd64 -t abtzco/bookkeepr .
+docker buildx build --platform linux/amd64 --load -t abtzco/bookkeepr .
 echo "Docker image built"
 echo ""
 

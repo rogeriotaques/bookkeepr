@@ -37,7 +37,7 @@ test-frontend:
 
 # Build the Docker image (extra args go to docker build, e.g. --platform linux/amd64)
 docker-build *args:
-    docker build {{ args }} -t abtzco/bookkeepr:latest .
+    docker buildx build {{ args }} --load -t abtzco/bookkeepr:latest .
 
 # Run the local Docker image (http://localhost:8090, data in ./tmp-data)
 docker-run:

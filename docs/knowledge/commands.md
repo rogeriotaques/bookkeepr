@@ -73,7 +73,7 @@ just docker-stop
 Equivalent commands without `just`:
 
 ```sh
-docker build --platform linux/amd64 -t abtzco/bookkeepr:latest .
+docker buildx build --platform linux/amd64 --load -t abtzco/bookkeepr:latest .
 docker run --rm --name bookkeepr -p 8090:8083 -v "$PWD/tmp-data:/bookkeepr/data" abtzco/bookkeepr:latest
 docker rm -f bookkeepr
 ```
@@ -98,6 +98,7 @@ The default mode prompts for the new version. `--no-bump` skips the prompt and t
 The script requires:
 
 - Docker is running.
+- `docker buildx` is installed. The script builds `linux/amd64`, and the legacy builder fails at `COPY`.
 - `jq` is installed.
 - BSD `sed` (macOS). The script calls `sed -i ''` and fails on GNU `sed`.
 - Push access to `abtzco/bookkeepr` on Docker Hub. The script runs `docker login`.

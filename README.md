@@ -130,7 +130,7 @@ just docker-stop
 Without `just`, the equivalent Docker commands are:
 
 ```sh
-docker build --platform linux/amd64 -t abtzco/bookkeepr:latest .
+docker buildx build --platform linux/amd64 --load -t abtzco/bookkeepr:latest .
 docker run --rm --name bookkeepr -p 8090:8083 -v "$PWD/tmp-data:/bookkeepr/data" abtzco/bookkeepr:latest
 docker rm -f bookkeepr
 ```
@@ -170,6 +170,7 @@ Before you run it:
 
 - Start Docker.
 - Install `jq` (`brew install jq`).
+- Install `docker buildx` (`brew install docker-buildx`) and link it into `~/.docker/cli-plugins`. The script builds `linux/amd64` and fails on the legacy builder.
 - Use a system with BSD `sed`. The script calls `sed -i ''`, so it does not run on GNU `sed` without changes.
 - Log in to Docker Hub with an account that can push `abtzco/bookkeepr`. The script runs `docker login` again before the push.
 - Commit or stash your work. The script runs `git add` and `git commit` on the two `package.json` files.

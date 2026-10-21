@@ -234,3 +234,12 @@
 - `bump-and-push-docker-image.sh` now pushes the version tag too. Docs updated: `README.md`, `docs/knowledge/commands.md`, `docs/knowledge/env-notes.md`.
 - Verified: `bash -n` OK; missing/invalid version prints usage; remote docker check exits 1 with the group instruction.
 - Added `docs/knowledge/deployment.md` (server, access, publish, deploy, first deploy, verify, rollback, troubleshooting). Indexed in `AGENTS.md`; `commands.md` and `env-notes.md` link to it.
+- Docker Hub had only `:latest` (2026-04-29, 1.3.1), so `2.0.0` was never published and no local `abtzco/bookkeepr` image existed. Publish before deploying.
+- Local Docker has no `buildx` plugin, but `docker build --platform linux/amd64` works through the legacy builder and QEMU. A test build reported `arch=amd64`.
+- `deploy.sh` accepts `latest` or `x.y.z`. `latest` is the fast path and prints a mutability note; version tags give a fixed release. Both use `:previous` for rollback.
+- `deploy.sh` defaults to `abtz@139.162.111.88`; `abtz` is in the docker group and owns `data/`. Root also works via `SSH_TARGET`.
+- Production was redeployed on 2026-10-21 with `./deploy.sh latest`: same image `f160ac9463b5` (1.3.1), now bound to `127.0.0.1:8083`. Backup `bookkeepr.db.bak-20261021040958` is root-owned. Site and API returned 200.
+- Backup rotation now tolerates unremovable old files (`|| true`), so a root-owned backup cannot abort a later `abtz` deploy after the container is stopped.
+- Root cause of the failed 2.0.0 publish: the Mac had no `buildx`, and the legacy builder failed at `COPY ./frontend` (foreign platform). `bump-and-push-docker-image.sh` had no `set -e`, so it printed success after each failure.
+- Fixed: installed `docker-buildx` 0.38.1 (Homebrew) and linked it into `~/.docker/cli-plugins`; the publish script now uses `docker buildx build --platform linux/amd64 --load` and `set -e`.
+- Published `abtzco/bookkeepr:2.0.0` and moved `:latest` to it (digest `e254dfc35cbd`). Deployed 2.0.0: container healthy, "Database migrated", public site and `/api/settings` 200.

@@ -26,16 +26,9 @@ The HestiaCP vhosts (`nginx.conf`, `nginx.ssl.conf`) proxy to `127.0.0.1:8083`. 
 
 ## Access
 
-The deploy user must run docker without sudo:
+`deploy.sh` defaults to `abtz@139.162.111.88` with `~/.ssh/linode_rsa`. `abtz` is in the docker group, so it can run docker, and it owns `data/`.
 
-```sh
-# Once, as root
-usermod -aG docker abtz
-```
-
-Use `abtz@139.162.111.88` with `~/.ssh/linode_rsa`. `abtz` owns `data/`, so it can back up the database.
-
-`admin` is not suitable: its NOPASSWD sudoers rule covers only `/usr/local/hestia/bin/*`, and it cannot read `data/` (mode `764 abtz:abtz`). Root SSH with `linode_rsa` works but is not used by the deploy script.
+`admin` is not suitable: its NOPASSWD sudoers rule covers only `/usr/local/hestia/bin/*`, and it cannot read `data/` (mode `764 abtz:abtz`). Root SSH with `linode_rsa` also works, via `SSH_TARGET=root@139.162.111.88`.
 
 The docker group is root-equivalent on the host.
 
@@ -48,12 +41,19 @@ Publish first. `deploy.sh` never builds images.
 ./bump-and-push-docker-image.sh --no-bump   # publish the current version
 ```
 
-The script builds `linux/amd64` and pushes two tags:
+The script needs `docker buildx` and builds `linux/amd64`:
+
+```sh
+brew install docker-buildx
+ln -sf /opt/homebrew/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
+```
+
+It uses `docker buildx build --platform linux/amd64 --load` and stops on the first error. It pushes two tags:
 
 - `abtzco/bookkeepr:latest`
 - `abtzco/bookkeepr:<version>`
 
-Production deploys use the version tag. See [commands.md](commands.md) for the script requirements.
+`latest` is the fast path. Version tags are immutable and give a fixed release. See [commands.md](commands.md) for the script requirements.
 
 ## Deploy
 
@@ -62,9 +62,10 @@ Production deploys use the version tag. See [commands.md](commands.md) for the s
 ```sh
 ./deploy.sh <version>
 ./deploy.sh 2.0.0
+./deploy.sh latest
 ```
 
-The version must match a published tag. The script defaults to `abtz@139.162.111.88` and `~/.ssh/linode_rsa`; override with `SSH_TARGET` and `SSH_KEY`.
+The argument is a published tag: `latest` or `x.y.z`. Prefer a version tag for a fixed release; `latest` is mutable and is the fast path. The script defaults to `abtz@139.162.111.88` and `~/.ssh/linode_rsa`; override with `SSH_TARGET` and `SSH_KEY`.
 
 Sequence:
 

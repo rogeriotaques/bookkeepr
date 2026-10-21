@@ -15,7 +15,7 @@
 - Base image `node:22-alpine3.19` ships npm 10.9, but the committed lockfiles come from npm 11. `npm ci` with npm 10 fails with `Missing: @esbuild/linux-*@0.28.2 from lock file`; the Dockerfile pins `npm@11.17.0`.
 - `sqlite3` resolves a prebuilt binary on Alpine/musl for both `linux/arm64` and `linux/amd64`. No build tools are needed.
 - Use `**/node_modules/` and `**/dist/` in `.dockerignore`. Bare `node_modules/` does not match nested folders.
-- `docker build --platform <foreign>` needs BuildKit or buildx. A daemon without BuildKit fails at the first `COPY` step with "does not provide the specified platform".
+- Foreign-platform builds need `docker buildx`. The legacy builder fails at the first `COPY` with "does not provide the specified platform". Install with `brew install docker-buildx` and link it into `~/.docker/cli-plugins`. The publish script uses `docker buildx build --platform linux/amd64 --load`.
 - The container serves the API and the built SPA on port 8083. Mount `/bookkeepr/data` to persist the SQLite database.
 
 ## Release
@@ -25,6 +25,7 @@
 - The script builds `linux/amd64`, tags `abtzco/bookkeepr:<version>`, and pushes both `abtzco/bookkeepr:latest` and `abtzco/bookkeepr:<version>`.
 - The script updates only `frontend/package.json` and `backend/package.json`. The root `package.json` version does not change.
 - `--no-bump` skips the version prompt and `sed`. It requires the two `package.json` versions to match and exits with code 1 when they differ.
+- The script uses `set -e`: a failed build, tag, or push stops it. It no longer prints success after a failed step.
 
 ## Deploy
 
