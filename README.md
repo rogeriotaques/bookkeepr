@@ -6,7 +6,42 @@ BookKeepr - _/ˈbo͝o(k)ˌkēpər/_ - is a bookkeeping web app for small busines
 
 ![BookKeepr](assets/screenshot.png)
 
-Supports both `single-entry` and `double-entry` methods.
+Version 2 is a redesign of the 1.x transaction logger. It adds the dashboard, monthly budgets, a separate transactions page, keyboard navigation, and print-ready reports. Data stays in one SQLite file you own.
+
+## Features
+
+- **Dashboard** — one rule-based insight for the current month, annual planned vs. realized totals, an annual chart, budget progress, and the latest transactions.
+- **Transactions** — record, edit, and delete entries in one place. Search any text or amount and filter by month and year. A running balance and a selection calculator help you reconcile a statement.
+- **Planning** — set a monthly goal and plan income and expenses. Expense categories are marked `fixed` or `variable`, so the app can tell committed costs from discretionary spending.
+- **Annual report** — insights, charts, and a per-category table. Prints as A4 landscape.
+- **Settings** — categories, wallets, currency, consumption tax, database details, and the access password.
+- **Keyboard-first** — every screen works without a mouse. Press `?` to see all shortcuts.
+- **Mobile-first** — bottom tab bar on phones, top bar on desktop (1024px and wider).
+
+## Keyboard shortcuts
+
+`Cmd` means `⌘` on macOS and `Ctrl` on Windows and Linux. Press `?` in the app to open the full panel.
+
+| Key | Action |
+|---|---|
+| `?` | Show all shortcuts |
+| `g` `d` | Dashboard |
+| `g` `t` | Transactions |
+| `g` `p` | Planning |
+| `g` `r` | Report |
+| `g` `s` | Settings |
+| `Shift+L` | Log out |
+| `n` | New entry (Dashboard) or focus the amount (Transactions) |
+| `Cmd+S` | Save the entry or the plan |
+| `Cmd+K` or `/` | Focus the search field (Transactions) |
+| `j` / `k` | Move the row cursor in tables |
+| `Space` | Add or remove the focused row from the calculator |
+| `Enter` or `e` | Edit the focused row |
+| `Delete` or `Backspace` | Delete the focused row, with confirmation |
+| `[` / `]` | Previous / next month (or year) |
+| `t` | Current month (or year) |
+| `p` | Print the report |
+| `Esc` | Cancel, close, or clear |
 
 ## What is bookkeeping?
 
@@ -75,6 +110,9 @@ just start-frontend  # http://localhost:5173
 
 Next, open your preferred browser and visit to `http://localhost:5173` and happy coding 🤘
 
+> [!NOTE]
+> Local runs create and migrate `data/bookkeepr.db` in the repository root. Docker runs keep the same file in `/bookkeepr/data`, which you mount from the host.
+
 #### Other recipes:
 
 ```sh
@@ -135,9 +173,9 @@ docker run --rm --name bookkeepr -p 8090:8083 -v "$PWD/tmp-data:/bookkeepr/data"
 docker rm -f bookkeepr
 ```
 
-### Running the Docker image in `PRODUCTION `
+### Running the Docker image in production
 
-BookKeeper is ready to be deployed so you can use it on the cloud.
+BookKeepr is ready to be deployed so you can use it on the cloud.
 
 For that, you need to spare a server where you can deploy and run docker containers. These steps assume your server has Docker installed.
 
@@ -161,6 +199,9 @@ docker run -d --restart always --name bookkeepr -p 80:8083 -v /home/<USER>/bookk
 
 > [!NOTE]
 > If needed, adjust the host port number accordingly. By running the docker with the above command, all the data will be stored in your server's `/home/<USER>/bookkeepr/data` folder.
+
+> [!TIP]
+> The container serves both the SPA and the API on port 8083. If a reverse proxy or load balancer terminates TLS, bind the port to the loopback interface (`-p 127.0.0.1:8083:8083`) so port 8083 is not reachable directly.
 
 ### Publishing a new release (maintainers)
 
@@ -218,8 +259,11 @@ npm install -g node-gyp
 - npm 11.17+ (lockfile v3)
 - [`just`](https://github.com/casey/just) (task runner)
 - [`mise`](https://mise.jdx.dev) (optional; installs the pinned toolchain)
-- Vue 3.4+
-- SQLite
+- Vue 3.4+, Vue Router, Vue Query, Vite
+- [boring-css](https://github.com/rogeriotaques/boring-css) 2.0 (vendored) with `--bk-*` design tokens
+- Chart.js 4
+- Express, Knex, and SQLite (backend)
+- Vitest (frontend and backend tests)
 - Docker image `node:22-alpine3.19`
 
 ## Questions?

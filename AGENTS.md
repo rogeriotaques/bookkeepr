@@ -15,3 +15,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [Phase 1: Security](./docs/plans/phase-1-security.md)
 - [Phase 2: Architecture & Code Quality](./docs/plans/phase-2-architecture.md)
 - [Phase 3: UX Improvements](./docs/plans/phase-3-ux.md)
+- [Double-Entry Support](./docs/plans/2026-10-29-double-entry-support.md)
