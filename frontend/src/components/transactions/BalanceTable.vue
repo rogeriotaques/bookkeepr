@@ -6,10 +6,9 @@
     >
       <thead>
         <tr>
-          <th>Day</th>
-          <th width="25%">Description</th>
-          <th class="has-text-right">Outcome</th>
+          <th>Description</th>
           <th class="has-text-right">Income</th>
+          <th class="has-text-right">Outcome</th>
           <th class="has-text-right">Balance</th>
           <th>&nbsp;</th>
         </tr>
@@ -27,29 +26,31 @@
           }"
           @focus="onRowFocus(index)"
         >
-          <td @click="onRowClick(entry, index)">
-            <HighlightMatch :text="entry.date" :search="search" />
-          </td>
           <td
             class="balance-table__description"
             @click="onRowClick(entry, index)"
           >
-            <div><HighlightMatch :text="entry.description" :search="search" /></div>
-            <div>
-              <span class="badge">
-                <HighlightMatch :text="entry.groupName" :search="search" />
+            <div class="balance-table__meta">
+              <span class="balance-table__date">
+                <HighlightMatch :text="entry.date" :search="search" />
               </span>
-              <span class="badge">
-                <HighlightMatch :text="entry.walletName" :search="search" />
+              <span class="balance-table__tags">
+                <span class="badge">
+                  <HighlightMatch :text="entry.groupName" :search="search" />
+                </span>
+                <span class="badge">
+                  <HighlightMatch :text="entry.walletName" :search="search" />
+                </span>
               </span>
             </div>
+            <div><HighlightMatch :text="entry.description" :search="search" /></div>
           </td>
           <td
             class="has-text-right"
             @click="onRowClick(entry, index)"
           >
             <HighlightMatch
-              v-if="entry.operation === ENTRY_OPERATIONS.EXPENSE"
+              v-if="entry.operation === ENTRY_OPERATIONS.INCOME"
               :text="getFormattedCurrency(entry.amount)"
               :search="search"
             />
@@ -59,8 +60,8 @@
             @click="onRowClick(entry, index)"
           >
             <HighlightMatch
-              v-if="entry.operation === ENTRY_OPERATIONS.INCOME"
-              :text="getFormattedCurrency(entry.amount)"
+              v-if="entry.operation === ENTRY_OPERATIONS.EXPENSE"
+              :text="getFormattedCurrency(-entry.amount)"
               :search="search"
             />
           </td>
@@ -105,9 +106,6 @@
             <td>
               <BaseSkeleton />
             </td>
-            <td>
-              <BaseSkeleton />
-            </td>
             <td class="has-text-right">
               <BaseSkeleton />
             </td>
@@ -123,17 +121,17 @@
 
         <TableEmptyCard
           v-else-if="entries.length === 0"
-          :colspan="6"
+          :colspan="5"
         />
       </tbody>
       <tfoot v-if="!props.loading">
         <tr>
-          <th colspan="2">Total</th>
-          <th class="has-text-right">
-            {{ getFormattedCurrency(totalOutcome) }}
-          </th>
+          <th>Total</th>
           <th class="has-text-right">
             {{ getFormattedCurrency(totalIncome) }}
+          </th>
+          <th class="has-text-right">
+            {{ getFormattedCurrency(totalOutcome > 0 ? -totalOutcome : 0) }}
           </th>
           <th class="has-text-right">
             {{ getFormattedCurrency(finalBalance) }}
@@ -350,6 +348,10 @@ const onDeleteConfirmHandler = async () => {
 
 <style lang="scss" scoped>
 .balance-table {
+  // The columns below need ~705px. A query container lets the table switch to
+  // its own scroll box only when the column is narrower than that.
+  container-type: inline-size;
+
   table {
     th {
       font-family: Impact, sans-serif;
@@ -357,7 +359,7 @@ const onDeleteConfirmHandler = async () => {
 
     th,
     td {
-      padding: 8px 16px;
+      padding: 8px 12px;
       font-size: 18px;
       white-space: nowrap;
     }
@@ -366,8 +368,36 @@ const onDeleteConfirmHandler = async () => {
     // width so short text does not collapse the column.
     td.balance-table__description {
       white-space: normal;
-      min-width: 200px;
+      min-width: 160px;
     }
+  }
+
+  // The date and its badges ride above the description, smaller, so the
+  // description leads.
+  &__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  // Keep the badges together when the row wraps, so a narrow column never
+  // leaves one pill per line.
+  &__tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  &__date {
+    font-size: var(--bk-text-sm);
+    line-height: 1.4;
+    color: var(--bk-text-secondary);
+  }
+
+  &__description > div + div {
+    margin-top: 2px;
   }
 
   thead {
@@ -415,11 +445,9 @@ const onDeleteConfirmHandler = async () => {
   .badge {
     font-size: 0.65rem;
     padding: 2px 4px;
+    margin: 0;
     min-width: auto;
-
-    + .badge {
-      margin-left: 2px;
-    }
+    flex-shrink: 0;
   }
 
   &__actions {
@@ -504,6 +532,20 @@ const onDeleteConfirmHandler = async () => {
       display: flex;
       align-items: center;
     }
+  }
+}
+
+// The five nowrap columns need ~580px. Below that the table scrolls inside the
+// card; letting it keep `display: table` pushed it past the page gutter.
+@container (max-width: 580px) {
+  .balance-table table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  // A sticky header cannot work inside the horizontally-scrolling table.
+  .balance-table thead {
+    position: static !important;
   }
 }
 
