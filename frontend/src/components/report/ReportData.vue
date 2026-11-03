@@ -274,8 +274,13 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 <style lang="scss" scoped>
 .report {
   &__data {
-    padding: 24px 16px;
+    // Spacing lives outside the scroll box: padding inside it leaves a strip
+    // where rows scroll past the pinned category column.
+    margin: var(--bk-space-lg) 0;
+    // Sideways only. `clip` on the other axis keeps the box from ever growing
+    // a vertical scrollbar; the page stays the single vertical scroller.
     overflow-x: auto;
+    overflow-y: clip;
   }
 
   &__item-title {
@@ -289,6 +294,17 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 
 [class^='report__table'] {
   margin-top: 16px;
+
+  // The category column stays in view while the table scrolls sideways. The
+  // header row cannot pin to the page from inside this scroller, so it scrolls
+  // away with it.
+  th:first-child,
+  td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: var(--c-background);
+  }
 
   thead {
     background-color: var(--c-background);
@@ -323,8 +339,9 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
 @media print {
   .report__data {
     // The print area is the paper, not a scroll box.
+    margin: 0;
     padding: 0;
-    overflow-x: visible;
+    overflow: visible;
   }
 
   .report__item-title {
@@ -347,6 +364,13 @@ const getFormattedCurrency = (value: number) => formatCurrency(value, { currency
     td {
       padding: 2px 6px;
       white-space: nowrap;
+    }
+
+    // Undo the on-screen pinning. Repeat the same selector weight so these
+    // win over the sticky rules above.
+    th:first-child,
+    td:first-child {
+      position: static;
     }
 
     tr {
