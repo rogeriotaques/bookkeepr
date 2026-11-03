@@ -55,20 +55,33 @@ const datasets = computed(() => {
 
   if (!data) return [];
 
-  // The API returns each month's net. The chart shows the running annual
-  // balance instead, so January's net carries into February and so on.
-  const monthlyBalance = (data.balance ?? []).slice(1).map(Number);
-  let runningBalance = 0;
-  const annualBalance = monthlyBalance.map((amount) => {
-    runningBalance += amount;
-    return runningBalance;
-  });
+  // One series per operation, summed across every category, so the dashboard
+  // reads the same as the Report page chart.
+  const sumByMonth = (rows: any[]) =>
+    Array.from({ length: MONTHS.length }, (_, month) =>
+      rows.reduce((total, row) => total + Number(row[month + 1] ?? 0), 0)
+    );
 
-  const series: any[] = [
+  return [
     {
+      type: 'bar',
+      label: 'Income',
+      data: sumByMonth(data.income ?? []),
+      backgroundColor: 'rgba(55, 172, 40, 0.5)',
+      borderWidth: 1,
+    },
+    {
+      type: 'bar',
+      label: 'Outcome',
+      data: sumByMonth(data.outcome ?? []).map((amount) => -amount),
+      backgroundColor: 'rgba(165, 43, 43, 0.5)',
+      borderWidth: 1,
+    },
+    {
+      // Lifetime net worth, carried across years, exactly like the report.
       type: 'line',
       label: 'Balance',
-      data: annualBalance,
+      data: (data.netWorth ?? []).slice(1),
       borderColor: 'rgb(0, 0, 0)',
       backgroundColor: 'rgba(0, 0, 0, 0.1)',
       borderDash: [5, 5],
@@ -77,28 +90,6 @@ const datasets = computed(() => {
       tension: 0.2,
     },
   ];
-
-  (data.income ?? []).forEach((row: any[]) => {
-    series.push({
-      type: 'bar',
-      label: row[0],
-      data: row.slice(1).map(Number),
-      backgroundColor: 'rgba(55, 172, 40, 0.5)',
-      borderWidth: 1,
-    });
-  });
-
-  (data.outcome ?? []).forEach((row: any[]) => {
-    series.push({
-      type: 'bar',
-      label: row[0],
-      data: row.slice(1).map((amount) => -Number(amount)),
-      backgroundColor: 'rgba(165, 43, 43, 0.5)',
-      borderWidth: 1,
-    });
-  });
-
-  return series;
 });
 
 const hasData = computed(() => datasets.value.length > 0);
@@ -117,7 +108,7 @@ const chartOptions: any = {
   },
   plugins: {
     legend: {
-      position: 'left',
+      position: 'top',
       labels: {
         boxWidth: 12,
         boxHeight: 12,
@@ -141,7 +132,6 @@ const chartOptions: any = {
 
   &__canvas {
     position: relative;
-    // Tall enough for the left-hand legend, which can list every category.
     height: 420px;
   }
 

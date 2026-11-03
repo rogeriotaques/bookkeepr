@@ -4,9 +4,16 @@ import { ref, h, Suspense } from 'vue';
 import AnnualChart from '@/components/report/AnnualChart.vue';
 
 const reportData = {
-  income: [['01 - Salary', 100, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
-  outcome: [['02 - Rent', 50, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]],
-  balance: ['-', 50, 140, 140, 140, 140, 140, 140, 140, 140, 140, 140, 140],
+  income: [
+    ['01 - Salary', 100, 200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ['02 - Refund', 25, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  outcome: [
+    ['02 - Rent', 50, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ['03 - Food', 5, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  ],
+  balance: ['-', 70, 155, 155, 155, 155, 155, 155, 155, 155, 155, 155, 155],
+  netWorth: ['-', 2070, 2155, 2155, 2155, 2155, 2155, 2155, 2155, 2155, 2155, 2155, 2155],
   tax: ['-', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 };
 
@@ -63,11 +70,31 @@ describe('AnnualChart', () => {
     const chart = wrapper.findComponent({ name: 'Bar' });
     expect(chart.exists()).toBe(true);
     expect(chart.props('data').labels.length).toBe(12);
-    // One line (balance) + income + outcome series.
-    expect(chart.props('data').datasets.length).toBe(3);
+    // One consolidated series per operation, plus the balance line.
+    expect(chart.props('data').datasets.map((d: any) => d.label)).toEqual([
+      'Income',
+      'Outcome',
+      'Balance',
+    ]);
   });
 
-  it('plots the cumulative annual balance, not the monthly net', async () => {
+  it('consolidates every category into one series per operation', async () => {
+    (useDataFetch as any).mockReturnValue(mockFetch({ year: 2025, data: reportData }));
+
+    const wrapper = mountWithSuspense({ year: 2025 });
+    await flushPromises();
+
+    const chart = wrapper.findComponent({ name: 'Bar' });
+    const income = chart.props('data').datasets.find((d: any) => d.label === 'Income');
+    const outcome = chart.props('data').datasets.find((d: any) => d.label === 'Outcome');
+
+    // Jan: 100 + 25; Feb: 200 + 25.
+    expect(income.data.slice(0, 2)).toEqual([125, 225]);
+    // Expenses are drawn below zero: Jan: -(50 + 5); Feb: -(60 + 10).
+    expect(outcome.data.slice(0, 2)).toEqual([-55, -70]);
+  });
+
+  it('plots the lifetime net worth, not the monthly net', async () => {
     (useDataFetch as any).mockReturnValue(mockFetch({ year: 2025, data: reportData }));
 
     const wrapper = mountWithSuspense({ year: 2025 });
@@ -75,7 +102,7 @@ describe('AnnualChart', () => {
 
     const chart = wrapper.findComponent({ name: 'Bar' });
     const balance = chart.props('data').datasets.find((d: any) => d.label === 'Balance');
-    expect(balance.data).toEqual([50, 190, 330, 470, 610, 750, 890, 1030, 1170, 1310, 1450, 1590]);
+    expect(balance.data).toEqual(reportData.netWorth.slice(1));
   });
 
   it('shows an empty state when the report is empty', async () => {
