@@ -440,15 +440,9 @@ button > .icon,
   box-shadow: var(--s-box-shadow) var(--c-grey-dark);
   width: calc(100% - 4px);
   overflow: hidden;
-  transition: box-shadow 0.1s ease, transform 0.1s ease, background-color 0.1s ease;
 }
-.card:hover {
-  box-shadow: var(--s-box-shadow-hover) var(--c-grey-dark);
-  transform: var(--s-transform-hover);
-}
-.card:active {
-  box-shadow: var(--s-box-shadow-click) var(--c-grey-dark);
-  transform: var(--s-transform-click);
+.card :focus-visible {
+  outline-offset: calc(-1 * var(--s-border-width));
 }
 @media screen and (min-width: 480px) {
   .card {
@@ -509,12 +503,6 @@ button > .icon,
   background-color: var(--c-black);
   border-color: var(--c-smoke);
   box-shadow: var(--s-box-shadow) var(--c-white);
-}
-[data-mode=dark] .card:hover {
-  box-shadow: var(--s-box-shadow-hover) var(--c-white);
-}
-[data-mode=dark] .card:active {
-  box-shadow: var(--s-box-shadow-click) var(--c-white);
 }
 [data-mode=dark] .card__header {
   background-color: var(--c-grey-dark);

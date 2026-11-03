@@ -209,16 +209,20 @@ const onConfirmHandler = () => {
     }
 
     &--disabled,
-    &:hover {
+    &:hover,
+    &:focus {
       &#{$class}--success {
+        color: var(--c-white);
         background-color: color.adjust(#37ac28, $lightness: -10%);
       }
 
       &#{$class}--warning {
+        color: var(--c-white);
         background-color: color.adjust(#d4b228, $lightness: -10%);
       }
 
       &#{$class}--danger {
+        color: var(--c-white);
         background-color: color.adjust(#a52b2b, $lightness: -10%);
       }
     }
