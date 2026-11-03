@@ -54,6 +54,10 @@
   --bk-bottom-nav-height: 64px;
   --bk-max-width: 600px;
   --bk-max-width-wide: 1180px;
+  // Height of the sticky desktop navigation bar. Anything that sticks below
+  // it (table header, entry form) offsets by this value; the Dashboard sets
+  // the real height at the desktop breakpoint.
+  --bk-sticky-nav: 0px;
   --bk-safe-area-top: env(safe-area-inset-top, 0px);
   --bk-safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }

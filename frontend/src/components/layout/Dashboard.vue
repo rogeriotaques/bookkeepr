@@ -250,6 +250,10 @@ const onConfirmLogout = () => {
   .dashboard {
     padding-bottom: 0;
 
+    // Sticky rows below the bar measure their offset against this. The bar is
+    // `8px` of padding, the tabs' touch target and the `1px` bottom border.
+    --bk-sticky-nav: 65px;
+
     &__nav {
       position: sticky;
       top: 0;
@@ -268,6 +272,10 @@ const onConfirmLogout = () => {
 
     &__content {
       padding-top: var(--bk-space-lg);
+      // The page scrolls, not this box. Leaving `overflow-y: auto` here made
+      // the box a scroll container that never scrolls, which stopped every
+      // `position: sticky` child (form, table header) from sticking.
+      overflow-y: visible;
     }
 
     &__footer {

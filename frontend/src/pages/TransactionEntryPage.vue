@@ -190,6 +190,13 @@ const invalidateAfterSave = () =>
         max(0px, (100% - var(--bk-max-width-wide)) / 2) + var(--bk-space-md)
       );
     }
+
+    // The month's list scrolls; the form stays in reach, a gutter below the
+    // sticky navigation bar.
+    &__main {
+      position: sticky;
+      top: calc(var(--bk-sticky-nav) + var(--bk-space-sm));
+    }
   }
 }
 </style>
