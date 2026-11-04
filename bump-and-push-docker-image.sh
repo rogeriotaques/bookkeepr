@@ -43,6 +43,12 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
+# Make sure gh (GitHub CLI) is available
+if ! command -v gh &> /dev/null; then
+  echo "gh (GitHub CLI) is not installed. Install it and try again."
+  exit 1
+fi
+
 # Make sure docker is running
 # If not running, return an error
 if ! docker info &> /dev/null; then
@@ -139,6 +145,18 @@ echo ""
 # Push the version tag
 docker push abtzco/bookkeepr:$NEW_VERSION
 echo "Docker version tag pushed"
+echo ""
+
+# Create the GitHub release for the tag
+if gh release view "$NEW_VERSION" > /dev/null 2>&1; then
+  echo "GitHub release $NEW_VERSION already exists"
+else
+  gh release create "$NEW_VERSION" \
+    --title "$NEW_VERSION" \
+    --generate-notes \
+    --verify-tag
+  echo "GitHub release $NEW_VERSION created"
+fi
 echo ""
 
 echo "All done!"
