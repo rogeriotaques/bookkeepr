@@ -148,14 +148,33 @@
     :class="{ 'balance-table__selected-entries--negative': totalSelected < 0 }"
   >
     <div class="balance-table__selected-entries-data">
-      <label>Calculator:</label>
+      <IconCalculator
+        class="balance-table__selected-entries-icon"
+        aria-label="Calculator"
+        role="img"
+      />
       <h5>( {{ selectedEntries.length }} )</h5>
       <h5>{{ getFormattedCurrency(totalSelected) }}</h5>
     </div>
     <div class="balance-table__selected-entries-action">
+      <span
+        role="status"
+        class="balance-table__copy-status"
+      >{{ isCopied ? 'Copied' : '' }}</span>
       <button
         type="button"
-        class="link"
+        class="has-tooltip"
+        aria-label="Copy calculator total"
+        :data-tooltip="isCopied ? 'Copied' : 'Copy total'"
+        :class="{ 'is-copied': isCopied }"
+        @click="onCopyTotal"
+      >
+        <IconCheck v-if="isCopied" />
+        <IconCopy v-else />
+      </button>
+      <button
+        type="button"
+        class="balance-table__selected-entries-close"
         aria-label="Clear calculator selection"
         @click="selectedEntries = []"
       >
@@ -183,8 +202,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
-import { IconEdit, IconTrash, IconEye, IconLoader2, IconX } from '@tabler/icons-vue';
+import { ref, computed, nextTick, onBeforeUnmount } from 'vue';
+import { IconEdit, IconTrash, IconEye, IconLoader2, IconX, IconCopy, IconCheck, IconCalculator } from '@tabler/icons-vue';
 import { useToast } from 'vue-toastification';
 
 import { ExtendedEntry, CurrencyLocale } from '@/domain/interfaces';
@@ -222,6 +241,7 @@ const editingEntry = ref<ExtendedEntry | null>(null);
 const isDeleteModalOpen = ref(false);
 const isDeleting = ref(false);
 const selectedEntries = ref<ExtendedEntry[]>([]);
+const isCopied = ref(false);
 
 const entries = computed(() => {
   const entries = props.data.map((entry) => ({ ...entry, balance: 0 }));
@@ -310,6 +330,45 @@ const onEntryClickHandler = (entry: ExtendedEntry) => {
 
   selectedEntries.value.push(entry);
 };
+
+const copyFeedbackTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+// navigator.clipboard only exists in secure contexts; self-hosted setups on
+// plain HTTP still need a working copy button.
+const writeToClipboard = async (text: string) => {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const field = document.createElement('textarea');
+  field.value = text;
+  field.setAttribute('readonly', '');
+  field.style.position = 'fixed';
+  field.style.opacity = '0';
+  document.body.append(field);
+  field.select();
+  document.execCommand('copy');
+  field.remove();
+};
+
+const onCopyTotal = async () => {
+  try {
+    await writeToClipboard(String(totalSelected.value));
+  } catch {
+    return;
+  }
+
+  isCopied.value = true;
+  if (copyFeedbackTimer.value) clearTimeout(copyFeedbackTimer.value);
+  copyFeedbackTimer.value = setTimeout(() => {
+    isCopied.value = false;
+  }, 1500);
+};
+
+onBeforeUnmount(() => {
+  if (copyFeedbackTimer.value) clearTimeout(copyFeedbackTimer.value);
+});
 
 const onDeleteHandler = (id: number) => {
   const entry = props.data.find((entry) => entry.id === id);
@@ -494,10 +553,6 @@ const onDeleteConfirmHandler = async () => {
       box-shadow: none;
       cursor: pointer;
 
-      &::before {
-        content: none !important;
-      }
-
       &:not(:disabled):hover,
       &:not(:disabled):focus {
         background: transparent;
@@ -505,9 +560,23 @@ const onDeleteConfirmHandler = async () => {
         transform: none;
       }
 
-      &:hover {
+      &:hover,
+      &:focus-visible {
+        > svg {
+          stroke: var(--c-info);
+        }
+      }
+
+      &.balance-table__selected-entries-close:hover,
+      &.balance-table__selected-entries-close:focus-visible {
         > svg {
           stroke: var(--c-danger);
+        }
+      }
+
+      &.is-copied {
+        > svg {
+          stroke: var(--c-success);
         }
       }
     }
@@ -519,6 +588,10 @@ const onDeleteConfirmHandler = async () => {
       h5 {
         color: var(--c-danger);
       }
+
+      .balance-table__selected-entries-icon {
+        color: var(--c-danger);
+      }
     }
 
     &-data {
@@ -528,10 +601,42 @@ const onDeleteConfirmHandler = async () => {
       gap: 8px;
     }
 
+    &-icon {
+      flex: 0 0 auto;
+      color: var(--bk-text-secondary);
+    }
+
+    // The bar hugs the right edge, so the tooltip grows leftwards instead of
+    // centring on the button and clipping off screen.
+    .has-tooltip::after {
+      left: auto;
+      right: 0;
+      transform: translateY(-100%);
+    }
+
+    .has-tooltip::before {
+      left: auto;
+      right: calc((var(--bk-touch-min) - 16px) / 2);
+      transform: none;
+    }
+
     &-action {
       flex: 0 0 auto;
       display: flex;
       align-items: center;
+      gap: 2px;
+      margin-left: var(--bk-space-sm);
+      padding-left: var(--bk-space-sm);
+      border-left: 1px solid var(--c-border);
+    }
+
+    &-copy-status {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
     }
   }
 }
