@@ -461,8 +461,9 @@ const onDeleteConfirmHandler = async () => {
 
   thead {
     position: sticky;
-    // Sits flush under the sticky desktop navigation bar.
-    top: var(--bk-sticky-nav);
+    // Sits under the sticky desktop navigation bar, and under the page's own
+    // sticky filters when a caller sets `--bk-table-sticky-top`.
+    top: var(--bk-table-sticky-top, var(--bk-sticky-nav));
     background-color: var(--c-background);
   }
 

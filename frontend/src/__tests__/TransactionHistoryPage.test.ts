@@ -98,6 +98,20 @@ describe('TransactionHistoryPage', () => {
     expect(wrapper.findComponent({ name: 'BalanceFilterForm' }).exists()).toBe(true);
   });
 
+  it('pins the filters above the table and offsets the sticky header', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, { global: { stubs } });
+    await flushPromises();
+
+    const filters = wrapper.find('.history-page__filters');
+    expect(filters.exists()).toBe(true);
+    expect(filters.findComponent({ name: 'BalanceFilterForm' }).exists()).toBe(true);
+
+    // jsdom has no layout, so the measured height is 0.
+    expect(wrapper.find('.history-page').attributes('style')).toContain(
+      '--bk-table-sticky-top: calc(var(--bk-sticky-nav) + 0px)'
+    );
+  });
+
   it('keeps the summary in step with the selected year and month', async () => {
     const calls: Record<string, any[]> = {};
 

@@ -1,5 +1,8 @@
 <template>
-  <div class="history-page">
+  <div
+    class="history-page"
+    :style="{ '--bk-table-sticky-top': tableStickyTop }"
+  >
     <!-- Planned vs realized: table and progress, side by side when wide -->
     <div v-if="!isLoading" class="history-page__summary">
       <PlannedRealizedTable
@@ -12,13 +15,18 @@
       />
     </div>
 
-    <BalanceFilterForm
-      v-model:year="year"
-      v-model:month="month"
-      v-model:search="search"
-      :years="recordedYears"
-      :loading="isRecordedYearsLoading"
-    />
+    <div
+      ref="filtersRef"
+      class="history-page__filters"
+    >
+      <BalanceFilterForm
+        v-model:year="year"
+        v-model:month="month"
+        v-model:search="search"
+        :years="recordedYears"
+        :loading="isRecordedYearsLoading"
+      />
+    </div>
 
     <BalanceTable
       :data="entries"
@@ -34,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { useElementSize } from '@vueuse/core';
 import dayjs from 'dayjs';
 
 import BalanceTable from '@/components/transactions/BalanceTable.vue';
@@ -63,6 +72,15 @@ const emit = defineEmits<Emits>();
 const year = ref(`${dayjs().year()}`);
 const month = ref(`00${dayjs().month() + 1}`.slice(-2));
 const search = ref('');
+
+// The filters stick under the navigation bar. The table header has to start
+// below them, and the bars change height with the breakpoint, so measure them
+// instead of hard-coding an offset.
+const filtersRef = ref<HTMLElement | null>(null);
+const { height: filtersHeight } = useElementSize(filtersRef);
+const tableStickyTop = computed(
+  () => `calc(var(--bk-sticky-nav) + ${filtersHeight.value}px)`
+);
 
 // The summary and the progress bar follow the year/month filter, so the
 // composables get reactive sources rather than a snapshot of the mount month.
@@ -168,6 +186,16 @@ watch([year, month], () => {
     gap: var(--bk-space-lg);
     align-items: stretch;
     margin-bottom: var(--bk-space-lg);
+  }
+
+  // Sticky search and filters, flush under the navigation bar. The table
+  // header offsets by this bar's measured height (see `--bk-table-sticky-top`
+  // on the root element) so the two stack instead of overlapping.
+  &__filters {
+    position: sticky;
+    top: var(--bk-sticky-nav);
+    z-index: 5;
+    background: var(--c-background);
   }
 }
 </style>
