@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount, RouterLinkStub, flushPromises } from '@vue/test-utils';
-import { ref, h, Suspense, toValue } from 'vue';
+import { ref, h, Suspense, toValue, reactive } from 'vue';
 import TransactionHistoryPage from '@/pages/TransactionHistoryPage.vue';
 import {
   installHotkeyDispatcher,
@@ -28,13 +28,14 @@ vi.mock('@/composable/useMonthlyReport', () => ({
 }));
 
 const mountWithSuspense = (component: any, options: any = {}) => {
+  const { props, ...mountOptions } = options;
   return mount(
     {
       render() {
-        return h(Suspense, null, { default: () => h(component) });
+        return h(Suspense, null, { default: () => h(component, props) });
       },
     },
-    options
+    mountOptions
   );
 };
 
@@ -96,6 +97,71 @@ describe('TransactionHistoryPage', () => {
     await flushPromises();
     expect(wrapper.findComponent({ name: 'BalanceTable' }).exists()).toBe(true);
     expect(wrapper.findComponent({ name: 'BalanceFilterForm' }).exists()).toBe(true);
+  });
+
+  it('follows the reference date when the entry form changes month', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, {
+      props: { referenceDate: '2025-12-15' },
+      global: { stubs },
+    });
+    await flushPromises();
+
+    const filters = wrapper.findComponent({ name: 'BalanceFilterForm' });
+    expect(filters.props('year')).toBe('2025');
+    expect(filters.props('month')).toBe('12');
+  });
+
+  it('follows the reference date when it moves to another month', async () => {
+    const props = reactive({ referenceDate: '2025-12-15' });
+    const wrapper = mountWithSuspense(TransactionHistoryPage, {
+      props,
+      global: { stubs },
+    });
+    await flushPromises();
+
+    const filters = wrapper.findComponent({ name: 'BalanceFilterForm' });
+    expect(filters.props('year')).toBe('2025');
+    expect(filters.props('month')).toBe('12');
+
+    props.referenceDate = '2026-03-02';
+    await flushPromises();
+
+    expect(filters.props('year')).toBe('2026');
+    expect(filters.props('month')).toBe('03');
+  });
+
+  it('reports the chosen month back to the reference date', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, {
+      props: { referenceDate: '2026-11-04' },
+      global: { stubs },
+    });
+    await flushPromises();
+
+    const filters = wrapper.findComponent({ name: 'BalanceFilterForm' });
+    filters.vm.$emit('update:year', '2025');
+    filters.vm.$emit('update:month', '08');
+    await flushPromises();
+
+    const history = wrapper.findComponent(TransactionHistoryPage);
+    const events = history.emitted('update:referenceDate') as string[][];
+    expect(events.at(-1)?.[0]).toBe('2025-08-04');
+  });
+
+  it('clamps the reference day when the new month is shorter', async () => {
+    const wrapper = mountWithSuspense(TransactionHistoryPage, {
+      props: { referenceDate: '2026-01-31' },
+      global: { stubs },
+    });
+    await flushPromises();
+
+    wrapper
+      .findComponent({ name: 'BalanceFilterForm' })
+      .vm.$emit('update:month', '02');
+    await flushPromises();
+
+    const history = wrapper.findComponent(TransactionHistoryPage);
+    const events = history.emitted('update:referenceDate') as string[][];
+    expect(events.at(-1)?.[0]).toBe('2026-02-28');
   });
 
   it('pins the filters above the table and offsets the sticky header', async () => {

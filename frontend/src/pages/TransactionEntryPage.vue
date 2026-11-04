@@ -13,11 +13,13 @@
           :locale="locale"
           @submit="onSubmitHandler"
           @cancel="resetForm"
+          @date-change="onDateChangeHandler"
         />
       </div>
 
       <div class="entry-page__side">
         <TransactionHistoryPage
+          v-model:reference-date="referenceDate"
           :editing="editingId"
           @edit="onEditHandler"
         />
@@ -27,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, watch } from 'vue';
 import { useToast } from 'vue-toastification';
 import { useQueryClient } from '@tanstack/vue-query';
 import dayjs from 'dayjs';
@@ -59,6 +61,21 @@ const form = reactive({
 const editingId = computed(() => form.id);
 const isEditing = computed(() => form.id !== null);
 
+// The month the transactions list shows. It follows the date the user picks in
+// the form but, unlike `form.date`, it survives `resetForm`, so saving an edit
+// does not yank the list back to the current month.
+const referenceDate = ref(form.date);
+
+const onDateChangeHandler = (date: string) => {
+  referenceDate.value = date;
+};
+
+// The list owns the month after a filter change; mirror it into the form so
+// both sides always show the same reference month.
+watch(referenceDate, (date) => {
+  if (form.date !== date) form.date = date;
+});
+
 const locale = computed(() => {
   const { config } = settingsData?.value || ({} as any);
   return {
@@ -83,6 +100,7 @@ const onEditHandler = (entry: ExtendedEntry) => {
   form.group = entry.group;
   form.wallet = entry.wallet;
   form.date = entry.date;
+  referenceDate.value = entry.date;
 };
 
 const onSubmitHandler = async () => {

@@ -7,6 +7,7 @@
           <DateInput
             v-model="data.date"
             ref="dateRef"
+            @update:model-value="emit('date-change', $event)"
             @keypress.capture.enter="onHitEnterHandler"
           />
         </div>
@@ -130,6 +131,7 @@ const props = withDefaults(defineProps<Props>(), {
 interface Emits {
   (event: 'submit'): void;
   (event: 'cancel'): void;
+  (event: 'date-change', value: string): void;
 }
 
 const emit = defineEmits<Emits>();

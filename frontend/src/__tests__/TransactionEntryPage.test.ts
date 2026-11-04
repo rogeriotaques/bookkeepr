@@ -152,6 +152,87 @@ describe('TransactionEntryPage', () => {
     });
   });
 
+  it('follows the date picked in the entry form', async () => {
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
+    await flushPromises();
+
+    const history = wrapper.findComponent({ name: 'TransactionHistoryPage' });
+    const form = wrapper.findComponent({ name: 'EntryForm' });
+
+    expect(history.props('referenceDate')).toBe((form.props('data') as any).date);
+
+    form.vm.$emit('date-change', '2026-08-09');
+    await flushPromises();
+
+    expect(history.props('referenceDate')).toBe('2026-08-09');
+  });
+
+  it('keeps the list month after saving an edit resets the form date', async () => {
+    updateEntryMock.mockResolvedValue({ success: true });
+
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
+    await flushPromises();
+
+    const form = wrapper.findComponent({ name: 'EntryForm' });
+    const history = wrapper.findComponent({ name: 'TransactionHistoryPage' });
+
+    const entry = {
+      id: 7,
+      amount: 1200,
+      description: 'Lunch',
+      group: '10',
+      wallet: 1,
+      date: '2026-08-09',
+      groupName: 'Food',
+      walletName: 'Cash',
+      operation: 'outcome',
+      hasMatch: false,
+    };
+
+    history.vm.$emit('edit', entry);
+    await flushPromises();
+
+    form.vm.$emit('submit');
+    await flushPromises();
+
+    // The form date goes back to today; the list must not jump away from the
+    // month the user was working in.
+    expect((form.props('data') as any).date).not.toBe('2026-08-09');
+    expect(history.props('referenceDate')).toBe('2026-08-09');
+  });
+
+  it('moves the entry form date when the list changes month', async () => {
+    const wrapper = mountWithSuspense(TransactionEntryPage, { global: { stubs } });
+    await flushPromises();
+
+    const history = wrapper.findComponent({ name: 'TransactionHistoryPage' });
+    const form = wrapper.findComponent({ name: 'EntryForm' });
+
+    history.vm.$emit('update:referenceDate', '2026-08-09');
+    await flushPromises();
+
+    expect((form.props('data') as any).date).toBe('2026-08-09');
+  });
+
+  it('forwards the date typed in the entry form to the list month', async () => {
+    const wrapper = mountWithSuspense(TransactionEntryPage, {
+      global: {
+        stubs: {
+          BaseDropdown: true,
+          TransactionHistoryPage: true,
+          RouterLink: RouterLinkStub,
+        },
+      },
+    });
+    await flushPromises();
+
+    wrapper.findComponent({ name: 'DateInput' }).vm.$emit('update:modelValue', '2026-08-09');
+    await flushPromises();
+
+    const history = wrapper.findComponent({ name: 'TransactionHistoryPage' });
+    expect(history.props('referenceDate')).toBe('2026-08-09');
+  });
+
   it('loads the selected entry into the form and updates it', async () => {
     updateEntryMock.mockResolvedValue({ success: true });
 

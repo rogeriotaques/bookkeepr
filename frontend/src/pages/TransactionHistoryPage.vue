@@ -57,14 +57,17 @@ import { useMonthlyReport } from '@/composable/useMonthlyReport';
 
 interface Props {
   editing?: number | null;
+  referenceDate?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   editing: null,
+  referenceDate: '',
 });
 
 interface Emits {
   (e: 'edit', entry: ExtendedEntry): void;
+  (e: 'update:referenceDate', value: string): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -88,6 +91,24 @@ const selectedYear = computed(() => Number(year.value));
 const selectedMonth = computed(() => Number(month.value));
 
 const padMonth = (value: number) => `00${value}`.slice(-2);
+const padDay = (value: number) => `00${value}`.slice(-2);
+
+// The entry form's date owns the reference month: type a September date and
+// the list switches to September. Runs before the entries query below, so the
+// first fetch already asks for the right month.
+watch(
+  () => props.referenceDate,
+  (date) => {
+    if (!date) return;
+
+    const parsed = dayjs(date);
+    if (!parsed.isValid()) return;
+
+    year.value = String(parsed.year());
+    month.value = padMonth(parsed.month() + 1);
+  },
+  { immediate: true }
+);
 
 const stepMonth = (delta: number) => {
   const next = Number(month.value) + delta;
@@ -167,10 +188,25 @@ const realized = computed(() => ({
   expense: Number(report.value?.realized?.expense ?? 0),
 }));
 
+// Keep the entry form's date in the same month as the filters. The day is
+// preserved; January 31st becomes February 28th (or 29th) in a shorter month.
+const reportReferenceDate = () => {
+  const reference = dayjs(props.referenceDate);
+  const monthStart = dayjs(`${year.value}-${month.value}-01`);
+  const sameMonth =
+    reference.isValid() && reference.format('YYYY-MM') === monthStart.format('YYYY-MM');
+
+  if (sameMonth) return;
+
+  const day = reference.isValid() ? Math.min(reference.date(), monthStart.daysInMonth()) : 1;
+  emit('update:referenceDate', `${year.value}-${month.value}-${padDay(day)}`);
+};
+
 watch([year, month], () => {
   search.value = '';
   invalidateEntriesQuery();
   invalidateRecordedYearsQuery();
+  reportReferenceDate();
 });
 </script>
 
